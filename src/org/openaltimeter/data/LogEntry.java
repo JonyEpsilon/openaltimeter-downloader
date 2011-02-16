@@ -21,11 +21,14 @@ package org.openaltimeter.data;
 
 public class LogEntry {
 	
-	public int pressure;
+	public long pressure;
 	public double temperature;
 	public double battery;
 	public double altitudeFt;
 	public double altitudeM;
+	public byte servo;
+	
+	private static final long MAX_PRESSURE = 131071;
 	
 	public LogEntry() {}
 	
@@ -33,37 +36,37 @@ public class LogEntry {
 	// part of a larger array - the bytes starting at offset will be used.
 	public LogEntry(byte[] data, int os)
 	{
-		pressure = bytesToInt(data[os + 0], data[os + 1], data[os + 2], data[os + 3]);
-		temperature = (double)bytesToInt(data[os + 4], data[os + 5], data[os + 6], data[os + 7]) / 10.0;
-		battery = bytesToFloat(data[os + 8], data[os + 9], data[os + 10], data[os + 11]);
-
+		// representation of data in 32 bits of Long:
+		// bits 1 .. 17 => pressure, 18 .. 25 => 26 .. 32 => temperature
+		long bits = bytesToLong(data[os + 0], data[os + 1], data[os + 2], data[os + 3]);
+		
+		pressure = (bits >> 15) < MAX_PRESSURE ? bits >> 15 : -1;
+		// temperature has 10 degrees offset, to represent range -10 to +54 degrees 
+		temperature = (bits & 0x7FL) / 2.0 - 10;
+		// battery has 2V offset, to represent range 2 to 14,8V
+		battery = ((bits >> 7) & 0xFFL) / 20.0 + 2;
+		
+		servo = data[os + 4];
 	}
 	
 	public String rawDataToString()
 	{
-		return "P: " + pressure + " T: " + temperature + " B: " + battery;
+		return "P: " + pressure + " T: " + temperature + " B: " + battery + " S: " + servo;
 	}
-	
-	// I'm sure there must be a way to do this built in, but I can't find it.
-	// This assumes little-endian byte order, suitable for AVR-GCC
-	private int bytesToInt(byte b0, byte b1, byte b2, byte b3)
+
+	// Transformation of bytes to Long representing compressed data 
+	private long bytesToLong(byte b0, byte b1, byte b2, byte b3)
 	{
-		int i = 0;
-		i += ((int)b3 & 0x000000FF) << 24;
-		i += ((int)b2 & 0x000000FF) << 16;
-		i += ((int)b1 & 0x000000FF) << 8;
-		i += ((int)b0 & 0x000000FF);
-		return i;
-	}
-	
-	private float bytesToFloat(byte b0, byte b1, byte b2, byte b3)
-	{
-		int i = 0;
-		i += ((int)b3 & 0x000000FF) << 24;
-		i += ((int)b2 & 0x000000FF) << 16;
-		i += ((int)b1 & 0x000000FF) << 8;
-		i += ((int)b0 & 0x000000FF);
-		return Float.intBitsToFloat(i);
+		long retVal = 0;
+
+        long firstByte = b0 < 0 ? b0 + 256 : b0;
+        long secondByte = b1 < 0 ? b1 + 256 : b1;
+        long thirdByte = b2 < 0 ? b2 + 256 : b2;
+        long fourthByte = b3 < 0 ? b3 + 256 : b3;
+        
+		retVal = ((firstByte << 24) | (secondByte << 16) | (thirdByte << 8) | fourthByte) & 0xFFFFFFFFL;
+		
+		return retVal;
 	}
 
 	public void fromRawData(String line) {
@@ -73,10 +76,15 @@ public class LogEntry {
 			pressure = Integer.parseInt(splitLine[2]);
 			temperature = Double.parseDouble(splitLine[5]);
 			battery = Double.parseDouble(splitLine[8]);	
+			if (splitLine.length >= 12) 
+				servo = Byte.parseByte(splitLine[11]);
+			else
+				servo = 0;
 		} else {
 			pressure = -1;
 			temperature = -1;
 			battery = 0.0;
+			servo = 0;
 		}
 	}
 

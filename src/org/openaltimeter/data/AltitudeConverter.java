@@ -21,7 +21,7 @@ package org.openaltimeter.data;
 
 public class AltitudeConverter {
 	
-	public static double altitudeMFromPressure(int pressure, double basePressure)
+	public static double altitudeMFromPressure(long pressure, double basePressure)
 	{
 		return 44330.0 * (1 - Math.pow(pressure / basePressure, 1/5.25));
 	}

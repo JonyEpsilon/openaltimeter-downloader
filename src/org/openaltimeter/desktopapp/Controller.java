@@ -46,6 +46,15 @@ public class Controller {
 	Altimeter altimeter;
 	MainWindow window;
 	FlightLog flightLog;
+	private boolean unitFeet;
+
+	public void setUnitFeet(boolean unitFeet) {
+		this.unitFeet = unitFeet;
+	}
+
+	public boolean isUnitFeet() {
+		return unitFeet;
+	}
 
 	/**
 	 * @param args
@@ -166,9 +175,15 @@ public class Controller {
 	public void setFlightLog(FlightLog log)
 	{
 		flightLog = log;
-		window.setAltitudeData(log.getAltitudeFt(), LOG_INTERVAL);
+		
+		if (isUnitFeet())
+			window.setAltitudeData(log.getAltitudeFt(), LOG_INTERVAL);
+		else
+			window.setAltitudeData(log.getAltitudeM(), LOG_INTERVAL);
+		
 		window.setBatteryData(log.getBattery(), LOG_INTERVAL);
 		window.setTemperatureData(log.getTemperature(), LOG_INTERVAL);
+		window.setServoData(log.getServo(), LOG_INTERVAL);
 	}
 	
 	public void saveRaw() {
@@ -181,6 +196,19 @@ public class Controller {
 		} catch (IOException e) {
 			window.log("Error writing file. Please check the filename and try again.", "error");
 		}
+	}
+	
+	public void saveRawSelection(double lower, double upper) {
+		System.out.println("Lower: " + lower + " Upper: " + upper);
+		File f = window.showSaveDialog();
+		if (f == null) return;
+		try {
+			FileWriter fw = new FileWriter(f);
+			fw.write(flightLog.rawDataToString((int) (lower / LOG_INTERVAL), (int) (upper / LOG_INTERVAL)));
+			fw.close();
+		} catch (IOException e) {
+			window.log("Error writing file. Please check the filename and try again.", "error");
+		}		
 	}
 	
 	public void saveProcessed() {
@@ -221,7 +249,7 @@ public class Controller {
 			log("Unable to parse file. Are you sure that this is a raw data file?", "error");
 		}
 		setFlightLog(fl);
-		
+		window.setDataState(DataState.HAVE_DATA);
 	}
 
 	public void loadProcessedData() {
@@ -245,6 +273,7 @@ public class Controller {
 	//						.use("annotations.values", Annotation.class)
 							.deserialize(fileStringBuilder.toString());
 		setFlightLog(fl);
+		window.setDataState(DataState.HAVE_DATA);
 	}
 
 	public void exit() {
@@ -273,4 +302,21 @@ public class Controller {
 	public void temperaturePlotSelectedChange(boolean selected) {
 		window.setTemperaturePlotVisible(selected);		
 	}
+
+	public void servoPlotSelectedChange(boolean selected) {
+		window.setServoPlotVisible(selected);		
+	}
+
+	public void unitSelectedChange(boolean selected) {
+		this.setUnitFeet(selected);
+		window.setPlotUnit(selected);
+		
+		if (flightLog != null) {
+			if (isUnitFeet()) 
+				window.setAltitudeData(flightLog.getAltitudeFt(), LOG_INTERVAL);
+			else
+				window.setAltitudeData(flightLog.getAltitudeM(), LOG_INTERVAL);
+		}
+	}
+
 }

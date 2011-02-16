@@ -30,6 +30,7 @@ public class FlightLog {
 	public ArrayList<Annotation> annotations = new ArrayList<Annotation>();
 	
 	private static final int BASE_PRESSURE_SAMPLES = 20;
+	private static final long PRESSURE_EMPTY_DATA = -1;
 	
 	public void add(LogEntry entry) {
 		logData.add(entry);
@@ -43,7 +44,7 @@ public class FlightLog {
 		for (int i = startIndex; (i < startIndex + BASE_PRESSURE_SAMPLES) && (i < logData.size()); i++)
 		{
 			LogEntry le = logData.get(i);
-			if (le.pressure != -1) {
+			if (le.pressure != PRESSURE_EMPTY_DATA) {
 				count++;
 				basePressure += le.pressure;
 			}
@@ -63,7 +64,7 @@ public class FlightLog {
 		{
 			LogEntry le = logData.get(i);
 			
-			if (le.pressure != -1) {
+			if (le.pressure != PRESSURE_EMPTY_DATA) {
 				if (basePressure == 0) 
 					basePressure = calculateBasePressure(i);
 				
@@ -88,7 +89,14 @@ public class FlightLog {
 	public double[] getAltitudeFt() {
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).altitudeFt;
+		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).altitudeFt : 0;
+		return data;
+	}
+	
+	public double[] getAltitudeM() {
+		int numPoints = logData.size();
+		double[] data = new double[numPoints];
+		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).altitudeM : 0;
 		return data;
 	}
 	
@@ -96,22 +104,34 @@ public class FlightLog {
 	{
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).battery;
+		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).battery : 0;
 		return data;
 	}
 
 	public double[] getTemperature() {
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).temperature;
+		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).temperature : 0;
 		
 		return data;
 	}
 
-	public String rawDataToString() {
+	public double[] getServo()
+	{
+		int numPoints = logData.size();
+		double[] data = new double[numPoints];
+		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).servo : 0;
+		return data;
+	}
+	
+	public String rawDataToString(int lower, int upper) {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < logData.size(); i++) sb.append(logData.get(i).rawDataToString() + "\r\n");
+		for (int i = lower; i < upper; i++) sb.append(logData.get(i).rawDataToString() + "\r\n");
 		return sb.toString();
+	}
+
+	public String rawDataToString() {
+		return rawDataToString(0, logData.size());
 	}
 	
 	public void fromRawData(String rawData) throws IOException {
