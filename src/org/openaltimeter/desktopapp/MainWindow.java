@@ -20,23 +20,15 @@ package org.openaltimeter.desktopapp;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
-
-import java.util.prefs.*;
+import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -67,28 +59,19 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.AbstractXYAnnotation;
-import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYDrawableAnnotation;
 import org.jfree.chart.annotations.XYLineAnnotation;
-import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.entity.XYAnnotationEntity;
-import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.AxisChangeListener;
-import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.chart.title.Title;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.TextAnchor;
-import org.jfree.util.ShapeUtilities;
 
 public class MainWindow {
 
@@ -118,7 +101,6 @@ public class MainWindow {
 	private JMenuItem mntmSaveSelectionData;
 	private JMenuItem mntmSaveProcessedData;
 	private JFreeChart chart;
-	private AbstractXYAnnotation lastAnnotation;
 	private JScrollBar domainScrollBar;
 	
 	public enum ConnectionState {CONNECTED, DISCONNECTED, BUSY};
@@ -137,6 +119,9 @@ public class MainWindow {
 	
 	double lastAnnotationX = 0.0;
 	double lastAnnotationY = 0.0;
+	
+	private File filePath; 
+	
 	public void show() {
 		frmOpenaltimeter.setVisible(true);
 	}
@@ -153,6 +138,12 @@ public class MainWindow {
 			System.err.println("Unable to switch to native look and feel.");
 		}
 
+		try {
+			filePath = new File(prefs.get(PREF_FILE_PATH, "."));
+		} catch (Exception e) {
+			filePath = null;
+		}
+		
 		frmOpenaltimeter = new JFrame();
 		frmOpenaltimeter.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent arg0) {
@@ -462,12 +453,10 @@ public class MainWindow {
 
 	                  final CrossDrawer cd = new CrossDrawer(Color.black);
 	                  final XYDrawableAnnotation plot = new XYDrawableAnnotation(x, y, 10, 10, cd);
-	                  plot.setToolTipText("tooltip");
 	                  xyplot.addAnnotation(plot);
 	                  
 	                  XYTextAnnotation annotation = new XYTextAnnotation(String.format("%.1f", y), x, y+2);
 	                  annotation.setTextAnchor(TextAnchor.BOTTOM_CENTER);
-	                  annotation.setToolTipText("Test tooltipu\nna dva řádky");
 	                  xyplot.addAnnotation(annotation);
 	                                   	                  
 	                  onmask = InputEvent.CTRL_DOWN_MASK;
@@ -659,6 +648,7 @@ public class MainWindow {
 		prefs.putInt(PREF_WINDOW_Y, frmOpenaltimeter.getY());
 		prefs.putInt(PREF_WINDOW_WIDTH, frmOpenaltimeter.getWidth());
 		prefs.putInt(PREF_WINDOW_HEIGHT, frmOpenaltimeter.getHeight());
+		prefs.put(PREF_FILE_PATH, filePath.getAbsolutePath());
 	}
 
 	public void log(final String message, final String style) {
@@ -685,16 +675,30 @@ public class MainWindow {
 	public File showSaveDialog()
 	{
 		JFileChooser fc = new JFileChooser();
+		if (filePath != null)
+			fc.setCurrentDirectory(filePath);
 		if (fc.showSaveDialog(this.frmOpenaltimeter) == JFileChooser.APPROVE_OPTION)
-			return fc.getSelectedFile();
+		{
+			File selectedFile = fc.getSelectedFile(); 
+			filePath = selectedFile.getParentFile();
+				
+			return selectedFile;
+		}
 		else return null;
 	}
 
 	public File showOpenDialog()
 	{
 		JFileChooser fc = new JFileChooser();
+		if (filePath != null)
+			fc.setCurrentDirectory(filePath);
 		if (fc.showOpenDialog(this.frmOpenaltimeter) == JFileChooser.APPROVE_OPTION)
-			return fc.getSelectedFile();
+		{
+			File selectedFile = fc.getSelectedFile(); 
+			filePath = selectedFile.getParentFile();
+				
+			return selectedFile;
+		}
 		else return null;
 	}
 
