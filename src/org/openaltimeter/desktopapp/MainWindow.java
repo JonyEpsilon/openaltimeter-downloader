@@ -24,7 +24,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.InputEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -55,13 +54,8 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYDrawableAnnotation;
-import org.jfree.chart.annotations.XYLineAnnotation;
-import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.AxisChangeEvent;
@@ -71,7 +65,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.TextAnchor;
 
 public class MainWindow {
 
@@ -116,9 +109,6 @@ public class MainWindow {
 	private static final String PREF_WINDOW_WIDTH = "PREF_WINDOW_WIDTH";
 	private static final String PREF_WINDOW_HEIGHT = "PREF_WINDOW_HEIGHT";
 	private static final String PREF_FILE_PATH = "PREF_FILE_PATH";
-	
-	double lastAnnotationX = 0.0;
-	double lastAnnotationY = 0.0;
 	
 	private File filePath; 
 	
@@ -424,60 +414,7 @@ public class MainWindow {
 		});
 
 		final ChartPanel cp = new ChartPanel(chart);
-		cp.addChartMouseListener(new ChartMouseListener() {			
-			@Override
-			public void chartMouseMoved(ChartMouseEvent arg0) {
-				return;
-			}
-			
-			@Override
-			public void chartMouseClicked(final ChartMouseEvent event) {
-	            SwingUtilities.invokeLater(new Runnable() {
-	               public void run()
-	               {
-	                  XYPlot xyplot = (XYPlot) cp.getChart().getPlot();
-
-	                  int onmask = InputEvent.SHIFT_DOWN_MASK;
-	                  if ((event.getTrigger().getModifiersEx() & (onmask)) == onmask)
-	                  {
-	                	  xyplot.clearAnnotations();
-	                	  return;
-	                  }
-
-
-	                  double x, y;
-	                  x = xyplot.getDomainCrosshairValue();
-	                  y = xyplot.getRangeCrosshairValue();
-	                  
-	            	  System.out.println(cp.getEntityForPoint((int) x, (int) y).getClass().getName());
-
-	                  final CrossDrawer cd = new CrossDrawer(Color.black);
-	                  final XYDrawableAnnotation plot = new XYDrawableAnnotation(x, y, 10, 10, cd);
-	                  xyplot.addAnnotation(plot);
-	                  
-	                  XYTextAnnotation annotation = new XYTextAnnotation(String.format("%.1f", y), x, y+2);
-	                  annotation.setTextAnchor(TextAnchor.BOTTOM_CENTER);
-	                  xyplot.addAnnotation(annotation);
-	                                   	                  
-	                  onmask = InputEvent.CTRL_DOWN_MASK;
-	                  if ((event.getTrigger().getModifiersEx() & (onmask)) == onmask) 
-	                  {
-	                	  XYLineAnnotation line = new XYLineAnnotation(lastAnnotationX, lastAnnotationY, x, y);
-	                	  xyplot.addAnnotation(line);
-	                	  
-	                	  double vario = (y - lastAnnotationY) / Math.abs(lastAnnotationX - x);
-	                	  
-	                	  XYTextAnnotation text = new XYTextAnnotation(String.format("%.2f", vario), (x + lastAnnotationX) / 2 + 2, (y + lastAnnotationY) / 2 + 2);
-		                  text.setTextAnchor(TextAnchor.BOTTOM_LEFT);
-		                  xyplot.addAnnotation(text);
-	                  }
-	                  
-	                  lastAnnotationX = x;
-	                  lastAnnotationY = y;
-	               }
-	            });
-			} 
-		});
+		cp.addChartMouseListener(new AltimeterChartMouseListener(cp));
 		
 		domainScrollBar = getScrollBar(plot.getDomainAxis());
 		JPanel pnl = new JPanel();
@@ -585,6 +522,9 @@ public class MainWindow {
 					mntmSaveProcessedData.setEnabled(false);
 					break;
 				case HAVE_DATA: 
+					// delete all previous annotations
+					((XYPlot) chart.getPlot()).clearAnnotations();
+
 					mntmSaveData.setEnabled(true);
 					mntmSaveSelectionData.setEnabled(true);
 					mntmSaveProcessedData.setEnabled(true);
