@@ -519,7 +519,7 @@ public class MainWindow {
 				case NO_DATA: 
 					mntmSaveData.setEnabled(false);
 					mntmSaveSelectionData.setEnabled(false);
-					mntmSaveProcessedData.setEnabled(false);
+//					mntmSaveProcessedData.setEnabled(false);
 					break;
 				case HAVE_DATA: 
 					// delete all previous annotations
@@ -527,7 +527,7 @@ public class MainWindow {
 
 					mntmSaveData.setEnabled(true);
 					mntmSaveSelectionData.setEnabled(true);
-					mntmSaveProcessedData.setEnabled(true);
+//					mntmSaveProcessedData.setEnabled(true);
 					break;
 				}
 			}

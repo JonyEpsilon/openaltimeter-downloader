@@ -1,6 +1,5 @@
 package org.openaltimeter.desktopapp;
 
-import java.awt.Color;
 import java.awt.event.InputEvent;
 
 import javax.swing.SwingUtilities;
@@ -8,9 +7,6 @@ import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.annotations.XYDrawableAnnotation;
-import org.jfree.chart.annotations.XYLineAnnotation;
-import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.TextAnchor;
 

@@ -27,6 +27,7 @@ import java.util.TooManyListenersException;
 
 import org.openaltimeter.data.FlightLog;
 import org.openaltimeter.data.LogEntry;
+import org.openaltimeter.data.LogEntry.DataFormat;
 import org.openaltimeter.desktopapp.Controller;
 
 public class Altimeter {
@@ -34,7 +35,8 @@ public class Altimeter {
 	private SerialLink serial;
 	private static final int TIMEOUT_LOOP_LIMIT = 600;
 	public static final int FLASH_MEMORY_SIZE = 512 * 1024;
-	public static final int DATASTORE_LOG_ENTRY_SIZE = 12;
+	public static final int DATASTORE_LOG_ENTRY_SIZE = 12;	
+	public DataFormat dataFormat = DataFormat.BETA_FORMAT;
 	
 	public Altimeter() {
 		serial = new SerialLink();
@@ -109,7 +111,7 @@ public class Altimeter {
 		for (int i = 0; i < numberOfEntries + 2; i++)
 		{
 			int os = i *DATASTORE_LOG_ENTRY_SIZE;
-			LogEntry le = new LogEntry(data, os);
+			LogEntry le = LogEntry.logEntryFromBytes(data, os, dataFormat);
 			log.add(le);
 		}
 		log.calculateAltitudes();

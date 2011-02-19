@@ -30,32 +30,69 @@ public class LogEntry {
 	
 	private static final long MAX_PRESSURE = 131071;
 	
-	public LogEntry() {}
-	
-	// this method makes a LogEntry from a set of raw bytes. The bytes can be
-	// part of a larger array - the bytes starting at offset will be used.
-	public LogEntry(byte[] data, int os)
-	{
-		// representation of data in 32 bits of Long:
-		// bits 1 .. 17 => pressure, 18 .. 25 => 26 .. 32 => temperature
-		long bits = bytesToLong(data[os + 0], data[os + 1], data[os + 2], data[os + 3]);
-		
-		pressure = (bits >> 15) < MAX_PRESSURE ? bits >> 15 : -1;
-		// temperature has 10 degrees offset, to represent range -10 to +54 degrees 
-		temperature = (bits & 0x7FL) / 2.0 - 10;
-		// battery has 2V offset, to represent range 2 to 14,8V
-		battery = ((bits >> 7) & 0xFFL) / 20.0 + 2;
-		
-		servo = data[os + 4];
+	public enum DataFormat {
+		BETA_FORMAT,
+		JAN_BETA_FORMAT,
+		V1_FORMAT
 	}
 	
-	public String rawDataToString()
+	public LogEntry() {}
+	
+	public static LogEntry logEntryFromBytes(byte[] b, int os, DataFormat format)
 	{
-		return "P: " + pressure + " T: " + temperature + " B: " + battery + " S: " + servo;
+		LogEntry le = new LogEntry();
+		switch(format) {
+			case BETA_FORMAT:
+				le =  logEntryFromBetaByteFormat(b, os);
+				break;
+			case JAN_BETA_FORMAT:
+				le = logEntryFromJanBetaByteFormat(b, os);
+				break;
+			case V1_FORMAT:
+				le = logEntryFromV1ByteFormat(b, os);
+				break;
+		}
+		return le;
+	}
+	
+	private static LogEntry logEntryFromBetaByteFormat(byte[] b, int os)
+	{
+		LogEntry le = new LogEntry();
+		le.pressure = bytesToInt(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
+		le.temperature = (double)bytesToInt(b[os + 4], b[os + 5], b[os + 6], b[os + 7]) / 10.0;
+		le.battery = bytesToFloat(b[os + 8], b[os + 9], b[os + 10], b[os + 11]);
+		le.servo = 0;
+		
+		return le;
+	}
+	
+	// This method parses the compressed data format the Jan used for a while.
+	// It's here for compatibility purposes.
+	private static LogEntry logEntryFromJanBetaByteFormat(byte[] b, int os)
+	{
+		LogEntry le = new LogEntry();
+		// representation of data in 32 bits of Long:
+		// bits 1 .. 17 => pressure, 18 .. 25 => 26 .. 32 => temperature
+		long bits = bytesToCompressedLong(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
+		
+		le.pressure = (bits >> 15) < MAX_PRESSURE ? bits >> 15 : -1;
+		// temperature has 10 degrees offset, to represent range -10 to +54 degrees 
+		le.temperature = (bits & 0x7FL) / 2.0 - 10;
+		// battery has 2V offset, to represent range 2 to 14,8V
+		le.battery = ((bits >> 7) & 0xFFL) / 20.0 + 2;
+		
+		le.servo = b[os + 4];
+		
+		return le;
+	}
+	
+	private static LogEntry logEntryFromV1ByteFormat(byte[] b, int os)
+	{
+		return new LogEntry();
 	}
 
 	// Transformation of bytes to Long representing compressed data 
-	private long bytesToLong(byte b0, byte b1, byte b2, byte b3)
+	private static long bytesToCompressedLong(byte b0, byte b1, byte b2, byte b3)
 	{
 		long retVal = 0;
 
@@ -67,6 +104,28 @@ public class LogEntry {
 		retVal = ((firstByte << 24) | (secondByte << 16) | (thirdByte << 8) | fourthByte) & 0xFFFFFFFFL;
 		
 		return retVal;
+	}
+	
+	// I'm sure there must be a way to do this built in, but I can't find it.
+	// This assumes little-endian byte order, suitable for AVR-GCC
+	private static int bytesToInt(byte b0, byte b1, byte b2, byte b3)
+	{
+		int i = 0;
+		i += ((int)b3 & 0x000000FF) << 24;
+		i += ((int)b2 & 0x000000FF) << 16;
+		i += ((int)b1 & 0x000000FF) << 8;
+		i += ((int)b0 & 0x000000FF);
+		return i;
+	}
+	
+	private static float bytesToFloat(byte b0, byte b1, byte b2, byte b3)
+	{
+		int i = 0;
+		i += ((int)b3 & 0x000000FF) << 24;
+		i += ((int)b2 & 0x000000FF) << 16;
+		i += ((int)b1 & 0x000000FF) << 8;
+		i += ((int)b0 & 0x000000FF);
+		return Float.intBitsToFloat(i);
 	}
 
 	public void fromRawData(String line) {
@@ -86,6 +145,11 @@ public class LogEntry {
 			battery = 0.0;
 			servo = 0;
 		}
+	}
+	
+	public String rawDataToString()
+	{
+		return "P: " + pressure + " T: " + temperature + " B: " + battery + " S: " + servo;
 	}
 
 }
