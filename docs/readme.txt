@@ -23,6 +23,8 @@ Jan Steidl
 Changelog
 =========
 
+beta3: supports new, optimised data format. Scrollable graph. Servo log display. Basic support for feet and metres.
+
 beta2: add code to re-zero altitude at the start of each log, and display temperature and voltage logs (mainly thanks to Jan Steidl).
 
 beta1: initial beta release. Basic functionality present.
