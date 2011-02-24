@@ -414,7 +414,7 @@ public class MainWindow {
 		});
 
 		final ChartPanel cp = new ChartPanel(chart);
-		cp.addChartMouseListener(new AltimeterChartMouseListener(cp));
+//		cp.addChartMouseListener(new AltimeterChartMouseListener(cp));
 		
 		domainScrollBar = getScrollBar(plot.getDomainAxis());
 		JPanel pnl = new JPanel();
