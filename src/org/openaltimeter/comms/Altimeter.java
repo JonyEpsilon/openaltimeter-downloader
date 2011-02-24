@@ -35,8 +35,9 @@ public class Altimeter {
 	private SerialLink serial;
 	private static final int TIMEOUT_LOOP_LIMIT = 600;
 	public static final int FLASH_MEMORY_SIZE = 512 * 1024;
-	public static final int DATASTORE_LOG_ENTRY_SIZE = 12;	
-	public DataFormat dataFormat = DataFormat.BETA_FORMAT;
+	// TODO: this is a fudge, 12 bytes for BETA, 5 bytes for V1
+	public static final int DATASTORE_LOG_ENTRY_SIZE = 5;	
+	public DataFormat dataFormat = DataFormat.V1_FORMAT;
 	
 	public Altimeter() {
 		serial = new SerialLink();

@@ -21,18 +21,17 @@ package org.openaltimeter.data;
 
 public class LogEntry {
 	
+	// note that pressure must be long, and servo int as Java doesn't support
+	// unsigned integer types.
 	public long pressure;
 	public double temperature;
 	public double battery;
 	public double altitudeFt;
 	public double altitudeM;
-	public byte servo;
-	
-	private static final long MAX_PRESSURE = 131071;
-	
+	public int servo;
+
 	public enum DataFormat {
 		BETA_FORMAT,
-		JAN_BETA_FORMAT,
 		V1_FORMAT
 	}
 	
@@ -45,9 +44,6 @@ public class LogEntry {
 			case BETA_FORMAT:
 				le =  logEntryFromBetaByteFormat(b, os);
 				break;
-			case JAN_BETA_FORMAT:
-				le = logEntryFromJanBetaByteFormat(b, os);
-				break;
 			case V1_FORMAT:
 				le = logEntryFromV1ByteFormat(b, os);
 				break;
@@ -58,57 +54,46 @@ public class LogEntry {
 	private static LogEntry logEntryFromBetaByteFormat(byte[] b, int os)
 	{
 		LogEntry le = new LogEntry();
-		le.pressure = bytesToInt(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
-		le.temperature = (double)bytesToInt(b[os + 4], b[os + 5], b[os + 6], b[os + 7]) / 10.0;
+		le.pressure = bytesToSignedInt(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
+		le.temperature = (double)bytesToSignedInt(b[os + 4], b[os + 5], b[os + 6], b[os + 7]) / 10.0;
 		le.battery = bytesToFloat(b[os + 8], b[os + 9], b[os + 10], b[os + 11]);
 		le.servo = 0;
 		
 		return le;
 	}
 	
-	// This method parses the compressed data format the Jan used for a while.
-	// It's here for compatibility purposes.
-	private static LogEntry logEntryFromJanBetaByteFormat(byte[] b, int os)
-	{
-		LogEntry le = new LogEntry();
-		// representation of data in 32 bits of Long:
-		// bits 1 .. 17 => pressure, 18 .. 25 => 26 .. 32 => temperature
-		long bits = bytesToCompressedLong(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
-		
-		le.pressure = (bits >> 15) < MAX_PRESSURE ? bits >> 15 : -1;
-		// temperature has 10 degrees offset, to represent range -10 to +54 degrees 
-		le.temperature = (bits & 0x7FL) / 2.0 - 10;
-		// battery has 2V offset, to represent range 2 to 14,8V
-		le.battery = ((bits >> 7) & 0xFFL) / 20.0 + 2;
-		
-		le.servo = b[os + 4];
-		
-		return le;
-	}
-	
+	// The V1 format applies some linear transformations to the data
+	// before storing it so that it can be stored in smaller data types.
+	// This function reverses those transformations. See the firmware
+	// source code for full documentation of this optimisation.
 	private static LogEntry logEntryFromV1ByteFormat(byte[] b, int os)
 	{
-		return new LogEntry();
+		LogEntry le = new LogEntry();
+		int pressureRaw = bytesToSignedShort(b[os + 0], b[os + 1]);
+		int temperatureRaw = byteToUnsignedByte(b[os + 2]);
+		int batteryRaw = byteToUnsignedByte(b[os + 3]);
+		int servoRaw = byteToUnsignedByte(b[os + 4]);
+		// look out for empty entry
+		if ( (pressureRaw == -1) )
+		{
+			le.pressure = -1;
+			le.temperature = -1;
+			le.battery = -1;
+			le.servo = -1;
+		} else {
+			le.pressure = (int)pressureRaw + 101325;
+			le.temperature = ((temperatureRaw * 2.5) - 150.0) / 10.0;
+			le.battery = 2.0 + (0.05 * (double)batteryRaw);
+			if (servoRaw == 0) le.servo = 0;
+			else le.servo = ((int)servoRaw * 8) + 500;
+		}
+		return le;
 	}
 
-	// Transformation of bytes to Long representing compressed data 
-	private static long bytesToCompressedLong(byte b0, byte b1, byte b2, byte b3)
-	{
-		long retVal = 0;
-
-        long firstByte = b0 < 0 ? b0 + 256 : b0;
-        long secondByte = b1 < 0 ? b1 + 256 : b1;
-        long thirdByte = b2 < 0 ? b2 + 256 : b2;
-        long fourthByte = b3 < 0 ? b3 + 256 : b3;
-        
-		retVal = ((firstByte << 24) | (secondByte << 16) | (thirdByte << 8) | fourthByte) & 0xFFFFFFFFL;
-		
-		return retVal;
-	}
 	
 	// I'm sure there must be a way to do this built in, but I can't find it.
 	// This assumes little-endian byte order, suitable for AVR-GCC
-	private static int bytesToInt(byte b0, byte b1, byte b2, byte b3)
+	private static int bytesToSignedInt(byte b0, byte b1, byte b2, byte b3)
 	{
 		int i = 0;
 		i += ((int)b3 & 0x000000FF) << 24;
@@ -116,6 +101,12 @@ public class LogEntry {
 		i += ((int)b1 & 0x000000FF) << 8;
 		i += ((int)b0 & 0x000000FF);
 		return i;
+	}
+	
+	private static int byteToUnsignedByte(byte b)
+	{
+		if (b >= 0) return b;
+		else return (int)b + 256 ;
 	}
 	
 	private static float bytesToFloat(byte b0, byte b1, byte b2, byte b3)
@@ -126,6 +117,14 @@ public class LogEntry {
 		i += ((int)b1 & 0x000000FF) << 8;
 		i += ((int)b0 & 0x000000FF);
 		return Float.intBitsToFloat(i);
+	}
+	
+	private static short bytesToSignedShort(byte b0, byte b1)
+	{
+		short i = 0;
+		i += ((int)b1 & 0x000000FF) << 8;
+		i += ((int)b0 & 0x000000FF);
+		return i;
 	}
 
 	public void fromRawData(String line) {

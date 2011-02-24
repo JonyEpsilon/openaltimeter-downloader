@@ -362,12 +362,12 @@ public class MainWindow {
         axisBat.setTickLabelPaint(Color.green);
         plot.setRangeAxis(1, axisBat);
 
-        final NumberAxis axisServo = new NumberAxis("Servo (%)");
+        final NumberAxis axisServo = new NumberAxis("Servo (us)");
         axisServo.setAutoRangeIncludesZero(false);
         axisServo.setTickLabelPaint(Color.blue);
         plot.setRangeAxis(2, axisServo);        
 
-        final NumberAxis axisTemp = new NumberAxis("Temperature");
+        final NumberAxis axisTemp = new NumberAxis("Temperature (C)");
         axisTemp.setAutoRangeIncludesZero(false);
         axisTemp.setTickLabelPaint(Color.gray);
         plot.setRangeAxis(3, axisTemp);
