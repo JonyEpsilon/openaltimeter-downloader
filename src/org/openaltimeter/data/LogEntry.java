@@ -135,7 +135,7 @@ public class LogEntry {
 			temperature = Double.parseDouble(splitLine[5]);
 			battery = Double.parseDouble(splitLine[8]);	
 			if (splitLine.length >= 12) 
-				servo = Byte.parseByte(splitLine[11]);
+				servo = Integer.parseInt(splitLine[11]);
 			else
 				servo = 0;
 		} else {
