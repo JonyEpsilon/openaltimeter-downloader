@@ -19,6 +19,8 @@
 
 package org.openaltimeter.data;
 
+import org.openaltimeter.TypeConverter;
+
 public class LogEntry {
 	
 	// note that pressure must be long, and servo int as Java doesn't support
@@ -54,9 +56,9 @@ public class LogEntry {
 	private static LogEntry logEntryFromBetaByteFormat(byte[] b, int os)
 	{
 		LogEntry le = new LogEntry();
-		le.pressure = bytesToSignedInt(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
-		le.temperature = (double)bytesToSignedInt(b[os + 4], b[os + 5], b[os + 6], b[os + 7]) / 10.0;
-		le.battery = bytesToFloat(b[os + 8], b[os + 9], b[os + 10], b[os + 11]);
+		le.pressure = TypeConverter.bytesToSignedInt(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
+		le.temperature = (double)TypeConverter.bytesToSignedInt(b[os + 4], b[os + 5], b[os + 6], b[os + 7]) / 10.0;
+		le.battery = TypeConverter.bytesToFloat(b[os + 8], b[os + 9], b[os + 10], b[os + 11]);
 		le.servo = 0;
 		
 		return le;
@@ -69,10 +71,10 @@ public class LogEntry {
 	private static LogEntry logEntryFromV1ByteFormat(byte[] b, int os)
 	{
 		LogEntry le = new LogEntry();
-		int pressureRaw = bytesToSignedShort(b[os + 0], b[os + 1]);
-		int temperatureRaw = byteToUnsignedByte(b[os + 2]);
-		int batteryRaw = byteToUnsignedByte(b[os + 3]);
-		int servoRaw = byteToUnsignedByte(b[os + 4]);
+		int pressureRaw = TypeConverter.bytesToSignedShort(b[os + 0], b[os + 1]);
+		int temperatureRaw = TypeConverter.byteToUnsignedByte(b[os + 2]);
+		int batteryRaw = TypeConverter.byteToUnsignedByte(b[os + 3]);
+		int servoRaw = TypeConverter.byteToUnsignedByte(b[os + 4]);
 		// look out for empty entry
 		if ( (pressureRaw == -1) )
 		{
@@ -89,44 +91,7 @@ public class LogEntry {
 		}
 		return le;
 	}
-
 	
-	// I'm sure there must be a way to do this built in, but I can't find it.
-	// This assumes little-endian byte order, suitable for AVR-GCC
-	private static int bytesToSignedInt(byte b0, byte b1, byte b2, byte b3)
-	{
-		int i = 0;
-		i += ((int)b3 & 0x000000FF) << 24;
-		i += ((int)b2 & 0x000000FF) << 16;
-		i += ((int)b1 & 0x000000FF) << 8;
-		i += ((int)b0 & 0x000000FF);
-		return i;
-	}
-	
-	private static int byteToUnsignedByte(byte b)
-	{
-		if (b >= 0) return b;
-		else return (int)b + 256 ;
-	}
-	
-	private static float bytesToFloat(byte b0, byte b1, byte b2, byte b3)
-	{
-		int i = 0;
-		i += ((int)b3 & 0x000000FF) << 24;
-		i += ((int)b2 & 0x000000FF) << 16;
-		i += ((int)b1 & 0x000000FF) << 8;
-		i += ((int)b0 & 0x000000FF);
-		return Float.intBitsToFloat(i);
-	}
-	
-	private static short bytesToSignedShort(byte b0, byte b1)
-	{
-		short i = 0;
-		i += ((int)b1 & 0x000000FF) << 8;
-		i += ((int)b0 & 0x000000FF);
-		return i;
-	}
-
 	public void fromRawData(String line) {
 		String[] splitLine = line.split("[: ]");
 		// try not to be fooled by blank lines etc

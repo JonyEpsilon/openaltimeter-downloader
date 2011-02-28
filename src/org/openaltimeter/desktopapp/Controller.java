@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openaltimeter.comms.Altimeter;
-import org.openaltimeter.comms.Altimeter.DownloadTimeoutException;
-import org.openaltimeter.comms.Altimeter.NotAnOpenaltimeterException;
+import org.openaltimeter.Altimeter;
+import org.openaltimeter.Altimeter.DownloadTimeoutException;
+import org.openaltimeter.Altimeter.NotAnOpenaltimeterException;
 import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
 import org.openaltimeter.desktopapp.MainWindow.ConnectionState;
