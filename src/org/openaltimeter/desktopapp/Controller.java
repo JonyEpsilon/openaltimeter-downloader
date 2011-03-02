@@ -24,12 +24,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TooManyListenersException;
 
 import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 
 import org.openaltimeter.Altimeter;
 import org.openaltimeter.Altimeter.DownloadTimeoutException;
@@ -41,9 +42,6 @@ import org.openaltimeter.desktopapp.MainWindow.DataState;
 
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
 
 
 public class Controller {
@@ -329,12 +327,22 @@ public class Controller {
 	SettingsDialog settingsDialog;
 	public void runSettingsInterface() {
 		settingsDialog = new SettingsDialog(this);
-		settingsDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		settingsDialog.setModalityType(ModalityType.APPLICATION_MODAL);
-		settingsDialog.setVisible(true);
+		new Thread(new Runnable() {
+			public void run() {
+				loadSettingsFromAltimeter();
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						public void run() {
+							settingsDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+							settingsDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+							settingsDialog.setVisible(true);
+						}});
+				} catch (Exception e) {
+					e.printStackTrace();
+			}
+		}}).start();
 	}
 	
-	// this is called by the settings dialog
 	void loadSettingsFromAltimeter()
 	{
 		try {
@@ -368,20 +376,12 @@ public class Controller {
 				} catch (IOException e) {
 					log("Unable to write settings to altimeter.", "error");
 					e.printStackTrace();
-				} catch (NoSuchPortException e) {
-					log("Error with selected COM port.", "error");
-					e.printStackTrace();
-				} catch (PortInUseException e) {
-					log("COM port in use.", "error");
-					e.printStackTrace();
-				} catch (UnsupportedCommOperationException e) {
-					log("Error with selected COM port.", "error");
-					e.printStackTrace();
 				} catch (NotAnOpenaltimeterException e) {
-					log("This doesn't seem to be an openaltimeter. Please check.", "error");
+					log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
+							"the openaltimeter is connected and powered.", "error");
 					e.printStackTrace();
-				} catch (TooManyListenersException e) {
-					log("Error with selected COM port.", "error");
+				} catch (Exception e) {
+					log("Exception opening serial port. Check your serial port settings.", "error");
 					e.printStackTrace();
 				}
 			}}).start();

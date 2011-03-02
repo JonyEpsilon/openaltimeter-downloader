@@ -30,7 +30,6 @@ public class SettingsDialog extends JDialog {
 	private JRadioButton rdbtnLipo;
 	private JRadioButton rdbtnNone;
 	private JCheckBox logServoCheckBox;
-	private JButton btnLoadSettingsFrom;
 	private JButton btnSaveSettingsTo;
 	
 	public SettingsDialog(final Controller controller) {
@@ -39,14 +38,6 @@ public class SettingsDialog extends JDialog {
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
-		
-		btnLoadSettingsFrom = new JButton("Load settings from altimeter");
-		btnLoadSettingsFrom.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				controller.loadSettingsFromAltimeter();
-			}
-		});
-		panel.add(btnLoadSettingsFrom);
 		
 		btnSaveSettingsTo = new JButton("Save settings to altimeter");
 		btnSaveSettingsTo.addActionListener(new ActionListener() {
@@ -207,7 +198,6 @@ public class SettingsDialog extends JDialog {
 	public void enableButtons(final boolean enable) {
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
-				btnLoadSettingsFrom.setEnabled(enable);
 				btnSaveSettingsTo.setEnabled(enable);
 				if (enable) setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); 
 				else setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); 

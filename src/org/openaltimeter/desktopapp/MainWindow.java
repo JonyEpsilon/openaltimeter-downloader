@@ -65,6 +65,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import java.awt.Dimension;
 
 public class MainWindow {
 
@@ -141,7 +142,7 @@ public class MainWindow {
 				controller.exit();
 			}
 		});
-		frmOpenaltimeter.setTitle("openAltimeter");
+		frmOpenaltimeter.setTitle("openaltimeter");
 		frmOpenaltimeter.setBounds(prefs.getInt(PREF_WINDOW_X, 70),
 				                   prefs.getInt(PREF_WINDOW_Y, 70),
 				                   prefs.getInt(PREF_WINDOW_WIDTH, 1100),
@@ -333,7 +334,7 @@ public class MainWindow {
 
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setContinuousLayout(true);
-		splitPane.setResizeWeight(0.65);
+		splitPane.setResizeWeight(0.6);
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setDividerLocation(-1);
 		frmOpenaltimeter.getContentPane().add(splitPane, BorderLayout.CENTER);
@@ -440,6 +441,7 @@ public class MainWindow {
 		
 		// create the text pane, a document for it to view, and some styles
 		logTextPane = new JTextPane();
+		logTextPane.setPreferredSize(new Dimension(6, 100));
 		logDocument = logTextPane.getStyledDocument(); 
 	    Style defaultStyle = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
 		Style messageStyle = logDocument.addStyle("message", defaultStyle);
