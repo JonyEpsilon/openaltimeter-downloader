@@ -111,6 +111,7 @@ public class MainWindow {
 	private static final String PREF_FILE_PATH = "PREF_FILE_PATH";
 	
 	private File filePath; 
+	private JMenuItem mntmSettings;
 	
 	public void show() {
 		frmOpenaltimeter.setVisible(true);
@@ -320,6 +321,15 @@ public class MainWindow {
 		});
 		mntmEraseLogger.setEnabled(false);
 		mnLogger.add(mntmEraseLogger);
+		
+		mntmSettings = new JMenuItem("Settings ...");
+		mntmSettings.setEnabled(false);
+		mntmSettings.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				controller.runSettingsInterface();
+			}
+		});
+		mnLogger.add(mntmSettings);
 
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setContinuousLayout(true);
@@ -491,6 +501,7 @@ public class MainWindow {
 					mntmDisconnect.setEnabled(true);
 					mntmDownloadData.setEnabled(true);
 					mntmEraseLogger.setEnabled(true);
+					mntmSettings.setEnabled(true);
 					mnSerialPort.setEnabled(false);
 					break;
 				case DISCONNECTED: 
@@ -498,6 +509,7 @@ public class MainWindow {
 					mntmDisconnect.setEnabled(false);
 					mntmDownloadData.setEnabled(false);
 					mntmEraseLogger.setEnabled(false);
+					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(true);
 					break;
 				case BUSY: 
@@ -505,7 +517,8 @@ public class MainWindow {
 					mntmDisconnect.setEnabled(false);
 					mntmDownloadData.setEnabled(false);
 					mntmEraseLogger.setEnabled(false);
-					mnSerialPort.setEnabled(false);
+					mntmSettings.setEnabled(false);
+				mnSerialPort.setEnabled(false);
 					break;
 				}
 			}

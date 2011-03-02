@@ -18,6 +18,7 @@
  */
 package org.openaltimeter.desktopapp;
 
+import java.awt.Dialog.ModalityType;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -26,6 +27,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TooManyListenersException;
+
+import javax.swing.JDialog;
 
 import org.openaltimeter.Altimeter;
 import org.openaltimeter.Altimeter.DownloadTimeoutException;
@@ -37,6 +41,9 @@ import org.openaltimeter.desktopapp.MainWindow.DataState;
 
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
+import gnu.io.UnsupportedCommOperationException;
 
 
 public class Controller {
@@ -317,6 +324,67 @@ public class Controller {
 			else
 				window.setAltitudeData(flightLog.getAltitudeM(), LOG_INTERVAL);
 		}
+	}
+
+	SettingsDialog settingsDialog;
+	public void runSettingsInterface() {
+		settingsDialog = new SettingsDialog(this);
+		settingsDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		settingsDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+		settingsDialog.setVisible(true);
+	}
+	
+	// this is called by the settings dialog
+	void loadSettingsFromAltimeter()
+	{
+		try {
+			log("Loading settings from altimeter ...", "message");
+			altimeter.readSettings();
+			settingsDialog.setSettings(altimeter.settings);
+			log("Done.", "message");
+		} catch (IOException e) {
+			log("Unable to read settings from altimeter.", "error");
+		}
+	}
+	
+	//this is called by the settings dialog
+	void saveSettingsToAltimeter()
+	{
+		settingsDialog.enableButtons(false);
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					log("Writing settings to altimeter ...", "message");
+					altimeter.settings = settingsDialog.getSettings();
+					altimeter.writeSettings();
+					log("Done.", "message");
+					log("Rebooting altimeter with new settings ...", "message");
+					altimeter.disconnect();
+					String comPort = window.getSelectedCOMPort();
+					Controller.log("Connecting to serial port " + comPort + " (please wait) ...", "message");
+					Controller.log(altimeter.connect(comPort), "altimeter");
+					Controller.log("Reboot finished.", "message");
+					settingsDialog.enableButtons(true);
+				} catch (IOException e) {
+					log("Unable to write settings to altimeter.", "error");
+					e.printStackTrace();
+				} catch (NoSuchPortException e) {
+					log("Error with selected COM port.", "error");
+					e.printStackTrace();
+				} catch (PortInUseException e) {
+					log("COM port in use.", "error");
+					e.printStackTrace();
+				} catch (UnsupportedCommOperationException e) {
+					log("Error with selected COM port.", "error");
+					e.printStackTrace();
+				} catch (NotAnOpenaltimeterException e) {
+					log("This doesn't seem to be an openaltimeter. Please check.", "error");
+					e.printStackTrace();
+				} catch (TooManyListenersException e) {
+					log("Error with selected COM port.", "error");
+					e.printStackTrace();
+				}
+			}}).start();
 	}
 
 }

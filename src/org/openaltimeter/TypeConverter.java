@@ -55,5 +55,30 @@ public class TypeConverter {
 		if (b >= 0) return b;
 		else return (int)b + 256 ;
 	}
+	
+	// note that the title of this function is confusing. It means that it
+	// converts the java type which corresponds to an avr-gcc unsigned 16 bit integer into bytes.
+	// Because Java doesn't have unsigned integer types, then the input parameter needs to be an int.
+	public static byte[] unsignedShortToBytes(int i)
+	{
+		byte[] bytes = new byte[2];
+		bytes[1] = (byte)((i & 0xFF00) >> 8);
+		bytes[0] = (byte)(i & 0x00FF);
+
+		return bytes;
+	}
+	
+	public static byte[] floatToBytes(float f)
+	{
+		int fBits = Float.floatToIntBits(f);
+		
+		byte[] bytes = new byte[4];
+		bytes[3] = (byte)((fBits & 0xFF000000) >> 24);
+		bytes[2] = (byte)((fBits & 0x00FF0000) >> 16);
+		bytes[1] = (byte)((fBits & 0x0000FF00) >> 8);
+		bytes[0] = (byte)((fBits & 0x000000FF));
+		
+		return bytes;
+	}
 
 }

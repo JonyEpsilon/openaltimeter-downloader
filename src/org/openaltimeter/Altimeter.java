@@ -30,15 +30,21 @@ import org.openaltimeter.data.FlightLog;
 import org.openaltimeter.data.LogEntry;
 import org.openaltimeter.data.LogEntry.DataFormat;
 import org.openaltimeter.desktopapp.Controller;
+import org.openaltimeter.settings.Settings;
+import org.openaltimeter.settings.Settings.SettingsFormat;
 
 public class Altimeter {
 
-	private SerialLink serial;
 	private static final int TIMEOUT_LOOP_LIMIT = 600;
 	public static final int FLASH_MEMORY_SIZE = 512 * 1024;
 	// TODO: this is a fudge, 12 bytes for BETA, 5 bytes for V1
-	public static final int DATASTORE_LOG_ENTRY_SIZE = 5;	
+	public static final int DATASTORE_LOG_ENTRY_SIZE = 5;
+	private static final int SETTINGS_MEMORY_SIZE = 512;	
+
+	private SerialLink serial;
 	public DataFormat dataFormat = DataFormat.V1_FORMAT;
+	public SettingsFormat settingsFormat = SettingsFormat.V2_FORMAT;
+	public Settings settings;
 	
 	public Altimeter() {
 		serial = new SerialLink();
@@ -129,6 +135,27 @@ public class Altimeter {
 		return  response.trim();
 	}
 	
+	public void readSettings() throws IOException {
+		serial.clearInput();
+		// make sure the input stream is clear
+		while (serial.in.available() != 0) serial.clearInput();
+		// tell the logger to upload its data
+		serial.startBufferedRead(SETTINGS_MEMORY_SIZE);
+		serial.write('r');
+		// cheesily just use a short delay
+		try {Thread.sleep(500);} catch (Exception e) {};
+		serial.stopBufferedRead();
+		settings = new Settings(serial.getBuffer(), settingsFormat);
+	}
+
+	public void writeSettings() throws IOException
+	{
+		serial.clearInput();
+		serial.write('s');
+		byte[] settingsBytes = settings.toByteArray();
+		for (int i = 0; i < settingsBytes.length; i++) serial.write((char)settingsBytes[i]);
+		try {Thread.sleep(4000);} catch (InterruptedException e) {}
+	}
 
 	@SuppressWarnings("serial")
 	public class DownloadTimeoutException extends Exception {
@@ -137,5 +164,6 @@ public class Altimeter {
 	@SuppressWarnings("serial")
 	public class NotAnOpenaltimeterException extends Exception {
 	}
+
 
 }
