@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -372,6 +371,7 @@ public class Controller {
 					Controller.log("Connecting to serial port " + comPort + " (please wait) ...", "message");
 					Controller.log(altimeter.connect(comPort), "altimeter");
 					Controller.log("Reboot finished.", "message");
+					loadSettingsFromAltimeter();
 					settingsDialog.enableButtons(true);
 				} catch (IOException e) {
 					log("Unable to write settings to altimeter.", "error");
