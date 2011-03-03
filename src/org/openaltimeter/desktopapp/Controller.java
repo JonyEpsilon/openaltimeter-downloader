@@ -36,7 +36,6 @@ import org.openaltimeter.Altimeter.DownloadTimeoutException;
 import org.openaltimeter.Altimeter.NotAnOpenaltimeterException;
 import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
-import org.openaltimeter.desktopapp.MainWindow.ConnectionState;
 import org.openaltimeter.desktopapp.MainWindow.DataState;
 
 import flexjson.JSONDeserializer;
@@ -44,7 +43,10 @@ import flexjson.JSONSerializer;
 
 
 public class Controller {
-
+	
+	public enum ConnectionState {CONNECTED, DISCONNECTED, BUSY}
+	private ConnectionState connectionState;
+	
 	private static final double LOG_INTERVAL = 0.5;
 	static Controller controller;
 	Altimeter altimeter;
@@ -86,6 +88,11 @@ public class Controller {
 		window.show();
 		buildSerialMenu();
 	}
+	
+	private void setConnectionState(ConnectionState state) {
+		connectionState = state;
+		window.setConnectedState(state);
+	}
 
 	// this is for initialisation code that runs before the GUI is built
 	private void buildSerialMenu() {
@@ -101,7 +108,7 @@ public class Controller {
 
 	// open the serial port and connect to the logger, print some summary information from the altimeter
 	public void connect() {
-		window.setConnectedState(ConnectionState.BUSY);
+		setConnectionState(ConnectionState.BUSY);
 		new Thread( new Runnable() {
 			public void run() {
 				try {
@@ -109,14 +116,14 @@ public class Controller {
 					Controller.log("Connecting to serial port " + comPort + " (please wait) ...", "message");
 					Controller.log(altimeter.connect(comPort), "altimeter");
 					Controller.log("Connected.", "message");
-					window.setConnectedState(ConnectionState.CONNECTED);
+					setConnectionState(ConnectionState.CONNECTED);
 				} catch (NotAnOpenaltimeterException e) {
 					Controller.log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
 							"the openaltimeter is connected and powered.", "error");
-					window.setConnectedState(ConnectionState.DISCONNECTED);
+					setConnectionState(ConnectionState.DISCONNECTED);
 				} catch (Exception e) {
 					Controller.log("Exception opening serial port. Check your serial port settings.", "error");
-					window.setConnectedState(ConnectionState.DISCONNECTED);
+					setConnectionState(ConnectionState.DISCONNECTED);
 				}
 				try {
 					Controller.log("Getting log information ...", "message");
@@ -133,12 +140,12 @@ public class Controller {
 	public void disconnect() {
 		altimeter.disconnect();
 		Controller.log("Disconnected.", "message");
-		window.setConnectedState(ConnectionState.DISCONNECTED);
+		setConnectionState(ConnectionState.DISCONNECTED);
 	}
 
 	public void downloadData() {
-		window.setConnectedState(ConnectionState.BUSY);
-		new Thread( new Runnable() {
+		setConnectionState(ConnectionState.BUSY);
+			new Thread( new Runnable() {
 			public void run() {
 				Controller.log("Downloading altimeter data (please wait) ...", "message");
 				try {
@@ -149,7 +156,7 @@ public class Controller {
 					Controller.log("Download started but did not complete in time. Check the serial port.", "error");
 				} finally {
 					window.setDataState(DataState.HAVE_DATA);
-					window.setConnectedState(ConnectionState.CONNECTED);
+					setConnectionState(ConnectionState.CONNECTED);
 					Controller.log("Done.", "message");
 				}
 			}
@@ -159,7 +166,7 @@ public class Controller {
 	public void erase() {
 		if (window.showConfirmDialog("Are you sure you want to erase the altimeter's memory?", "Erase ..."))
 		{
-			window.setConnectedState(ConnectionState.BUSY);
+			setConnectionState(ConnectionState.BUSY);
 			new Thread( new Runnable() {
 				public void run() {
 					Controller.log("Erasing altimeter (please wait) ...", "message");
@@ -168,7 +175,7 @@ public class Controller {
 					} catch (IOException e) {
 						Controller.log("Error sending erase command. Check the serial port.", "error");
 					} finally {
-						window.setConnectedState(ConnectionState.CONNECTED);
+						setConnectionState(ConnectionState.CONNECTED);
 						Controller.log("Done.", "message");
 					}
 				}
@@ -323,6 +330,7 @@ public class Controller {
 		}
 	}
 
+	// this is called by the settings menu event handler
 	SettingsDialog settingsDialog;
 	public void runSettingsInterface() {
 		settingsDialog = new SettingsDialog(this);
@@ -342,7 +350,8 @@ public class Controller {
 		}}).start();
 	}
 	
-	void loadSettingsFromAltimeter()
+	// a helper method to load the settings from the OA and update the settings dialog
+	private void loadSettingsFromAltimeter()
 	{
 		try {
 			log("Loading settings from altimeter ...", "message");
@@ -384,6 +393,63 @@ public class Controller {
 					log("Exception opening serial port. Check your serial port settings.", "error");
 					e.printStackTrace();
 				}
+			}}).start();
+	}
+
+	// flashes the firmware to a stable version, wipes the settings - putting them back
+	// to default - and erases the log memory. This is supposed to be a "sure-fire" way
+	// of getting the OA back into a workable state. It doesn't depend on there already
+	// being working OA software on the board, only the arduino compatible bootloader.
+	FirmwareDialog firmwareDialog;
+	public void flashFirmware() {
+		firmwareDialog = new FirmwareDialog(this);
+		firmwareDialog.setVisible(true);
+	}
+
+	public void doFirmwareFlash() {
+		firmwareDialog.enableButtons(false);
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					if (connectionState == ConnectionState.CONNECTED) {
+						altimeter.disconnect();
+						setConnectionState(ConnectionState.BUSY);
+					}
+					log("Flashing altimeter firmware ...", "message");
+					try {Thread.sleep(1000);} catch (Exception e) {}
+					log("Done.", "message");
+					log("Rebooting altimeter ...", "message");
+					String comPort = window.getSelectedCOMPort();
+					log("Connecting to serial port " + comPort + " (please wait) ...", "message");
+					log(altimeter.connect(comPort), "altimeter");
+					log("Reboot finished.", "message");
+					log("Erasing altimeter (please wait) ...", "message");
+					log(altimeter.erase(), "altimeter");
+					log("Wiping settings memory ...", "message");
+					altimeter.wipeSettings();
+					log("Firmware upgrade done - reconnecting ...", "message");
+					altimeter.disconnect();
+					log("Connecting to serial port " + comPort + " (please wait) ...", "message");
+					log(altimeter.connect(comPort), "altimeter");
+					log("Connected.", "message");
+					setConnectionState(ConnectionState.CONNECTED);
+				} catch (IOException e) {
+					log("Error communicating with altimeter.", "error");
+					e.printStackTrace();
+					setConnectionState(ConnectionState.DISCONNECTED);
+				} catch (NotAnOpenaltimeterException e) {
+					log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
+							"the openaltimeter is connected and powered.", "error");
+					setConnectionState(ConnectionState.DISCONNECTED);
+				} catch (Exception e) {
+					log("Exception communicating with altimeter. Check your serial port settings.", "error");
+					setConnectionState(ConnectionState.DISCONNECTED);
+				} finally {
+					firmwareDialog.enableButtons(true);
+				}
+				
+				firmwareDialog.dispose();
+				runSettingsInterface();
 			}}).start();
 	}
 

@@ -157,6 +157,13 @@ public class Altimeter {
 		try {Thread.sleep(4000);} catch (InterruptedException e) {}
 	}
 
+
+	public void wipeSettings() throws IOException {
+		serial.clearInput();
+		serial.write('w');
+		try {Thread.sleep(4000);} catch (Exception e) {};		
+	}
+	
 	@SuppressWarnings("serial")
 	public class DownloadTimeoutException extends Exception {
 	}

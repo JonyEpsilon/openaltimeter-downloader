@@ -47,6 +47,14 @@ public class SettingsDialog extends JDialog {
 		});
 		panel.add(btnSaveSettingsTo);
 		
+		JButton btnClose = new JButton("Close");
+		btnClose.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+			}
+		});
+		panel.add(btnClose);
+		
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.CENTER);
 		panel_1.setLayout(null);

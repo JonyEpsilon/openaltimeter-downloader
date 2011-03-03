@@ -65,6 +65,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.openaltimeter.desktopapp.Controller.ConnectionState;
+
 import java.awt.Dimension;
 
 public class MainWindow {
@@ -97,7 +99,6 @@ public class MainWindow {
 	private JFreeChart chart;
 	private JScrollBar domainScrollBar;
 	
-	public enum ConnectionState {CONNECTED, DISCONNECTED, BUSY};
 	public enum DataState {NO_DATA, HAVE_DATA};
 	
 	private Preferences prefs;
@@ -113,6 +114,7 @@ public class MainWindow {
 	
 	private File filePath; 
 	private JMenuItem mntmSettings;
+	private JMenuItem mntmFlashFirmware;
 	
 	public void show() {
 		frmOpenaltimeter.setVisible(true);
@@ -331,6 +333,17 @@ public class MainWindow {
 			}
 		});
 		mnLogger.add(mntmSettings);
+		
+		mnLogger.addSeparator();
+		
+		mntmFlashFirmware = new JMenuItem("Flash firmware ...");
+		mntmFlashFirmware.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				controller.flashFirmware();
+			}
+		});
+		mnLogger.add(mntmFlashFirmware);
+
 
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setContinuousLayout(true);
@@ -505,6 +518,7 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(true);
 					mntmSettings.setEnabled(true);
 					mnSerialPort.setEnabled(false);
+					mntmFlashFirmware.setEnabled(true);
 					break;
 				case DISCONNECTED: 
 					mntmConnect.setEnabled(true);
@@ -513,6 +527,7 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(true);
+					mntmFlashFirmware.setEnabled(true);
 					break;
 				case BUSY: 
 					mntmConnect.setEnabled(false);
@@ -520,7 +535,8 @@ public class MainWindow {
 					mntmDownloadData.setEnabled(false);
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
-				mnSerialPort.setEnabled(false);
+					mnSerialPort.setEnabled(false);
+					mntmFlashFirmware.setEnabled(false);
 					break;
 				}
 			}

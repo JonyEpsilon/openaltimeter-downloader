@@ -1,4 +1,4 @@
-package org.openaltimeter.desktopapp;
+package org.openaltimeter.onice;
 
 import java.awt.event.InputEvent;
 
