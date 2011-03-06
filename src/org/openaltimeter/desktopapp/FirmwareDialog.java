@@ -24,7 +24,7 @@ public class FirmwareDialog extends JDialog {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setTitle("openaltimeter firmware flash");
-		setBounds(100, 100, 476, 289);
+		setBounds(100, 100, 476, 321);
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
@@ -62,9 +62,12 @@ public class FirmwareDialog extends JDialog {
 				"<p>Please ensure that you've selected the correct serial port from the Connection menu before trying to flash " +
 				"the firmware.</p>" +
 				"<p/>" +
+				"<p>You should disconnect the OA from your radio when performing the upgrade, as this can interfere with the " +
+				"process.</p>" +
+				"<p/>" +
 				"<p>The full process takes a minute or two.</html>");
 		label.setVerticalAlignment(SwingConstants.TOP);
-		label.setBounds(25, 11, 400, 196);
+		label.setBounds(25, 11, 400, 233);
 		panel_1.add(label);
 	}
 
