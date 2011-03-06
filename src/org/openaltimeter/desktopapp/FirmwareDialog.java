@@ -24,7 +24,7 @@ public class FirmwareDialog extends JDialog {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setTitle("openaltimeter firmware flash");
-		setBounds(100, 100, 476, 239);
+		setBounds(100, 100, 476, 289);
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
@@ -52,12 +52,19 @@ public class FirmwareDialog extends JDialog {
 		JLabel label = new JLabel(
 				"<html><p>This function allows you to flash a stable version of the firmware onto your openaltimeter. " +
 				"You can use it to upgrade your firmware version, or to restore a working version of the software to an " +
-				"openaltimeter that has been mis-configured.</p><p/><p>Note well that this function <b>will erase all of " +
+				"openaltimeter that has been mis-configured.</p>" +
+				"<p/>" +
+				"<p>Note well that this function <b>will erase all of " +
 				"the data on the altimeter and wipe any custom settings.</b> You should make sure that you've downloaded " +
 				"any data you want to keep. The first thing to do after re-flashing the firmware is to check the settings " +
-				"are appropriate for your configuration.</p><p/><p>The full process takes around a minute.</html>");
+				"are appropriate for your configuration.</p>" +
+				"<p/>" +
+				"<p>Please ensure that you've selected the correct serial port from the Connection menu before trying to flash " +
+				"the firmware.</p>" +
+				"<p/>" +
+				"<p>The full process takes a minute or two.</html>");
 		label.setVerticalAlignment(SwingConstants.TOP);
-		label.setBounds(25, 11, 400, 146);
+		label.setBounds(25, 11, 400, 196);
 		panel_1.add(label);
 	}
 

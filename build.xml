@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="Windows build" name="Build and deploy script">
+    <target name="Windows build">
+       <mkdir dir="build/windows/lib"/>
+       <jar destfile="build/windows/lib/downloader.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.openaltimeter.desktopapp.Controller"/>
+                <attribute name="Class-Path" value=". RXTXcomm.jar jfreechart-1.0.13.jar jcommon-1.0.16.jar flexjson-2.0.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+        <copy file="lib/RXTXcomm.jar" todir="build/windows/lib"/>
+        <copy file="lib/jfreechart-1.0.13.jar" todir="build/windows/lib"/>
+        <copy file="lib/jcommon-1.0.16.jar" todir="build/windows/lib"/>
+        <copy file="lib/flexjson-2.0.jar" todir="build/windows/lib"/>
+        <copy file="lib/rxtx_native/rxtxSerial.dll" todir="build/windows/lib"/>
+    	<copy todir="build/windows/lib/windows_flash">
+    	 <fileset dir="lib/windows_flash"/>
+		</copy>
+    	<copy todir="build/windows/docs">
+    	 <fileset dir="docs"/>
+		</copy>
+    </target>
+	
+    <target name="Windows clean">
+        <delete dir="build/windows/lib"/>
+        <delete dir="build/windows/docs"/>
+     </target>
+</project>

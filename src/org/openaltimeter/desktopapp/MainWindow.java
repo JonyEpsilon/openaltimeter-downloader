@@ -66,6 +66,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.openaltimeter.desktopapp.Controller.ConnectionState;
+import org.openaltimeter.desktopapp.Controller.OS;
 
 import java.awt.Dimension;
 
@@ -343,7 +344,9 @@ public class MainWindow {
 			}
 		});
 		mnLogger.add(mntmFlashFirmware);
-
+		// WINDOWS specific function
+		if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(true);
+		else  mntmFlashFirmware.setEnabled(false);
 
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setContinuousLayout(true);
@@ -518,7 +521,8 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(true);
 					mntmSettings.setEnabled(true);
 					mnSerialPort.setEnabled(false);
-					mntmFlashFirmware.setEnabled(true);
+					// WINDOWS specific function
+					if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(true);
 					break;
 				case DISCONNECTED: 
 					mntmConnect.setEnabled(true);
@@ -527,7 +531,8 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(true);
-					mntmFlashFirmware.setEnabled(true);
+					// WINDOWS specific function
+					if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(true);
 					break;
 				case BUSY: 
 					mntmConnect.setEnabled(false);
@@ -536,7 +541,8 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(false);
-					mntmFlashFirmware.setEnabled(false);
+					// WINDOWS specific function
+					if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(false);
 					break;
 				}
 			}

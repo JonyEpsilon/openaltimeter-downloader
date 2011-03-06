@@ -24,9 +24,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
@@ -46,6 +49,9 @@ public class Controller {
 	
 	public enum ConnectionState {CONNECTED, DISCONNECTED, BUSY}
 	private ConnectionState connectionState;
+	
+	public enum OS { WINDOWS, OTHER };
+	public OS os;
 	
 	private static final double LOG_INTERVAL = 0.5;
 	static Controller controller;
@@ -81,6 +87,9 @@ public class Controller {
 
 	// this is the application's main method
 	private void run() {
+		// determine what os we're running, as some features are currently os specific
+		if (System.getProperty("os.name").startsWith("Windows")) os = OS.WINDOWS;
+		else os = OS.OTHER;
 		window = new MainWindow();
 		window.controller = this;
 		window.initialise();
@@ -138,9 +147,11 @@ public class Controller {
 
 	// close the serial port
 	public void disconnect() {
-		altimeter.disconnect();
-		Controller.log("Disconnected.", "message");
-		setConnectionState(ConnectionState.DISCONNECTED);
+		if (connectionState != ConnectionState.DISCONNECTED) {
+			altimeter.disconnect();
+			Controller.log("Disconnected.", "message");
+			setConnectionState(ConnectionState.DISCONNECTED);
+		}
 	}
 
 	public void downloadData() {
@@ -416,7 +427,7 @@ public class Controller {
 						setConnectionState(ConnectionState.BUSY);
 					}
 					log("Flashing altimeter firmware ...", "message");
-					try {Thread.sleep(1000);} catch (Exception e) {}
+					doFirmwareUpload();
 					log("Done.", "message");
 					log("Rebooting altimeter ...", "message");
 					String comPort = window.getSelectedCOMPort();
@@ -433,24 +444,97 @@ public class Controller {
 					log(altimeter.connect(comPort), "altimeter");
 					log("Connected.", "message");
 					setConnectionState(ConnectionState.CONNECTED);
-				} catch (IOException e) {
-					log("Error communicating with altimeter.", "error");
+				} catch (FirmwareFlashException e) {
 					e.printStackTrace();
+					log("Error flashing firmware.", "error");
 					setConnectionState(ConnectionState.DISCONNECTED);
+					return;
+				} catch (IOException e) {
+					e.printStackTrace();
+					log("Error communicating with altimeter.", "error");
+					altimeter.disconnect();
+					setConnectionState(ConnectionState.DISCONNECTED);
+					return;
 				} catch (NotAnOpenaltimeterException e) {
+					e.printStackTrace();
 					log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
 							"the openaltimeter is connected and powered.", "error");
+					altimeter.disconnect();
 					setConnectionState(ConnectionState.DISCONNECTED);
+					return;
 				} catch (Exception e) {
+					e.printStackTrace();
 					log("Exception communicating with altimeter. Check your serial port settings.", "error");
+					altimeter.disconnect();
 					setConnectionState(ConnectionState.DISCONNECTED);
+					return;
 				} finally {
 					firmwareDialog.enableButtons(true);
+					firmwareDialog.dispose();
 				}
-				
-				firmwareDialog.dispose();
+
 				runSettingsInterface();
 			}}).start();
 	}
+	
+	private void doFirmwareUpload() throws FirmwareFlashException {
+		int exitCode;
+		try {
+			ProcessBuilder pb = new ProcessBuilder();
+			// this would be where you'd switch based on OS to run the appropriate
+			// firmware upload command.
+			Vector<String> commandLine = new Vector<String>();
+			pb.directory(new File("windows_flash"));
+			commandLine.add("avrdude.exe");
+			commandLine.add("-Cavrdude.conf");
+			commandLine.add("-q");
+			commandLine.add("-patmega328p");
+			commandLine.add("-cstk500v1");
+			commandLine.add("-P" + window.getSelectedCOMPort());
+			commandLine.add("-b57600");
+			commandLine.add("-D");
+			commandLine.add("-Uflash:w:firmware_v2.hex:i");
+			pb.command(commandLine);
 
+			Process p = pb.start();
+
+			StreamLogPump errorPump = new StreamLogPump(p.getErrorStream(), "error");
+			StreamLogPump outputPump = new StreamLogPump(p.getInputStream(), "altimeter");
+			errorPump.start();
+			outputPump.start();
+	
+			exitCode = p.waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new FirmwareFlashException();
+		}
+		if (exitCode != 0) {
+			log("avrdude failed with exit code: " + exitCode, "error");
+			throw new FirmwareFlashException();
+		}
+	}
+	
+	class StreamLogPump extends Thread {
+		InputStream stream;
+		String type;
+
+		StreamLogPump(InputStream stream, String type) {
+			this.stream = stream;
+			this.type = type;
+		}
+
+		public void run() {
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+				String line;
+				while ((line = reader.readLine()) != null) Controller.log(line, type);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	class FirmwareFlashException extends Exception {}
 }
+
