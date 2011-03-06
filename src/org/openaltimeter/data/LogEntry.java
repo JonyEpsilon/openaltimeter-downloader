@@ -76,7 +76,7 @@ public class LogEntry {
 		int batteryRaw = TypeConverter.byteToUnsignedByte(b[os + 3]);
 		int servoRaw = TypeConverter.byteToUnsignedByte(b[os + 4]);
 		// look out for empty entry
-		if ( (pressureRaw == -1) )
+		if ( (pressureRaw == -1) && (temperatureRaw == 255) && (batteryRaw == 255) )
 		{
 			le.pressure = -1;
 			le.temperature = -1;
