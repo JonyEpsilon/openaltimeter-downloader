@@ -29,6 +29,15 @@ public class Settings {
     }
     
     public Settings() {	}
+    
+    public boolean equals(Settings other) {
+		return ((logIntervalMS == other.logIntervalMS) &&
+				(heightUnits == other.heightUnits) &&
+				(batteryType == other.batteryType) &&
+				(lowVoltageThreshold == other.lowVoltageThreshold) &&
+				(batteryMonitorCalibration == other.batteryMonitorCalibration) &&
+				(logServo == other.logServo));
+    }
 
 	private void parseV2Bytes(byte[] bytes) {
     	logIntervalMS = TypeConverter.bytesToSignedInt(bytes[0], bytes[1], (byte)0x00, (byte)0x00);

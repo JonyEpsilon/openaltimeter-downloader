@@ -48,7 +48,7 @@ public class SettingsDialog extends JDialog {
 		});
 		panel.add(btnSaveSettingsTo);
 		
-		btnClose = new JButton("Close");
+		btnClose = new JButton("Cancel");
 		btnClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();

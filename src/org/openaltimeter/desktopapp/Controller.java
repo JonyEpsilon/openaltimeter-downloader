@@ -40,6 +40,7 @@ import org.openaltimeter.Altimeter.NotAnOpenaltimeterException;
 import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
 import org.openaltimeter.desktopapp.MainWindow.DataState;
+import org.openaltimeter.settings.Settings;
 
 import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
@@ -382,7 +383,8 @@ public class Controller {
 			public void run() {
 				try {
 					log("Writing settings to altimeter ...", "message");
-					altimeter.settings = settingsDialog.getSettings();
+					Settings settingsToWrite = settingsDialog.getSettings();
+					altimeter.settings = settingsToWrite;
 					altimeter.writeSettings();
 					log("Done.", "message");
 					log("Rebooting altimeter with new settings ...", "message");
@@ -391,18 +393,29 @@ public class Controller {
 					Controller.log("Connecting to serial port " + comPort + " (please wait) ...", "message");
 					Controller.log(altimeter.connect(comPort), "altimeter");
 					Controller.log("Reboot finished.", "message");
+					Controller.log("Verifying settings ...", "message");
 					loadSettingsFromAltimeter();
-					settingsDialog.enableButtons(true);
+					if (!settingsToWrite.equals(altimeter.settings)) {
+						log("Error verifying altimeter settings. Please try saving again.", "error");
+						settingsDialog.enableButtons(true);
+						return;
+					}
 				} catch (IOException e) {
 					log("Unable to write settings to altimeter.", "error");
 					e.printStackTrace();
+					disconnect();
 				} catch (NotAnOpenaltimeterException e) {
 					log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
 							"the openaltimeter is connected and powered.", "error");
 					e.printStackTrace();
+					disconnect();
 				} catch (Exception e) {
 					log("Exception opening serial port. Check your serial port settings.", "error");
 					e.printStackTrace();
+					disconnect();
+				} finally {
+					settingsDialog.enableButtons(true);
+					settingsDialog.dispose();
 				}
 			}}).start();
 	}

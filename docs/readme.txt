@@ -10,6 +10,8 @@ This software incorporates JFreeChart, (C)opyright 2000-2009 by Object Refinery 
 
 This software incorporates rxtx, (C)opyright 1997-2007 by Trent Jarvi <tjarvi@qbang.org> and contributors. rxtx's full licence can be found in  library_licences/rxtx.txt. A copy of the source code for this library can be downloaded from http://www.rxtx.org/, or from the author on request.
 
+This software incorporates avrdude http://savannah.nongnu.org/projects/avrdude. avrdude is licenced under the GPL General Public Licence v2 http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+
 
 Contributions
 =============
@@ -22,6 +24,8 @@ Jan Steidl
 
 Changelog
 =========
+
+beta4: new settings system. Built in firmware flashing and altimeter recovery function. A number of bug-fixes.
 
 beta3: supports new, optimised data format. Scrollable graph. Servo log display. Basic support for feet and metres.
 

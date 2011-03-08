@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="Windows build" name="Build and deploy script">
+	<project default="Windows build" name="Build and deploy script">
+		
+		<property name="version" value="beta4"/>
+
     <target name="Windows build">
        <mkdir dir="build/windows/downloader"/>
        <jar destfile="build/windows/downloader/downloader.jar">
@@ -20,9 +23,43 @@
     	<copy todir="build/windows/downloader/docs">
     	 <fileset dir="docs"/>
 		</copy>
+    	<zip destfile="build/downloader_windows_${version}.zip">
+    		<fileset dir="build/windows"/>
+    	</zip>
     </target>
 	
     <target name="Windows clean">
         <delete dir="build/windows/downloader"/>
+    	<delete file="build/downloader_windows_${version}.zip"/>
      </target>
+	
+	
+    <target name="OtherOS build">
+       <mkdir dir="build/otherOS/downloader"/>
+       <jar destfile="build/otherOS/downloader/downloader.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.openaltimeter.desktopapp.Controller"/>
+                <attribute name="Class-Path" value=". RXTXcomm.jar jfreechart-1.0.13.jar jcommon-1.0.16.jar flexjson-2.0.jar"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+        <copy file="lib/RXTXcomm.jar" todir="build/otherOS/downloader"/>
+        <copy file="lib/jfreechart-1.0.13.jar" todir="build/otherOS/downloader"/>
+        <copy file="lib/jcommon-1.0.16.jar" todir="build/otherOS/downloader"/>
+        <copy file="lib/flexjson-2.0.jar" todir="build/otherOS/downloader"/>
+        <copy file="lib/rxtx_native/librxtxSerial.jnilib" todir="build/otherOS/downloader"/>
+        <copy file="lib/rxtx_native/librxtxSerial.so" todir="build/otherOS/downloader"/>
+    	<copy todir="build/otherOS/downloader/docs">
+    	 <fileset dir="docs"/>
+		</copy>
+    	<zip destfile="build/downloader_otherOS_${version}.zip">
+    		<fileset dir="build/otherOS"/>
+    	</zip>
+    </target>
+	
+    <target name="OtherOS clean">
+        <delete dir="build/otherOS/downloader"/>
+    	<delete file="build/downloader_otherOS_${version}.zip"/>
+     </target>
+	
 </project>
