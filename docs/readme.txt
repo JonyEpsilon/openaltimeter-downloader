@@ -25,6 +25,8 @@ Jan Steidl
 Changelog
 =========
 
+beta5: fix show-stopping bug in firmware upgrade process. [Thanks to Kees Blokland.]
+
 beta4: new settings system. Built in firmware flashing and altimeter recovery function. A number of bug-fixes.
 
 beta3: supports new, optimised data format. Scrollable graph. Servo log display. Basic support for feet and metres.

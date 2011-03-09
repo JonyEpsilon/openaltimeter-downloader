@@ -498,7 +498,7 @@ public class Controller {
 			// firmware upload command.
 			Vector<String> commandLine = new Vector<String>();
 			pb.directory(new File("windows_flash"));
-			commandLine.add("avrdude.exe");
+			commandLine.add("windows_flash/avrdude.exe");
 			commandLine.add("-Cavrdude.conf");
 			commandLine.add("-q");
 			commandLine.add("-patmega328p");
