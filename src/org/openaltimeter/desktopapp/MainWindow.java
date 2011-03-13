@@ -573,43 +573,34 @@ public class MainWindow {
 	
 	public void setAltitudeData(final double[] data, final double timeStep)
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				altitudeData.clear();
-				for (int i = 0; i < data.length; i++) altitudeData.add(timeStep * i, data[i]);
-				
-				domainScrollBar.setValues(0, (int) (data.length / timeStep) + 1, 0, (int) (data.length * timeStep) + 1);
-			}});
+		setDataSeries(data, timeStep, altitudeData);
 	}
 	
 	public void setBatteryData(final double[] data, final double timeStep)
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				batteryData.clear();
-				for (int i = 0; i < data.length; i++) batteryData.add(timeStep * i, data[i]);
-			}});
+		setDataSeries(data, timeStep, batteryData);
 	}
 	
 	public void setTemperatureData(final double[] data, final double timeStep)
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run () {
-				temperatureData.clear();
-				for (int i = 0; i < data.length; i++) temperatureData.add(timeStep * i, data[i]);
-			}
-		});
+		setDataSeries(data, timeStep, temperatureData);
 	}
 	
 	public void setServoData(final double[] data, final double timeStep)
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run () {
-				servoData.clear();
-				for (int i = 0; i < data.length; i++) servoData.add(timeStep * i, data[i]);
-			}
-		});
+		setDataSeries(data, timeStep, servoData);
 	}
+
+	public void setDataSeries(final double[] data, final double timeStep, final XYSeries series) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				series.clear();
+				for (int i = 0; i < data.length; i++) series.add(timeStep * i, data[i], false);
+				series.fireSeriesChanged();
+				domainScrollBar.setValues(0, (int) (data.length / timeStep) + 1, 0, (int) (data.length * timeStep) + 1);
+			}});
+	}
+	
 	public void close()
 	{
 		setPreferences();
