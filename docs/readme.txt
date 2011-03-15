@@ -25,6 +25,8 @@ Jan Steidl
 Changelog
 =========
 
+beta6: fix the beeping-on-firmware upgrade bug. Fix the long delay when loading/downloading data bug.
+
 beta5: fix show-stopping bug in firmware upgrade process. [Thanks to Kees Blokland.]
 
 beta4: new settings system. Built in firmware flashing and altimeter recovery function. A number of bug-fixes.

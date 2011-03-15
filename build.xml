@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<project default="Windows build" name="Build and deploy script">
 		
-		<property name="version" value="beta5"/>
+		<property name="version" value="beta6"/>
 
     <target name="Windows build">
        <mkdir dir="build/windows/downloader"/>

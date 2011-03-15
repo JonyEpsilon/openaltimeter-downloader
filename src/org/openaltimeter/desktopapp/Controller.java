@@ -507,7 +507,7 @@ public class Controller {
 			commandLine.add("-b57600");
 			commandLine.add("-D");
 			commandLine.add("-Ueeprom:w:blank_eeprom.hex:i");
-			commandLine.add("-Uflash:w:firmware_v2.hex:i");
+			commandLine.add("-Uflash:w:firmware.hex:i");
 			pb.command(commandLine);
 
 			Process p = pb.start();

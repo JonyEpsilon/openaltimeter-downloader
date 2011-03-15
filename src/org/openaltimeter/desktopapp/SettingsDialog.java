@@ -35,7 +35,7 @@ public class SettingsDialog extends JDialog {
 	
 	public SettingsDialog(final Controller controller) {
 		setTitle("openaltimeter settings");
-		setBounds(100, 100, 679, 346);
+		setBounds(100, 100, 679, 399);
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
@@ -171,6 +171,32 @@ public class SettingsDialog extends JDialog {
 		lblSettingsAreNot.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblSettingsAreNot.setBounds(10, 11, 460, 14);
 		panel_1.add(lblSettingsAreNot);
+		
+		JLabel lblSwitchType = new JLabel("Switch type");
+		lblSwitchType.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblSwitchType.setBounds(30, 270, 115, 14);
+		panel_1.add(lblSwitchType);
+		
+		ButtonGroup switchTypeButtonGroup = new ButtonGroup();
+		
+		JRadioButton rdbtn3position = new JRadioButton("3-position");
+		rdbtn3position.setSelected(true);
+		rdbtn3position.setBounds(155, 266, 86, 23);
+		switchTypeButtonGroup.add(rdbtn3position);
+		panel_1.add(rdbtn3position);
+		
+		JLabel lblThreePositionGives = new JLabel("Three position gives access to height readout and lost model alarm.");
+		lblThreePositionGives.setBounds(251, 270, 388, 14);
+		panel_1.add(lblThreePositionGives);
+		
+		JRadioButton rdbtn2position = new JRadioButton("2-position");
+		rdbtn2position.setBounds(155, 291, 86, 23);
+		switchTypeButtonGroup.add(rdbtn2position);
+		panel_1.add(rdbtn2position);
+		
+		JLabel lblTwoPositionGives = new JLabel("Two position gives access to height readout only.");
+		lblTwoPositionGives.setBounds(251, 295, 388, 14);
+		panel_1.add(lblTwoPositionGives);
 	}
 	
 	public Settings getSettings() {
