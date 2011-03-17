@@ -32,6 +32,8 @@ public class SettingsDialog extends JDialog {
 	private JCheckBox logServoCheckBox;
 	private JButton btnSaveSettingsTo;
 	private JButton btnClose;
+	private JRadioButton rdbtn3position;
+	private JRadioButton rdbtn2position;
 	
 	public SettingsDialog(final Controller controller) {
 		setTitle("openaltimeter settings");
@@ -179,7 +181,7 @@ public class SettingsDialog extends JDialog {
 		
 		ButtonGroup switchTypeButtonGroup = new ButtonGroup();
 		
-		JRadioButton rdbtn3position = new JRadioButton("3-position");
+		rdbtn3position = new JRadioButton("3-position");
 		rdbtn3position.setSelected(true);
 		rdbtn3position.setBounds(155, 266, 86, 23);
 		switchTypeButtonGroup.add(rdbtn3position);
@@ -189,7 +191,7 @@ public class SettingsDialog extends JDialog {
 		lblThreePositionGives.setBounds(251, 270, 388, 14);
 		panel_1.add(lblThreePositionGives);
 		
-		JRadioButton rdbtn2position = new JRadioButton("2-position");
+		rdbtn2position = new JRadioButton("2-position");
 		rdbtn2position.setBounds(155, 291, 86, 23);
 		switchTypeButtonGroup.add(rdbtn2position);
 		panel_1.add(rdbtn2position);
@@ -207,6 +209,7 @@ public class SettingsDialog extends JDialog {
 		s.lowVoltageThreshold = Float.parseFloat(lowVoltageThresholdTextField.getText());
 		s.batteryMonitorCalibration = Float.parseFloat(batteryMonitorCalibrationTextField.getText());
 		s.logServo = logServoCheckBox.isSelected();
+		s.threePositionSwitch = rdbtn3position.isSelected();
 		return s;
 	}
 	
@@ -233,6 +236,11 @@ public class SettingsDialog extends JDialog {
 		lowVoltageThresholdTextField.setText(Float.toString(s.lowVoltageThreshold));
 		batteryMonitorCalibrationTextField.setText(Float.toString(s.batteryMonitorCalibration));
 		logServoCheckBox.setSelected(s.logServo);
+		if (s.threePositionSwitch) {
+			rdbtn3position.setSelected(true);
+		} else {
+			rdbtn2position.setSelected(true);
+		}
 	}
 	
 	public void enableButtons(final boolean enable) {

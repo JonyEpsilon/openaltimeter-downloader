@@ -8,7 +8,7 @@ public class Settings {
 	public enum SettingsFormat { V2_FORMAT };
 	
 	//TODO: this is a fudge
-	public static int SETTINGS_SIZE = 17;
+	public static int SETTINGS_SIZE = 18;
 
 	public int logIntervalMS;
 	public float heightUnits;
@@ -17,6 +17,7 @@ public class Settings {
 	public float lowVoltageThreshold;
 	public float batteryMonitorCalibration;
 	public boolean logServo;
+	public boolean threePositionSwitch;
     
     // creates the settings object from a stream of bytes, as output by the
     // OA board
@@ -36,7 +37,8 @@ public class Settings {
 				(batteryType == other.batteryType) &&
 				(lowVoltageThreshold == other.lowVoltageThreshold) &&
 				(batteryMonitorCalibration == other.batteryMonitorCalibration) &&
-				(logServo == other.logServo));
+				(logServo == other.logServo) &&
+				(threePositionSwitch == other.threePositionSwitch));
     }
 
 	private void parseV2Bytes(byte[] bytes) {
@@ -57,7 +59,7 @@ public class Settings {
         lowVoltageThreshold = TypeConverter.bytesToFloat(bytes[8], bytes[9], bytes[10], bytes[11]);
         batteryMonitorCalibration = TypeConverter.bytesToFloat(bytes[12], bytes[13], bytes[14], bytes[15]);
         logServo = !(bytes[16] == 0);
-      	    		
+      	threePositionSwitch = !(bytes[17] == 0);    		
     }
     
     // produces a byte array suitable for sending to the OA board
@@ -94,6 +96,7 @@ public class Settings {
        	bytes[14] = bmBytes[2];
     	bytes[15] = bmBytes[3];
     	bytes[16] = (byte)(logServo ? 1 : 0);
+    	bytes[17] = (byte)(threePositionSwitch ? 1 : 0);
     	return bytes;
     }
 }
