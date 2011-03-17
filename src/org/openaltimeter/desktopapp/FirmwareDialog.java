@@ -59,9 +59,6 @@ public class FirmwareDialog extends JDialog {
 				"any data you want to keep. The first thing to do after re-flashing the firmware is to check the settings " +
 				"are appropriate for your configuration.</p>" +
 				"<p/>" +
-				"<p>Please ensure that you've selected the correct serial port from the Connection menu before trying to flash " +
-				"the firmware.</p>" +
-				"<p/>" +
 				"<p>You should disconnect the OA from your radio when performing the upgrade, as this can interfere with the " +
 				"process.</p>" +
 				"<p/>" +

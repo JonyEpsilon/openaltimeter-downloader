@@ -45,6 +45,7 @@ public class Altimeter {
 	public DataFormat dataFormat = DataFormat.V1_FORMAT;
 	public SettingsFormat settingsFormat = SettingsFormat.V2_FORMAT;
 	public Settings settings;
+	public String firmwareVersion;
 	
 	public Altimeter() {
 		serial = new SerialLink();
@@ -67,6 +68,12 @@ public class Altimeter {
 			serial.disconnect();
 			throw new NotAnOpenaltimeterException();
 		}
+		
+		// parse the welcome message to get the OA firmware version
+		String firstLine = welcomeString.split("\n")[0];
+		firmwareVersion = firstLine.split(": ")[1];
+		firmwareVersion = firmwareVersion.substring(0, firmwareVersion.length() - 1);
+		System.out.println("Logger version : " + firmwareVersion);
 		
 		// return the welcome message
 		return welcomeString;

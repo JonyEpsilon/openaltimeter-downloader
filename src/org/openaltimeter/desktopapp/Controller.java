@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.openaltimeter.Altimeter;
@@ -127,6 +128,14 @@ public class Controller {
 					Controller.log(altimeter.connect(comPort), "altimeter");
 					Controller.log("Connected.", "message");
 					setConnectionState(ConnectionState.CONNECTED);
+					// this is where we test for the firmware versions that are compatible with this
+					// release of the downloader. If they aren't compatible then we try and start the
+					// upgrade process.
+					if (!altimeter.firmwareVersion.equals("V4")) 
+					{
+						adviseFirmwareUpgrade();
+						return;
+					}
 				} catch (NotAnOpenaltimeterException e) {
 					Controller.log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
 							"the openaltimeter is connected and powered.", "error");
@@ -153,6 +162,27 @@ public class Controller {
 			Controller.log("Disconnected.", "message");
 			setConnectionState(ConnectionState.DISCONNECTED);
 		}
+	}
+	
+	private void adviseFirmwareUpgrade() {
+		String[] choices = {"Run firmware update utility ...", "Disconnect"};
+
+		int dialogResult = JOptionPane.showOptionDialog(
+				null, 
+				"A firmware upgrade is required in order to use this version of the downloader.\n" +
+				"You can go directly to the firmware upgrade dialog by clicking the button below.\n" +
+				"Note that the firmware upgrade will delete all data on the logger. If you wish to\n" +
+				"save any data then you should choose \"Disconnect\" below and use an older version\n" +
+				"of the downloader to save any data before proceeding.\n",
+				"Firmware upgrade required ...", 
+				JOptionPane.OK_CANCEL_OPTION, 
+				JOptionPane.WARNING_MESSAGE, 
+				null, 
+				choices,
+				choices[0]
+				);
+		if (dialogResult == 0) flashFirmware();
+		else disconnect();
 	}
 
 	public void downloadData() {
