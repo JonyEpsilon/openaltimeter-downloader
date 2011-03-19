@@ -72,7 +72,7 @@ public class FirmwareDialog extends JDialog {
 				"<p/>" +
 				"<p>The full process takes a minute or two.</p>" +
 				"<p/>" +
-				"<p>You can view the firmware readme file, to see what's new in this version, by clicking the button below" +
+				"<p>You can view the firmware readme file, to see what's new in this version, by clicking the button below " +
 				"(opens in new window).</p>" +
 				"</html>"
 		);

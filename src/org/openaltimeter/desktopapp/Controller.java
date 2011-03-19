@@ -130,8 +130,7 @@ public class Controller {
 					// upgrade process.
 					if (!altimeter.firmwareVersion.equals("V4")) 
 					{
-						adviseFirmwareUpgrade();
-						return;
+						if (!adviseFirmwareUpgrade()) return;
 					}
 				} catch (NotAnOpenaltimeterException e) {
 					Controller.log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
@@ -161,16 +160,17 @@ public class Controller {
 		}
 	}
 	
-	private void adviseFirmwareUpgrade() {
-		String[] choices = {"Run firmware update utility ...", "Disconnect"};
+	// this returns a boolean indicating whether to stay connected to the logger or not.
+	private boolean adviseFirmwareUpgrade() {
+		String[] choices = {"Run firmware update utility ...", "Disconnect", "I'm feeling lucky, leave me connected!"};
 
 		int dialogResult = JOptionPane.showOptionDialog(
 				null, 
-				"A firmware upgrade is required in order to use this version of the downloader.\n" +
-				"You can go directly to the firmware upgrade dialog by clicking the button below.\n" +
-				"Note that the firmware upgrade will delete all data on the logger. If you wish to\n" +
-				"save any data then you should choose \"Disconnect\" below and use an older version\n" +
-				"of the downloader to save any data before proceeding.\n",
+				"A firmware upgrade is required in order to use this version of the downloader.You can go directly to the firmware\n" +
+				"upgrade dialog by clicking the button below.\n\n" +
+				"Note that the firmware upgrade will delete all data on the logger. If you wish to save any data then you should \n" +
+				"choose \"Disconnect\" below and use an older version of the downloader to save any data before proceeding.\n\n" +
+				"If you're feeling brave, you can try and connect anyway, but odd things might happen.\n",
 				"Firmware upgrade required ...", 
 				JOptionPane.OK_CANCEL_OPTION, 
 				JOptionPane.WARNING_MESSAGE, 
@@ -178,8 +178,18 @@ public class Controller {
 				choices,
 				choices[0]
 				);
-		if (dialogResult == 0) flashFirmware();
-		else disconnect();
+		if (dialogResult == 0) 
+		{
+			flashFirmware();
+			return false;
+		}
+		if (dialogResult == 1) {
+			disconnect();
+			return false;
+		}
+		if (dialogResult == 2) return true;
+		disconnect();
+		return false;
 	}
 
 	public void downloadData() {
