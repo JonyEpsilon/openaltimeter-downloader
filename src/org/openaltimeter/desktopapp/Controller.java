@@ -575,6 +575,17 @@ public class Controller {
 		}
 	}
 	
+	public void showFirmwareReadme() {
+		try {	
+			// seems odd that there isn't a cross platform way to do this!
+			if (os == OS.WINDOWS)
+				Runtime.getRuntime().exec("cmd.exe /c start windows_flash/readme.txt");
+		} catch (IOException e) {
+			Controller.log("Unable to open firmware readme file.", "error");
+			e.printStackTrace();
+		}
+	}
+	
 	@SuppressWarnings("serial")
 	class FirmwareFlashException extends Exception {}
 }

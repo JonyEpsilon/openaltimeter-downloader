@@ -18,13 +18,14 @@ public class FirmwareDialog extends JDialog {
 	private JButton btnEraseAndFlash;
 	private JButton btnCancel;
 	private JPanel panel_1;
+	private JButton btnViewFirmwareReadme;
 
 	public FirmwareDialog(final Controller controller) {
 		setModal(true);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setTitle("openaltimeter firmware flash");
-		setBounds(100, 100, 476, 321);
+		setBounds(100, 100, 476, 328);
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
@@ -44,6 +45,13 @@ public class FirmwareDialog extends JDialog {
 			}
 		});
 		panel.add(btnCancel);
+		
+		btnViewFirmwareReadme = new JButton("View firmware readme ...");
+		btnViewFirmwareReadme.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				controller.showFirmwareReadme();
+			}});
+		panel.add(btnViewFirmwareReadme);
 
 		panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.CENTER);
@@ -62,7 +70,12 @@ public class FirmwareDialog extends JDialog {
 				"<p>You should disconnect the OA from your radio when performing the upgrade, as this can interfere with the " +
 				"process.</p>" +
 				"<p/>" +
-				"<p>The full process takes a minute or two.</html>");
+				"<p>The full process takes a minute or two.</p>" +
+				"<p/>" +
+				"<p>You can view the firmware readme file, to see what's new in this version, by clicking the button below" +
+				"(opens in new window).</p>" +
+				"</html>"
+		);
 		label.setVerticalAlignment(SwingConstants.TOP);
 		label.setBounds(25, 11, 400, 233);
 		panel_1.add(label);
