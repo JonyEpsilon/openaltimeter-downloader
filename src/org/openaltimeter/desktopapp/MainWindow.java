@@ -47,6 +47,8 @@ import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -640,14 +642,21 @@ public class MainWindow {
 		});
 	}
 	
-	public File showSaveDialog()
+	public File showRawSaveDialog()
 	{
 		JFileChooser fc = new JFileChooser();
 		if (filePath != null)
 			fc.setCurrentDirectory(filePath);
+		FileFilter filter= new FileNameExtensionFilter("Text file", "txt");
+		fc.addChoosableFileFilter(filter);
 		if (fc.showSaveDialog(this.frmOpenaltimeter) == JFileChooser.APPROVE_OPTION)
 		{
 			File selectedFile = fc.getSelectedFile(); 
+			// if the text file filter is selected we ensure there's a .txt extension
+			if (fc.getFileFilter() == filter) {
+				if (!selectedFile.getAbsolutePath().endsWith(".txt"))
+					selectedFile = new File(selectedFile.getAbsolutePath() + ".txt");
+			}
 			filePath = selectedFile.getParentFile();
 				
 			return selectedFile;
@@ -655,11 +664,12 @@ public class MainWindow {
 		else return null;
 	}
 
-	public File showOpenDialog()
+	public File showOpenDialog(FileFilter filter)
 	{
 		JFileChooser fc = new JFileChooser();
 		if (filePath != null)
 			fc.setCurrentDirectory(filePath);
+		fc.addChoosableFileFilter(filter);
 		if (fc.showOpenDialog(this.frmOpenaltimeter) == JFileChooser.APPROVE_OPTION)
 		{
 			File selectedFile = fc.getSelectedFile(); 

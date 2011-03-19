@@ -26,7 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -34,6 +33,7 @@ import java.util.Vector;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.openaltimeter.Altimeter;
 import org.openaltimeter.Altimeter.DownloadTimeoutException;
@@ -42,9 +42,6 @@ import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
 import org.openaltimeter.desktopapp.MainWindow.DataState;
 import org.openaltimeter.settings.Settings;
-
-import flexjson.JSONDeserializer;
-import flexjson.JSONSerializer;
 
 
 public class Controller {
@@ -240,7 +237,7 @@ public class Controller {
 	}
 	
 	public void saveRaw() {
-		File f = window.showSaveDialog();
+		File f = window.showRawSaveDialog();
 		if (f == null) return;
 		try {
 			FileWriter fw = new FileWriter(f);
@@ -253,7 +250,7 @@ public class Controller {
 	
 	public void saveRawSelection(double lower, double upper) {
 		System.out.println("Lower: " + lower + " Upper: " + upper);
-		File f = window.showSaveDialog();
+		File f = window.showRawSaveDialog();
 		if (f == null) return;
 		try {
 			FileWriter fw = new FileWriter(f);
@@ -265,24 +262,24 @@ public class Controller {
 	}
 	
 	public void saveProcessed() {
-		File f = window.showSaveDialog();
-		if (f == null) return;
-		try {
-			FileWriter fw = new FileWriter(f);
-			JSONSerializer js = new JSONSerializer();
-			String json = js
-							.include("logData", "annotations")
-							.prettyPrint(true)
-							.serialize(flightLog);
-			fw.write(json);
-			fw.close();
-		} catch (IOException e) {
-			window.log("Error writing file. Please check the filename and try again.", "error");
-		}
+//		File f = window.showSaveDialog();
+//		if (f == null) return;
+//		try {
+//			FileWriter fw = new FileWriter(f);
+//			JSONSerializer js = new JSONSerializer();
+//			String json = js
+//							.include("logData", "annotations")
+//							.prettyPrint(true)
+//							.serialize(flightLog);
+//			fw.write(json);
+//			fw.close();
+//		} catch (IOException e) {
+//			window.log("Error writing file. Please check the filename and try again.", "error");
+//		}
 	}
 	
 	public void loadRawData() {
-		File f = window.showOpenDialog();
+		File f = window.showOpenDialog(new FileNameExtensionFilter("Text files", "txt"));
 		if (f == null) return;
 		StringBuilder fileStringBuilder = new StringBuilder();
 		try {
@@ -306,27 +303,27 @@ public class Controller {
 	}
 
 	public void loadProcessedData() {
-		File f = window.showOpenDialog();
-		if (f == null) return;
-		StringBuilder fileStringBuilder = new StringBuilder();
-		try {
-			BufferedReader fr = new BufferedReader(new FileReader(f));
-			String line;
-			while ((line = fr.readLine()) != null) {
-				fileStringBuilder.append(line);
-				fileStringBuilder.append("\n");
-			}
-		} catch (IOException e) {
-			log("Unable to open file. Please check file is not open elsewhere and try again.", "error");
-		}
-		FlightLog fl = new JSONDeserializer<FlightLog>()
-							.use("logData", ArrayList.class)
-	//						.use("logData.values", LogEntry.class)
-							.use("annotations",  ArrayList.class)
-	//						.use("annotations.values", Annotation.class)
-							.deserialize(fileStringBuilder.toString());
-		setFlightLog(fl);
-		window.setDataState(DataState.HAVE_DATA);
+//		File f = window.showOpenDialog();
+//		if (f == null) return;
+//		StringBuilder fileStringBuilder = new StringBuilder();
+//		try {
+//			BufferedReader fr = new BufferedReader(new FileReader(f));
+//			String line;
+//			while ((line = fr.readLine()) != null) {
+//				fileStringBuilder.append(line);
+//				fileStringBuilder.append("\n");
+//			}
+//		} catch (IOException e) {
+//			log("Unable to open file. Please check file is not open elsewhere and try again.", "error");
+//		}
+//		FlightLog fl = new JSONDeserializer<FlightLog>()
+//							.use("logData", ArrayList.class)
+//	//						.use("logData.values", LogEntry.class)
+//							.use("annotations",  ArrayList.class)
+//	//						.use("annotations.values", Annotation.class)
+//							.deserialize(fileStringBuilder.toString());
+//		setFlightLog(fl);
+//		window.setDataState(DataState.HAVE_DATA);
 	}
 
 	public void exit() {
