@@ -346,8 +346,9 @@ public class MainWindow {
 			}
 		});
 		mnLogger.add(mntmFlashFirmware);
-		// WINDOWS specific function
-		if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(true);
+		// os specific function
+		if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+			mntmFlashFirmware.setEnabled(true);
 		else  mntmFlashFirmware.setEnabled(false);
 
 		JSplitPane splitPane = new JSplitPane();
@@ -523,8 +524,9 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(true);
 					mntmSettings.setEnabled(true);
 					mnSerialPort.setEnabled(false);
-					// WINDOWS specific function
-					if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(true);
+					// os specific function
+					if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+						mntmFlashFirmware.setEnabled(true);
 					break;
 				case DISCONNECTED: 
 					mntmConnect.setEnabled(true);
@@ -533,8 +535,9 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(true);
-					// WINDOWS specific function
-					if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(true);
+					// os specific function
+					if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+						mntmFlashFirmware.setEnabled(true);
 					break;
 				case BUSY: 
 					mntmConnect.setEnabled(false);
@@ -543,8 +546,9 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(false);
-					// WINDOWS specific function
-					if (controller.os == OS.WINDOWS) mntmFlashFirmware.setEnabled(false);
+					// os specific function
+					if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+						mntmFlashFirmware.setEnabled(false);
 					break;
 				}
 			}

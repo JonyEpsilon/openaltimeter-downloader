@@ -49,7 +49,7 @@ public class Controller {
 	public enum ConnectionState {CONNECTED, DISCONNECTED, BUSY}
 	private ConnectionState connectionState;
 	
-	public enum OS { WINDOWS, OTHER };
+	public enum OS { WINDOWS, MAC, OTHER };
 	public OS os;
 	
 	private static final double LOG_INTERVAL = 0.5;
@@ -87,8 +87,10 @@ public class Controller {
 	// this is the application's main method
 	private void run() {
 		// determine what os we're running, as some features are currently os specific
+		os = OS.OTHER;
 		if (System.getProperty("os.name").startsWith("Windows")) os = OS.WINDOWS;
-		else os = OS.OTHER;
+		if (System.getProperty("os.name").startsWith("Mac")) os = OS.MAC;
+
 		window = new MainWindow();
 		window.controller = this;
 		window.initialise();
@@ -534,17 +536,25 @@ public class Controller {
 			// this would be where you'd switch based on OS to run the appropriate
 			// firmware upload command.
 			Vector<String> commandLine = new Vector<String>();
-			pb.directory(new File("windows_flash"));
-			commandLine.add("windows_flash/avrdude.exe");
-			commandLine.add("-Cavrdude.conf");
+			if (os == OS.WINDOWS) {
+//				pb.directory(new File("windows_flash"));
+				commandLine.add("windows_flash/avrdude.exe");
+				commandLine.add("-Cwindows_flash/avrdude.conf");
+				commandLine.add("-Ueeprom:w:firmware/blank_eeprom.hex:i");
+				commandLine.add("-Uflash:w:firmware/firmware.hex:i");
+			}
+			if (os == OS.MAC) {
+				commandLine.add("./lib/mac_flash/avrdude");
+				commandLine.add("-Clib/mac_flash/avrdude.conf");
+				commandLine.add("-Ueeprom:w:lib/firmware/blank_eeprom.hex:i");
+				commandLine.add("-Uflash:w:lib/firmware/firmware.hex:i");
+			}
 			commandLine.add("-q");
 			commandLine.add("-patmega328p");
 			commandLine.add("-cstk500v1");
 			commandLine.add("-P" + window.getSelectedCOMPort());
 			commandLine.add("-b57600");
 			commandLine.add("-D");
-			commandLine.add("-Ueeprom:w:blank_eeprom.hex:i");
-			commandLine.add("-Uflash:w:firmware.hex:i");
 			pb.command(commandLine);
 
 			Process p = pb.start();
@@ -589,8 +599,10 @@ public class Controller {
 		try {	
 			// seems odd that there isn't a cross platform way to do this!
 			if (os == OS.WINDOWS)
-				Runtime.getRuntime().exec("cmd.exe /c start windows_flash/readme.txt");
-		} catch (IOException e) {
+				Runtime.getRuntime().exec("cmd.exe /c start firmware/readme.txt");
+			if (os == OS.MAC)
+				Runtime.getRuntime().exec("open lib/firmware/readme.txt");
+			} catch (IOException e) {
 			Controller.log("Unable to open firmware readme file.", "error");
 			e.printStackTrace();
 		}
@@ -599,4 +611,3 @@ public class Controller {
 	@SuppressWarnings("serial")
 	class FirmwareFlashException extends Exception {}
 }
-
