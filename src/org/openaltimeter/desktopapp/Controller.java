@@ -544,10 +544,10 @@ public class Controller {
 				commandLine.add("-Uflash:w:firmware/firmware.hex:i");
 			}
 			if (os == OS.MAC) {
-				commandLine.add("./lib/mac_flash/avrdude");
-				commandLine.add("-Clib/mac_flash/avrdude.conf");
-				commandLine.add("-Ueeprom:w:lib/firmware/blank_eeprom.hex:i");
-				commandLine.add("-Uflash:w:lib/firmware/firmware.hex:i");
+				commandLine.add("./mac_flash/avrdude");
+				commandLine.add("-Cmac_flash/avrdude.conf");
+				commandLine.add("-Ueeprom:w:firmware/blank_eeprom.hex:i");
+				commandLine.add("-Uflash:w:firmware/firmware.hex:i");
 			}
 			commandLine.add("-q");
 			commandLine.add("-patmega328p");
@@ -601,7 +601,7 @@ public class Controller {
 			if (os == OS.WINDOWS)
 				Runtime.getRuntime().exec("cmd.exe /c start firmware/readme.txt");
 			if (os == OS.MAC)
-				Runtime.getRuntime().exec("open lib/firmware/readme.txt");
+				Runtime.getRuntime().exec("open firmware/readme.txt");
 			} catch (IOException e) {
 			Controller.log("Unable to open firmware readme file.", "error");
 			e.printStackTrace();

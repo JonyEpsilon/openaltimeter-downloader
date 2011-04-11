@@ -1,65 +1,126 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-	<project default="Windows build" name="Build and deploy script">
-		
-		<property name="version" value="V1"/>
+<project default="Windows build" name="Build and deploy script">
 
-    <target name="Windows build">
-       <mkdir dir="build/windows/downloader"/>
-       <jar destfile="build/windows/downloader/downloader.jar">
-            <manifest>
-                <attribute name="Main-Class" value="org.openaltimeter.desktopapp.Controller"/>
-                <attribute name="Class-Path" value=". RXTXcomm.jar jfreechart-1.0.13.jar jcommon-1.0.16.jar flexjson-2.0.jar"/>
-            </manifest>
-            <fileset dir="bin"/>
-        </jar>
-        <copy file="lib/RXTXcomm.jar" todir="build/windows/downloader"/>
-        <copy file="lib/jfreechart-1.0.13.jar" todir="build/windows/downloader"/>
-        <copy file="lib/jcommon-1.0.16.jar" todir="build/windows/downloader"/>
-        <copy file="lib/flexjson-2.0.jar" todir="build/windows/downloader"/>
-        <copy file="lib/rxtx_native/rxtxSerial.dll" todir="build/windows/downloader"/>
-    	<copy todir="build/windows/downloader/windows_flash">
-    	 <fileset dir="lib/windows_flash"/>
+	<property name="version" value="V1"/>
+
+	<target name="Windows build">
+		<mkdir dir="build/windows/downloader"/>
+		<jar destfile="build/windows/downloader/downloader.jar">
+			<manifest>
+				<attribute name="Main-Class" value="org.openaltimeter.desktopapp.Controller"/>
+				<attribute name="Class-Path" value=". RXTXcomm.jar jfreechart-1.0.13.jar jcommon-1.0.16.jar flexjson-2.0.jar"/>
+			</manifest>
+			<fileset dir="bin"/>
+		</jar>
+		<copy file="lib/RXTXcomm.jar" todir="build/windows/downloader"/>
+		<copy file="lib/jfreechart-1.0.13.jar" todir="build/windows/downloader"/>
+		<copy file="lib/jcommon-1.0.16.jar" todir="build/windows/downloader"/>
+		<copy file="lib/flexjson-2.0.jar" todir="build/windows/downloader"/>
+		<copy file="lib/rxtx_native/rxtxSerial.dll" todir="build/windows/downloader"/>
+		<copy todir="build/windows/downloader/windows_flash">
+			<fileset dir="lib/windows_flash"/>
 		</copy>
-    	<copy todir="build/windows/downloader/docs">
-    	 <fileset dir="docs"/>
+		<copy todir="build/windows/downloader/docs">
+			<fileset dir="docs"/>
 		</copy>
-    	<zip destfile="build/downloader_windows_${version}.zip">
-    		<fileset dir="build/windows"/>
-    	</zip>
-    </target>
-	
-    <target name="Windows clean">
-        <delete dir="build/windows/downloader"/>
-    	<delete file="build/downloader_windows_${version}.zip"/>
-     </target>
-	
-	
-    <target name="OtherOS build">
-       <mkdir dir="build/otherOS/downloader"/>
-       <jar destfile="build/otherOS/downloader/downloader.jar">
-            <manifest>
-                <attribute name="Main-Class" value="org.openaltimeter.desktopapp.Controller"/>
-                <attribute name="Class-Path" value=". RXTXcomm.jar jfreechart-1.0.13.jar jcommon-1.0.16.jar flexjson-2.0.jar"/>
-            </manifest>
-            <fileset dir="bin"/>
-        </jar>
-        <copy file="lib/RXTXcomm.jar" todir="build/otherOS/downloader"/>
-        <copy file="lib/jfreechart-1.0.13.jar" todir="build/otherOS/downloader"/>
-        <copy file="lib/jcommon-1.0.16.jar" todir="build/otherOS/downloader"/>
-        <copy file="lib/flexjson-2.0.jar" todir="build/otherOS/downloader"/>
-        <copy file="lib/rxtx_native/librxtxSerial.jnilib" todir="build/otherOS/downloader"/>
-        <copy file="lib/rxtx_native/librxtxSerial.so" todir="build/otherOS/downloader"/>
-    	<copy todir="build/otherOS/downloader/docs">
-    	 <fileset dir="docs"/>
+		<zip destfile="build/downloader_windows_${version}.zip">
+			<fileset dir="build/windows"/>
+		</zip>
+	</target>
+
+	<target name="Windows clean">
+		<delete dir="build/windows/downloader"/>
+		<delete file="build/downloader_windows_${version}.zip"/>
+	</target>
+
+	<target name="MacOS build" depends="MacOS clean" description="Build MacOS app">
+
+		<mkdir dir="build/mac/downloader"/>
+		<jar destfile="build/mac/downloader/downloader.jar">
+			<manifest>
+				<attribute name="Main-Class" value="org.openaltimeter.desktopapp.Controller"/>
+				<attribute name="Class-Path" value=". RXTXcomm.jar jfreechart-1.0.13.jar jcommon-1.0.16.jar flexjson-2.0.jar"/>
+			</manifest>
+			<fileset dir="bin"/>
+		</jar>
+
+		<taskdef name="jarbundler"
+		             classname="net.sourceforge.jarbundler.JarBundler"/>
+
+		<jarbundler dir="build/mac/downloader" verbose="true" showPlist="false"
+		                name="openaltimeter"
+		                shortname="openaltimeter"
+		                signature="OPAL"
+		                mainclass="org.openaltimeter.desktopapp.Controller"
+		                jvmversion="1.6+"
+						icon="lib/logo_short_300.icns"
+		                version="${version}"
+		                infostring="openaltimeter"
+		                bundleid="org.openaltimeter.desktopapp"  
+						workingDirectory="$APP_PACKAGE/Contents/Resources/"
+			>
+
+			<jarfilelist dir="."
+		files="build/mac/downloader/downloader.jar lib/RXTXcomm.jar lib/jfreechart-1.0.13.jar lib/jcommon-1.0.16.jar lib/flexjson-2.0.jar"/>
+
+			<javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+			<javaproperty name="apple.awt.brushMetal" value="true"/>
+			<javaproperty name="apple.awt.showGrowBox" value="true"/>
+
+		</jarbundler>
+
+		<!-- JarBundler doesn't seem to quite offer the flexibility needed to do this -->
+		<copy file="lib/rxtx_native/librxtxSerial.jnilib" todir="build/mac/downloader/openaltimeter.app/Contents/Resources/Java/"/>
+		<copy todir="build/mac/downloader/openaltimeter.app/Contents/Resources/mac_flash">
+			<fileset dir="lib/mac_flash"/>
 		</copy>
-    	<zip destfile="build/downloader_otherOS_${version}.zip">
-    		<fileset dir="build/otherOS"/>
-    	</zip>
-    </target>
-	
-    <target name="OtherOS clean">
-        <delete dir="build/otherOS/downloader"/>
-    	<delete file="build/downloader_otherOS_${version}.zip"/>
-     </target>
-	
+		<copy todir="build/mac/downloader/openaltimeter.app/Contents/Resources/firmware">
+			<fileset dir="lib/firmware"/>
+		</copy>
+		
+		<!-- need to make sure that avrdude is executable -->
+		<chmod file="build/mac/downloader/openaltimeter.app/Contents/Resources/mac_flash/avrdude" perm="ugo+rx"/>
+		
+		<!-- copy in the docs, delete any build products, and make a zip -->
+		<copy todir="build/mac/downloader/docs">
+			<fileset dir="docs"/>
+		</copy>	
+		<delete file="build/mac/downloader/downloader.jar" />
+		<exec dir="build/mac" command="zip -r downloader_macos_${version}.zip downloader" />
+
+	</target>
+
+	<target name="MacOS clean">
+		<delete dir="build/mac/downloader"/>
+		<delete file="build/downloader_mac_${version}.zip"/>
+	</target>
+
+	<target name="OtherOS build">
+		<mkdir dir="build/otherOS/downloader"/>
+		<jar destfile="build/otherOS/downloader/downloader.jar">
+			<manifest>
+				<attribute name="Main-Class" value="org.openaltimeter.desktopapp.Controller"/>
+				<attribute name="Class-Path" value=". RXTXcomm.jar jfreechart-1.0.13.jar jcommon-1.0.16.jar flexjson-2.0.jar"/>
+			</manifest>
+			<fileset dir="bin"/>
+		</jar>
+		<copy file="lib/RXTXcomm.jar" todir="build/otherOS/downloader"/>
+		<copy file="lib/jfreechart-1.0.13.jar" todir="build/otherOS/downloader"/>
+		<copy file="lib/jcommon-1.0.16.jar" todir="build/otherOS/downloader"/>
+		<copy file="lib/flexjson-2.0.jar" todir="build/otherOS/downloader"/>
+		<copy file="lib/rxtx_native/librxtxSerial.jnilib" todir="build/otherOS/downloader"/>
+		<copy file="lib/rxtx_native/librxtxSerial.so" todir="build/otherOS/downloader"/>
+		<copy todir="build/otherOS/downloader/docs">
+			<fileset dir="docs"/>
+		</copy>
+		<zip destfile="build/downloader_otherOS_${version}.zip">
+			<fileset dir="build/otherOS"/>
+		</zip>
+	</target>
+
+	<target name="OtherOS clean">
+		<delete dir="build/otherOS/downloader"/>
+		<delete file="build/downloader_otherOS_${version}.zip"/>
+	</target>
+
 </project>
