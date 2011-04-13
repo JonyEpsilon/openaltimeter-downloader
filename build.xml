@@ -3,7 +3,7 @@
 
 	<property name="version" value="V1"/>
 
-	<target name="Windows build">
+	<target name="Windows build" depends="Windows clean">
 		<mkdir dir="build/windows/downloader"/>
 		<jar destfile="build/windows/downloader/downloader.jar">
 			<manifest>
@@ -22,6 +22,9 @@
 		</copy>
 		<copy todir="build/windows/downloader/docs">
 			<fileset dir="docs"/>
+		</copy>
+		<copy todir="build/windows/downloader/firmware">
+			<fileset dir="lib/firmware"/>
 		</copy>
 		<zip destfile="build/downloader_windows_${version}.zip">
 			<fileset dir="build/windows"/>
@@ -92,10 +95,10 @@
 
 	<target name="MacOS clean">
 		<delete dir="build/mac/downloader"/>
-		<delete file="build/downloader_mac_${version}.zip"/>
+		<delete file="build/downloader_macos_${version}.zip"/>
 	</target>
 
-	<target name="OtherOS build">
+	<target name="OtherOS build" depends="OtherOS clean">
 		<mkdir dir="build/otherOS/downloader"/>
 		<jar destfile="build/otherOS/downloader/downloader.jar">
 			<manifest>
