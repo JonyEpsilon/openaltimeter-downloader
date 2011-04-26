@@ -606,8 +606,10 @@ public class Controller {
 				Runtime.getRuntime().exec("cmd.exe /c start firmware/readme.txt");
 			if (os == OS.MAC)
 				Runtime.getRuntime().exec("open firmware/readme.txt");
+			// this seems cheezy, but I don't know a better way to do it.
 			if (os == OS.LINUX)
-				Runtime.getRuntime().exec("firmware/readme.txt");
+				Controller.log("Not yet working on Linux yet! Please look in the firmware directory.", "error");
+				//Runtime.getRuntime().exec("vi " + System.getProperty("user.dir") + "/lib/firmware/readme.txt");
 			} catch (IOException e) {
 			Controller.log("Unable to open firmware readme file.", "error");
 			e.printStackTrace();

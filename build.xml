@@ -120,14 +120,14 @@
 		</copy>
 		<chmod file="build/linux/downloader/downloader.jar" perm="u+x"/>
 		<chmod file="build/linux/downloader/run_downloader.sh" perm="u+x"/>
-		<zip destfile="build/downloader_linux_${version}.zip">
-			<fileset dir="build/linux"/>
-		</zip>
+		<tar destfile="build/downloader_linux_${version}.tgz" compression="gzip">
+			<tarfileset filemode="755" dir="build/linux"/>
+		</tar>
 	</target>
 
 	<target name="Linux clean">
 		<delete dir="build/linux/downloader"/>
-		<delete file="build/downloader_linux_${version}.zip"/>
+		<delete file="build/downloader_linux_${version}.tgz"/>
 	</target>
 
 </project>
