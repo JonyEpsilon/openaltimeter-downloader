@@ -541,15 +541,16 @@ public class Controller {
 //				pb.directory(new File("windows_flash"));
 				commandLine.add("windows_flash/avrdude.exe");
 				commandLine.add("-Cwindows_flash/avrdude.conf");
-				commandLine.add("-Ueeprom:w:firmware/blank_eeprom.hex:i");
-				commandLine.add("-Uflash:w:firmware/firmware.hex:i");
 			}
 			if (os == OS.MAC) {
 				commandLine.add("./mac_flash/avrdude");
 				commandLine.add("-Cmac_flash/avrdude.conf");
-				commandLine.add("-Ueeprom:w:firmware/blank_eeprom.hex:i");
-				commandLine.add("-Uflash:w:firmware/firmware.hex:i");
 			}
+			if (os == OS.LINUX) {
+				commandLine.add("avrdude");
+			}
+			commandLine.add("-Ueeprom:w:firmware/blank_eeprom.hex:i");
+			commandLine.add("-Uflash:w:firmware/firmware.hex:i");
 			commandLine.add("-q");
 			commandLine.add("-patmega328p");
 			commandLine.add("-cstk500v1");
@@ -603,6 +604,8 @@ public class Controller {
 				Runtime.getRuntime().exec("cmd.exe /c start firmware/readme.txt");
 			if (os == OS.MAC)
 				Runtime.getRuntime().exec("open firmware/readme.txt");
+			if (os == OS.LINUX)
+				Runtime.getRuntime().exec("firmware/readme.txt");
 			} catch (IOException e) {
 			Controller.log("Unable to open firmware readme file.", "error");
 			e.printStackTrace();
