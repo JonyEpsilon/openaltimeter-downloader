@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.swing.JDialog;
@@ -529,7 +530,7 @@ public class Controller {
 				runSettingsInterface();
 			}}).start();
 	}
-	
+	Properties prop;
 	private void doFirmwareUpload() throws FirmwareFlashException {
 		int exitCode;
 		try {
@@ -547,6 +548,7 @@ public class Controller {
 				commandLine.add("-Cmac_flash/avrdude.conf");
 			}
 			if (os == OS.LINUX) {
+				pb.directory(new File(System.getProperty("user.dir")));
 				commandLine.add("avrdude");
 			}
 			commandLine.add("-Ueeprom:w:firmware/blank_eeprom.hex:i");
