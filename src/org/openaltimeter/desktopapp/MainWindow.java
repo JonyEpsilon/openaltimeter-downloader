@@ -347,7 +347,7 @@ public class MainWindow {
 		});
 		mnLogger.add(mntmFlashFirmware);
 		// os specific function
-		if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+		if (controller.os != OS.OTHER) 
 			mntmFlashFirmware.setEnabled(true);
 		else  mntmFlashFirmware.setEnabled(false);
 
@@ -525,7 +525,7 @@ public class MainWindow {
 					mntmSettings.setEnabled(true);
 					mnSerialPort.setEnabled(false);
 					// os specific function
-					if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+					if (controller.os != OS.OTHER) 
 						mntmFlashFirmware.setEnabled(true);
 					break;
 				case DISCONNECTED: 
@@ -536,7 +536,7 @@ public class MainWindow {
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(true);
 					// os specific function
-					if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+					if (controller.os != OS.OTHER) 
 						mntmFlashFirmware.setEnabled(true);
 					break;
 				case BUSY: 
@@ -547,7 +547,7 @@ public class MainWindow {
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(false);
 					// os specific function
-					if (controller.os == OS.WINDOWS | controller.os == OS.MAC) 
+					if (controller.os != OS.OTHER) 
 						mntmFlashFirmware.setEnabled(false);
 					break;
 				}

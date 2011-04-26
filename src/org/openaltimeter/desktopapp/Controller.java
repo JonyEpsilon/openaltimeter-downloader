@@ -49,7 +49,7 @@ public class Controller {
 	public enum ConnectionState {CONNECTED, DISCONNECTED, BUSY}
 	private ConnectionState connectionState;
 	
-	public enum OS { WINDOWS, MAC, OTHER };
+	public enum OS { WINDOWS, MAC, LINUX, OTHER };
 	public OS os;
 	
 	private static final double LOG_INTERVAL = 0.5;
@@ -90,7 +90,8 @@ public class Controller {
 		os = OS.OTHER;
 		if (System.getProperty("os.name").startsWith("Windows")) os = OS.WINDOWS;
 		if (System.getProperty("os.name").startsWith("Mac")) os = OS.MAC;
-
+		if (System.getProperty("os.name").startsWith("Linux")) os = OS.LINUX;
+		
 		window = new MainWindow();
 		window.controller = this;
 		window.initialise();
