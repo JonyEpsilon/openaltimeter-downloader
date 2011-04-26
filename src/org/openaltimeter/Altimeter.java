@@ -160,7 +160,10 @@ public class Altimeter {
 		serial.clearInput();
 		serial.write('s');
 		byte[] settingsBytes = settings.toByteArray();
-		for (int i = 0; i < settingsBytes.length; i++) serial.write((char)settingsBytes[i]);
+		for (int i = 0; i < settingsBytes.length; i++) {
+			serial.write((char)settingsBytes[i]);
+			try {Thread.sleep(10);} catch (InterruptedException e) {}			
+		}
 		try {Thread.sleep(4000);} catch (InterruptedException e) {}
 	}
 
