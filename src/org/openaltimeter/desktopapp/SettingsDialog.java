@@ -19,6 +19,7 @@ import javax.swing.WindowConstants;
 
 import org.openaltimeter.settings.Settings;
 import org.openaltimeter.settings.Settings.BatteryType;
+import java.awt.Toolkit;
 
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog {
@@ -36,6 +37,7 @@ public class SettingsDialog extends JDialog {
 	private JRadioButton rdbtn2position;
 	
 	public SettingsDialog(final Controller controller) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(SettingsDialog.class.getResource("/logo_short_64.png")));
 		setTitle("openaltimeter settings");
 		setBounds(100, 100, 679, 399);
 		

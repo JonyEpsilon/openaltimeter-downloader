@@ -71,6 +71,7 @@ import org.openaltimeter.desktopapp.Controller.ConnectionState;
 import org.openaltimeter.desktopapp.Controller.OS;
 
 import java.awt.Dimension;
+import java.awt.Toolkit;
 
 public class MainWindow {
 
@@ -142,6 +143,7 @@ public class MainWindow {
 		}
 		
 		frmOpenaltimeter = new JFrame();
+		frmOpenaltimeter.setIconImage(Toolkit.getDefaultToolkit().getImage(MainWindow.class.getResource("/logo_short_64.png")));
 		frmOpenaltimeter.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent arg0) {
 				controller.exit();
@@ -153,6 +155,8 @@ public class MainWindow {
 				                   prefs.getInt(PREF_WINDOW_WIDTH, 1100),
 				                   prefs.getInt(PREF_WINDOW_HEIGHT, 700));
 		frmOpenaltimeter.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		
+		
 
 		JMenuBar menuBar = new JMenuBar();
 		frmOpenaltimeter.setJMenuBar(menuBar);

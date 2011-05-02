@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import java.awt.Toolkit;
 
 @SuppressWarnings("serial")
 public class FirmwareDialog extends JDialog {
@@ -21,6 +22,7 @@ public class FirmwareDialog extends JDialog {
 	private JButton btnViewFirmwareReadme;
 
 	public FirmwareDialog(final Controller controller) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(FirmwareDialog.class.getResource("/logo_short_64.png")));
 		setModal(true);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
