@@ -51,14 +51,14 @@ public class Altimeter {
 		serial = new SerialLink();
 	}
 
-	public String connect(String comPortName) throws NoSuchPortException,
+	public String connect(String comPortName, int baudRate) throws NoSuchPortException,
 			PortInUseException, UnsupportedCommOperationException, IOException, NotAnOpenaltimeterException, TooManyListenersException {
 		// we reset the logger after opening the serial port, and then wait for
 		// the welcome message
-		serial.connect(comPortName, 115200);
+		serial.connect(comPortName, baudRate);
 		reset();
 		// wait for the logger to start up
-		try {Thread.sleep(15000);} catch (Exception e) {};
+		try {Thread.sleep(16000);} catch (Exception e) {};
 		// read the welcome message, check that the altimeter has responded
 		// send a command to stop logging.
 		serial.write('c');

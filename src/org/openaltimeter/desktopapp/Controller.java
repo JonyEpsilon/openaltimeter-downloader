@@ -118,31 +118,46 @@ public class Controller {
 		Controller.log("Done.", "message");
 	}
 
+	// this is a bit cheezy - it's here to support a smooth upgrade path from old 115200 baud versions of the firmware
+	// to the new 57600 baud versions. If connect fails a first time with a NotAnOpenaltimeterException then it will try
+	// again at a reduced baud rate. This flag holds that state. An upgrade will immediately be offered for the old OA.
+	boolean usingOldOABaudRate = false;
 	// open the serial port and connect to the logger, print some summary information from the altimeter
 	public void connect() {
 		setConnectionState(ConnectionState.BUSY);
 		new Thread( new Runnable() {
 			public void run() {
+				String comPort = window.getSelectedCOMPort();
 				try {
-					String comPort = window.getSelectedCOMPort();
 					Controller.log("Connecting to serial port " + comPort + " (please wait) ...", "message");
-					Controller.log(altimeter.connect(comPort), "altimeter");
+					int baudRate = usingOldOABaudRate ? 115200 : 57600;
+					Controller.log(altimeter.connect(comPort, baudRate), "altimeter");
 					Controller.log("Connected.", "message");
 					setConnectionState(ConnectionState.CONNECTED);
 					// this is where we test for the firmware versions that are compatible with this
 					// release of the downloader. If they aren't compatible then we try and start the
 					// upgrade process.
-					if (!altimeter.firmwareVersion.equals("V4")) 
+					if (!altimeter.firmwareVersion.equals("V5")) 
 					{
 						if (!adviseFirmwareUpgrade()) return;
 					}
 				} catch (NotAnOpenaltimeterException e) {
-					Controller.log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
-							"the openaltimeter is connected and powered.", "error");
 					setConnectionState(ConnectionState.DISCONNECTED);
+					if (!usingOldOABaudRate) {
+						Controller.log("Unable to connect, checking for older OA connection (please wait) ...", "error");
+						usingOldOABaudRate = true;
+						connect();
+						return;
+					} else {
+						Controller.log("Incorrect reply from device. Check that you've selected the correct serial port, and that " +
+								"the openaltimeter is connected and powered.", "error");
+						usingOldOABaudRate = false;
+						return;
+					}
 				} catch (Exception e) {
 					Controller.log("Exception opening serial port. Check your serial port settings.", "error");
 					setConnectionState(ConnectionState.DISCONNECTED);
+					return;
 				}
 				try {
 					Controller.log("Getting log information ...", "message");
@@ -155,11 +170,13 @@ public class Controller {
 		}).start();
 	}
 
+
 	// close the serial port
 	public void disconnect() {
 		if (connectionState != ConnectionState.DISCONNECTED) {
 			altimeter.disconnect();
 			Controller.log("Disconnected.", "message");
+			usingOldOABaudRate = false;
 			setConnectionState(ConnectionState.DISCONNECTED);
 		}
 	}
@@ -170,11 +187,11 @@ public class Controller {
 
 		int dialogResult = JOptionPane.showOptionDialog(
 				null, 
-				"A firmware upgrade is required in order to use this version of the downloader.You can go directly to the firmware\n" +
+				"A firmware upgrade is required in order to use this version of the downloader. You can go directly to the firmware\n" +
 				"upgrade dialog by clicking the button below.\n\n" +
 				"Note that the firmware upgrade will delete all data on the logger. If you wish to save any data then you should \n" +
 				"choose \"Disconnect\" below and use an older version of the downloader to save any data before proceeding.\n\n" +
-				"If you're feeling brave, you can try and connect anyway, but odd things might happen.\n",
+				"If you're feeling brave, you can try and connect anyway, but things will probably not work well!\n",
 				"Firmware upgrade required ...", 
 				JOptionPane.OK_CANCEL_OPTION, 
 				JOptionPane.WARNING_MESSAGE, 
@@ -432,7 +449,7 @@ public class Controller {
 					altimeter.disconnect();
 					String comPort = window.getSelectedCOMPort();
 					Controller.log("Connecting to serial port " + comPort + " (please wait) ...", "message");
-					Controller.log(altimeter.connect(comPort), "altimeter");
+					Controller.log(altimeter.connect(comPort, 57600), "altimeter");
 					Controller.log("Reboot finished.", "message");
 					Controller.log("Verifying settings ...", "message");
 					loadSettingsFromAltimeter();
@@ -486,7 +503,7 @@ public class Controller {
 					log("Rebooting altimeter ...", "message");
 					String comPort = window.getSelectedCOMPort();
 					log("Connecting to serial port " + comPort + " (please wait) ...", "message");
-					log(altimeter.connect(comPort), "altimeter");
+					log(altimeter.connect(comPort, 57600), "altimeter");
 					log("Reboot finished.", "message");
 					log("Erasing altimeter (please wait) ...", "message");
 					log(altimeter.erase(), "altimeter");
@@ -495,7 +512,7 @@ public class Controller {
 					log("Firmware upgrade done - reconnecting ...", "message");
 					altimeter.disconnect();
 					log("Connecting to serial port " + comPort + " (please wait) ...", "message");
-					log(altimeter.connect(comPort), "altimeter");
+					log(altimeter.connect(comPort, 57600), "altimeter");
 					log("Connected.", "message");
 					setConnectionState(ConnectionState.CONNECTED);
 				} catch (FirmwareFlashException e) {

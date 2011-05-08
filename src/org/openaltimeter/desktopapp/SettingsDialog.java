@@ -75,8 +75,8 @@ public class SettingsDialog extends JDialog {
 		panel_1.add(logIntervalMSTextField);
 		logIntervalMSTextField.setColumns(10);
 		
-		JLabel lblDefaultValueOf = new JLabel("Default value of 500 gives two samples per second.");
-		lblDefaultValueOf.setBounds(251, 35, 286, 14);
+		JLabel lblDefaultValueOf = new JLabel("Default value of 500 gives two samples per second. (Min. 333)");
+		lblDefaultValueOf.setBounds(251, 35, 319, 14);
 		panel_1.add(lblDefaultValueOf);
 		
 		JLabel lblHeightUnits = new JLabel("Height units");
