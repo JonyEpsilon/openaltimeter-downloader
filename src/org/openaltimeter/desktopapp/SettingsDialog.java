@@ -124,7 +124,7 @@ public class SettingsDialog extends JDialog {
 		
 		JLabel lblLowVoltageThreshold = new JLabel("Low voltage threshold (V)");
 		lblLowVoltageThreshold.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblLowVoltageThreshold.setBounds(10, 168, 159, 14);
+		lblLowVoltageThreshold.setBounds(10, 167, 149, 14);
 		panel_1.add(lblLowVoltageThreshold);
 		
 		lowVoltageThresholdTextField = new JTextField();

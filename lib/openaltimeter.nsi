@@ -1,9 +1,9 @@
 Name "openaltimeter"
-OutFile "..\build\openaltimeter_win.exe"
+OutFile "..\build\openaltimeter_win_${VERSION}.exe"
 InstallDir $PROGRAMFILES\openaltimeter
 Icon "..\lib\logo_short_128.ico"
 
-;SetCompressor lzma
+SetCompressor lzma
 
 ; Registry key to check for directory (so if you install again, it will 
 ; overwrite the old one automatically)

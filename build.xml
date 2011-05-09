@@ -63,7 +63,7 @@
 
 	<target name="Windows clean">
 		<delete dir="build/windows/downloader"/>
-		<delete file="build/openaltimeter_win.exe"/>
+		<delete file="build/openaltimeter_win_${version}.exe"/>
 	</target>
 
 	<target name="MacOS build" depends="MacOS clean" description="Build MacOS app">
@@ -121,13 +121,13 @@
 			<fileset dir="docs"/>
 		</copy>	
 		<delete file="build/mac/downloader/downloader.jar" />
-		<exec dir="build/mac" command="zip -r downloader_macos_${version}.zip downloader" />
+		<exec dir="build/mac" command="zip -r openaltimeter_macos_${version}.zip downloader" />
 
 	</target>
 
 	<target name="MacOS clean">
 		<delete dir="build/mac/downloader"/>
-		<delete file="build/downloader_macos_${version}.zip"/>
+		<delete file="build/openaltimeter_macos_${version}.zip"/>
 	</target>
 
 	<target name="Linux build" depends="Linux clean">
@@ -153,14 +153,14 @@
 		</copy>
 		<chmod file="build/linux/downloader/downloader.jar" perm="u+x"/>
 		<chmod file="build/linux/downloader/run_downloader.sh" perm="u+x"/>
-		<tar destfile="build/downloader_linux_${version}.tgz" compression="gzip">
+		<tar destfile="build/openaltimeter_linux_${version}.tgz" compression="gzip">
 			<tarfileset filemode="755" dir="build/linux"/>
 		</tar>
 	</target>
 
 	<target name="Linux clean">
 		<delete dir="build/linux/downloader"/>
-		<delete file="build/downloader_linux_${version}.tgz"/>
+		<delete file="build/openaltimeter_linux_${version}.tgz"/>
 	</target>
 
 </project>
