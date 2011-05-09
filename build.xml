@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="Windows build" name="Build and deploy script">
+	
+	<property name="version" value="1.1.0.0"/>
+	<property name="launch4j.dir" location="C:\Program Files (x86)\Launch4j"/>
 
-	<property name="version" value="V1"/>
+	<taskdef name="launch4j"
+	    classname="net.sf.launch4j.ant.Launch4jTask"
+	    classpath="${launch4j.dir}/launch4j.jar
+	        :${launch4j.dir}/lib/xstream.jar" />
+	
+	<taskdef name="nsis" classname="com.danielreese.nsisant.Task"
+		classpath="ant/nsisant-1.3.jar"
+	/>
 
 	<target name="Windows build" depends="Windows clean">
 		<mkdir dir="build/windows/downloader"/>
@@ -27,14 +37,33 @@
 		<copy todir="build/windows/downloader/firmware">
 			<fileset dir="lib/firmware"/>
 		</copy>
+		<unzip dest="build/windows/downloader/" src="lib/jre_win.zip" />
+		
+		<copy file="lib/launch4j.xml" todir="build/windows/downloader"/>
+		<copy file="lib/logo_short_128.ico" todir="build/windows/downloader"/>
+		<launch4j configfile="build/windows/downloader/launch4j.xml" 
+			fileversion="${version}"
+			txtFileVersion="${version}"
+			productVersion="${version}"
+			txtProductVersion="${version}"
+		/>
+		<delete file="build/windows/downloader/launch4j.xml"/>
+<!--
 		<zip destfile="build/downloader_windows_${version}.zip">
 			<fileset dir="build/windows"/>
 		</zip>
+-->
+	</target>
+	
+	<target name="Windows package" depends="Windows build">
+		<nsis script="lib/openaltimeter.nsi" verbosity="4">
+		    <define name="VERSION" value="${version}"/>
+		</nsis>
 	</target>
 
 	<target name="Windows clean">
 		<delete dir="build/windows/downloader"/>
-		<delete file="build/downloader_windows_${version}.zip"/>
+		<delete file="build/openaltimeter_win.exe"/>
 	</target>
 
 	<target name="MacOS build" depends="MacOS clean" description="Build MacOS app">
@@ -49,7 +78,9 @@
 		</jar>
 
 		<taskdef name="jarbundler"
-		             classname="net.sourceforge.jarbundler.JarBundler"/>
+		    classname="net.sourceforge.jarbundler.JarBundler"
+			classpath="ant/jarbundler-2.2.0.jar"
+		/>
 
 		<jarbundler dir="build/mac/downloader" verbose="true" showPlist="false"
 		                name="openaltimeter"
