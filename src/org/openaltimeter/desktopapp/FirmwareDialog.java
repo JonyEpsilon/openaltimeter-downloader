@@ -27,7 +27,7 @@ public class FirmwareDialog extends JDialog {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setTitle("openaltimeter firmware flash");
-		setBounds(100, 100, 476, 328);
+		setBounds(100, 100, 542, 406);
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
@@ -79,7 +79,7 @@ public class FirmwareDialog extends JDialog {
 				"</html>"
 		);
 		label.setVerticalAlignment(SwingConstants.TOP);
-		label.setBounds(25, 11, 400, 233);
+		label.setBounds(25, 11, 484, 328);
 		panel_1.add(label);
 	}
 

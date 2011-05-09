@@ -39,7 +39,7 @@ public class SettingsDialog extends JDialog {
 	public SettingsDialog(final Controller controller) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(SettingsDialog.class.getResource("/logo_short_64.png")));
 		setTitle("openaltimeter settings");
-		setBounds(100, 100, 679, 399);
+		setBounds(100, 100, 725, 399);
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.SOUTH);
@@ -66,109 +66,109 @@ public class SettingsDialog extends JDialog {
 		
 		JLabel lblLoggingIntervalms = new JLabel("Logging interval (ms)");
 		lblLoggingIntervalms.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblLoggingIntervalms.setBounds(30, 35, 115, 14);
+		lblLoggingIntervalms.setBounds(24, 36, 135, 14);
 		panel_1.add(lblLoggingIntervalms);
 		
 		logIntervalMSTextField = new JTextField();
 		logIntervalMSTextField.setText("500");
-		logIntervalMSTextField.setBounds(155, 32, 86, 20);
+		logIntervalMSTextField.setBounds(168, 32, 86, 20);
 		panel_1.add(logIntervalMSTextField);
 		logIntervalMSTextField.setColumns(10);
 		
 		JLabel lblDefaultValueOf = new JLabel("Default value of 500 gives two samples per second. (Min. 333)");
-		lblDefaultValueOf.setBounds(251, 35, 319, 14);
+		lblDefaultValueOf.setBounds(269, 35, 440, 14);
 		panel_1.add(lblDefaultValueOf);
 		
 		JLabel lblHeightUnits = new JLabel("Height units");
 		lblHeightUnits.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblHeightUnits.setBounds(30, 63, 115, 14);
+		lblHeightUnits.setBounds(44, 64, 115, 14);
 		panel_1.add(lblHeightUnits);
 		
 		heightUnitsTextField = new JTextField();
 		heightUnitsTextField.setText("3.281");
 		heightUnitsTextField.setColumns(10);
-		heightUnitsTextField.setBounds(155, 60, 86, 20);
+		heightUnitsTextField.setBounds(168, 60, 86, 20);
 		panel_1.add(heightUnitsTextField);
 		
 		JLabel lblDefaultValueOf_1 = new JLabel("Default value of 3.281 for feet, 1.0 for metres.");
-		lblDefaultValueOf_1.setBounds(251, 63, 286, 14);
+		lblDefaultValueOf_1.setBounds(269, 63, 313, 14);
 		panel_1.add(lblDefaultValueOf_1);
 		
 		JLabel lblBatteryType = new JLabel("Battery type");
 		lblBatteryType.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblBatteryType.setBounds(30, 91, 115, 14);
+		lblBatteryType.setBounds(44, 92, 115, 14);
 		panel_1.add(lblBatteryType);
 		
 		ButtonGroup batteryTypeGroup = new ButtonGroup();
 		
 		rdbtnNimh = new JRadioButton("NiMH");
 		rdbtnNimh.setSelected(true);
-		rdbtnNimh.setBounds(155, 87, 71, 23);
+		rdbtnNimh.setBounds(168, 87, 71, 23);
 		batteryTypeGroup.add(rdbtnNimh);
 		panel_1.add(rdbtnNimh);
 		
 		rdbtnLipo = new JRadioButton("LiPo");
-		rdbtnLipo.setBounds(155, 112, 71, 23);
+		rdbtnLipo.setBounds(168, 112, 71, 23);
 		batteryTypeGroup.add(rdbtnLipo);
 		panel_1.add(rdbtnLipo);
 		
 		rdbtnNone = new JRadioButton("None");
-		rdbtnNone.setBounds(155, 138, 71, 23);
+		rdbtnNone.setBounds(168, 138, 71, 23);
 		batteryTypeGroup.add(rdbtnNone);
 		panel_1.add(rdbtnNone);
 		
 		JLabel lblDeterminesTheBehaviour = new JLabel("Be sure to set an appropriate threshold below.");
 		lblDeterminesTheBehaviour.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblDeterminesTheBehaviour.setBounds(251, 91, 265, 14);
+		lblDeterminesTheBehaviour.setBounds(269, 91, 265, 14);
 		panel_1.add(lblDeterminesTheBehaviour);
 		
 		JLabel lblLowVoltageThreshold = new JLabel("Low voltage threshold (V)");
 		lblLowVoltageThreshold.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblLowVoltageThreshold.setBounds(20, 167, 125, 14);
+		lblLowVoltageThreshold.setBounds(10, 168, 159, 14);
 		panel_1.add(lblLowVoltageThreshold);
 		
 		lowVoltageThresholdTextField = new JTextField();
 		lowVoltageThresholdTextField.setText("4.7");
 		lowVoltageThresholdTextField.setColumns(10);
-		lowVoltageThresholdTextField.setBounds(155, 164, 86, 20);
+		lowVoltageThresholdTextField.setBounds(168, 164, 86, 20);
 		panel_1.add(lowVoltageThresholdTextField);
 		
 		JLabel lblValueIsPer = new JLabel("Value is per pack for NiMH, and per cell for LiPo.");
-		lblValueIsPer.setBounds(251, 167, 286, 14);
+		lblValueIsPer.setBounds(269, 167, 388, 14);
 		panel_1.add(lblValueIsPer);
 		
 		JLabel lblDefaultValuesOf = new JLabel("Default values of 4.7 for NiMH and 3.5 for LiPo work well.");
 		lblDefaultValuesOf.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblDefaultValuesOf.setBounds(251, 185, 388, 14);
+		lblDefaultValuesOf.setBounds(269, 185, 388, 14);
 		panel_1.add(lblDefaultValuesOf);
 		
 		JLabel lblBatteryMonitorCalibration = new JLabel("Battery monitor calibration");
 		lblBatteryMonitorCalibration.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblBatteryMonitorCalibration.setBounds(10, 217, 135, 14);
+		lblBatteryMonitorCalibration.setBounds(10, 218, 149, 14);
 		panel_1.add(lblBatteryMonitorCalibration);
 		
 		batteryMonitorCalibrationTextField = new JTextField();
 		batteryMonitorCalibrationTextField.setText("1.0");
 		batteryMonitorCalibrationTextField.setColumns(10);
-		batteryMonitorCalibrationTextField.setBounds(155, 214, 86, 20);
+		batteryMonitorCalibrationTextField.setBounds(168, 214, 86, 20);
 		panel_1.add(batteryMonitorCalibrationTextField);
 		
 		JLabel lblOnlyChangeFrom = new JLabel("Only change from 1.0 if you've got a very good meter and know what you're doing!");
-		lblOnlyChangeFrom.setBounds(251, 217, 402, 14);
+		lblOnlyChangeFrom.setBounds(269, 217, 440, 14);
 		panel_1.add(lblOnlyChangeFrom);
 		
 		JLabel lblLogSecondServo = new JLabel("Log second servo channel");
 		lblLogSecondServo.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblLogSecondServo.setBounds(10, 245, 135, 14);
+		lblLogSecondServo.setBounds(10, 246, 149, 14);
 		panel_1.add(lblLogSecondServo);
 		
 		logServoCheckBox = new JCheckBox("");
 		logServoCheckBox.setSelected(true);
-		logServoCheckBox.setBounds(155, 241, 28, 23);
+		logServoCheckBox.setBounds(168, 241, 28, 23);
 		panel_1.add(logServoCheckBox);
 		
 		JLabel lblOnlyChangeFrom_1 = new JLabel("Note: enabling uses no extra log memory.");
-		lblOnlyChangeFrom_1.setBounds(251, 245, 402, 14);
+		lblOnlyChangeFrom_1.setBounds(269, 245, 402, 14);
 		panel_1.add(lblOnlyChangeFrom_1);
 		
 		JLabel lblSettingsAreNot = new JLabel("Settings are not saved until you press \"Save settings to altimeter\" below.");
@@ -178,28 +178,28 @@ public class SettingsDialog extends JDialog {
 		
 		JLabel lblSwitchType = new JLabel("Switch type");
 		lblSwitchType.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblSwitchType.setBounds(30, 270, 115, 14);
+		lblSwitchType.setBounds(44, 271, 115, 14);
 		panel_1.add(lblSwitchType);
 		
 		ButtonGroup switchTypeButtonGroup = new ButtonGroup();
 		
 		rdbtn3position = new JRadioButton("3-position");
 		rdbtn3position.setSelected(true);
-		rdbtn3position.setBounds(155, 266, 86, 23);
+		rdbtn3position.setBounds(168, 266, 86, 23);
 		switchTypeButtonGroup.add(rdbtn3position);
 		panel_1.add(rdbtn3position);
 		
 		JLabel lblThreePositionGives = new JLabel("Three position gives access to height readout and lost model alarm.");
-		lblThreePositionGives.setBounds(251, 270, 388, 14);
+		lblThreePositionGives.setBounds(269, 270, 440, 14);
 		panel_1.add(lblThreePositionGives);
 		
 		rdbtn2position = new JRadioButton("2-position");
-		rdbtn2position.setBounds(155, 291, 86, 23);
+		rdbtn2position.setBounds(168, 291, 86, 23);
 		switchTypeButtonGroup.add(rdbtn2position);
 		panel_1.add(rdbtn2position);
 		
 		JLabel lblTwoPositionGives = new JLabel("Two position gives access to height readout only.");
-		lblTwoPositionGives.setBounds(251, 295, 388, 14);
+		lblTwoPositionGives.setBounds(269, 295, 388, 14);
 		panel_1.add(lblTwoPositionGives);
 	}
 	
