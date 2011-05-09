@@ -1,0 +1,30 @@
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>downloader.jar</jar>
+  <outfile>downloader.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <customProcName>true</customProcName>
+  <stayAlive>true</stayAlive>
+  <manifest></manifest>
+  <icon>logo_short_128.ico</icon>
+  <jre>
+    <path>jre_win</path>
+    <minVersion></minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+  </jre>
+  <versionInfo>
+    <fileDescription>openaltimeter downloader</fileDescription>
+    <copyright>(c) 2010-2011 Jony Hudson and contributors, http://openaltimeter.org</copyright>
+     <productName>openaltimeter downloader</productName>
+    <companyName>http://openaltimeter.org</companyName>
+    <internalName>downloader</internalName>
+    <originalFilename>downloader.exe</originalFilename>
+  </versionInfo>  
+</launch4jConfig>
