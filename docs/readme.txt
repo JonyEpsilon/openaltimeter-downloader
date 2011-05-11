@@ -25,6 +25,8 @@ Jan Steidl
 Changelog
 =========
 
+1.1.0.0: fix rare download problems. Much better platform integration on Windows. New firmware version V5.
+
 V1: two- and three-position switch configurable from settings. File name extension filtering. App now advises if firmware is out of date. New firmware version V4.
 
 beta6: fix the beeping-on-firmware upgrade bug. Fix the long delay when loading/downloading data bug.
