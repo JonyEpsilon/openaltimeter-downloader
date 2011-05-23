@@ -25,6 +25,8 @@ Jan Steidl
 Changelog
 =========
 
+1.1.1.0: fix download timeout bug for very full OAs.
+
 1.1.0.0: fix rare download problems. Much better platform integration on Windows. New firmware version V5.
 
 V1: two- and three-position switch configurable from settings. File name extension filtering. App now advises if firmware is out of date. New firmware version V4.
