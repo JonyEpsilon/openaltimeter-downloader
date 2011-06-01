@@ -98,6 +98,12 @@ public class SerialLink {
 		out.write(c);
 	}
 	
+	public void write(String s) throws IOException
+	{
+		char[] chars = s.toCharArray();
+		for (char c : chars) out.write(c);
+	}
+	
 	public String readString(int bufferSize) throws IOException
 	{
 		byte[] inputBuffer = new byte[bufferSize];

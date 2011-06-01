@@ -115,5 +115,11 @@ public class LogEntry {
 	{
 		return "P: " + pressure + " T: " + temperature + " B: " + battery + " S: " + servo;
 	}
+	
+	public String rawDataToUploadString() {
+		return "P: " + pressure + " T: " + 
+			((int)(temperature * 100)) + " B: " 
+			+ ((int)(battery * 100)) + " S: " + servo;
+	}
 
 }

@@ -175,6 +175,17 @@ public class Altimeter {
 		try {Thread.sleep(4000);} catch (Exception e) {};		
 	}
 	
+	public void upload(String dataToUpload) throws IOException{
+		erase();
+		serial.clearInput();
+		String[] lines = dataToUpload.split("\n");
+		for (String line : lines) {
+			serial.write('u');
+			serial.write(line + "*");
+			try {Thread.sleep(150);} catch (InterruptedException e) {}		
+		}
+	}
+	
 	@SuppressWarnings("serial")
 	public class DownloadTimeoutException extends Exception {
 	}
@@ -182,6 +193,7 @@ public class Altimeter {
 	@SuppressWarnings("serial")
 	public class NotAnOpenaltimeterException extends Exception {
 	}
+
 
 
 }

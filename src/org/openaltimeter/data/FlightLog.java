@@ -125,6 +125,8 @@ public class FlightLog {
 	}
 	
 	public String rawDataToString(int lower, int upper) {
+		if (lower < 0) lower = 0;
+		if (upper > logData.size() - 1) upper = logData.size() - 1;
 		StringBuilder sb = new StringBuilder();
 		for (int i = lower; i < upper; i++) sb.append(logData.get(i).rawDataToString() + "\r\n");
 		return sb.toString();
@@ -132,6 +134,15 @@ public class FlightLog {
 
 	public String rawDataToString() {
 		return rawDataToString(0, logData.size());
+	}
+	
+	// this mangles the data into the upload format - pretty cheezy hack
+	public String rawDataToUploadString(int lower, int upper) {
+		if (lower < 0) lower = 0;
+		if (upper > logData.size() - 1) upper = logData.size() - 1;
+		StringBuilder sb = new StringBuilder();
+		for (int i = lower; i < upper; i++) sb.append(logData.get(i).rawDataToUploadString() + "\r\n");
+		return sb.toString();
 	}
 	
 	public void fromRawData(String rawData) throws IOException {

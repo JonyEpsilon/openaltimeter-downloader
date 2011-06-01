@@ -119,6 +119,8 @@ public class MainWindow {
 	private File filePath; 
 	private JMenuItem mntmSettings;
 	private JMenuItem mntmFlashFirmware;
+	private JMenu mnAdvanced;
+	private JMenuItem mntmUploadSelectionerases;
 	
 	public void show() {
 		frmOpenaltimeter.setVisible(true);
@@ -350,6 +352,19 @@ public class MainWindow {
 			}
 		});
 		mnLogger.add(mntmFlashFirmware);
+		
+		mnAdvanced = new JMenu("Advanced");
+		menuBar.add(mnAdvanced);
+		
+		mntmUploadSelectionerases = new JMenuItem("Upload selection (erases OA)");
+		mntmUploadSelectionerases.setEnabled(false);
+		mntmUploadSelectionerases.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				controller.uploadSelection(chart.getXYPlot().getDomainAxis().getLowerBound(), 
+	                    chart.getXYPlot().getDomainAxis().getUpperBound());
+			}
+		});
+		mnAdvanced.add(mntmUploadSelectionerases);
 		// os specific function
 		if (controller.os != OS.OTHER) 
 			mntmFlashFirmware.setEnabled(true);
@@ -528,6 +543,7 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(true);
 					mntmSettings.setEnabled(true);
 					mnSerialPort.setEnabled(false);
+					mntmUploadSelectionerases.setEnabled(true);
 					// os specific function
 					if (controller.os != OS.OTHER) 
 						mntmFlashFirmware.setEnabled(true);
@@ -539,6 +555,7 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(true);
+					mntmUploadSelectionerases.setEnabled(false);
 					// os specific function
 					if (controller.os != OS.OTHER) 
 						mntmFlashFirmware.setEnabled(true);
@@ -550,6 +567,7 @@ public class MainWindow {
 					mntmEraseLogger.setEnabled(false);
 					mntmSettings.setEnabled(false);
 					mnSerialPort.setEnabled(false);
+					mntmUploadSelectionerases.setEnabled(false);
 					// os specific function
 					if (controller.os != OS.OTHER) 
 						mntmFlashFirmware.setEnabled(false);

@@ -633,6 +633,18 @@ public class Controller {
 		}
 	}
 	
+	public void uploadSelection(double lowerBound, double upperBound) {
+		String dataToUpload = flightLog.rawDataToUploadString((int) (lowerBound / LOG_INTERVAL), (int) (upperBound / LOG_INTERVAL));
+		try {
+			altimeter.upload(dataToUpload);
+		} catch (IOException e){
+			Controller.log("Unable to upload data.", "error");
+			e.printStackTrace();
+		}
+		disconnect();
+	}
+	
 	@SuppressWarnings("serial")
 	class FirmwareFlashException extends Exception {}
+
 }
