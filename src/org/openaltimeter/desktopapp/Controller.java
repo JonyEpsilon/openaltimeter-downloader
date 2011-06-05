@@ -641,7 +641,7 @@ public class Controller {
 			Controller.log("Unable to upload data.", "error");
 			e.printStackTrace();
 		}
-		disconnect();
+		//disconnect();
 	}
 	
 	@SuppressWarnings("serial")

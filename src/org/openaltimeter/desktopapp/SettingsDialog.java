@@ -36,7 +36,7 @@ public class SettingsDialog extends JDialog {
 	private JButton btnClose;
 	
 	private String[] actionStrings = {"Do nothing", "Output max. height", "Output launch height",
-			"Output launch+3s height", "Output battery voltage"};
+			"Output launch+5s height", "Output battery voltage"};
 	private JComboBox midPositionActionComboBox;
 	private JComboBox onPositionActionComboBox;
 	
