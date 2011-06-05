@@ -2,12 +2,14 @@ package org.openaltimeter.desktopapp;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,7 +21,6 @@ import javax.swing.WindowConstants;
 
 import org.openaltimeter.settings.Settings;
 import org.openaltimeter.settings.Settings.BatteryType;
-import java.awt.Toolkit;
 
 @SuppressWarnings("serial")
 public class SettingsDialog extends JDialog {
@@ -33,8 +34,12 @@ public class SettingsDialog extends JDialog {
 	private JCheckBox logServoCheckBox;
 	private JButton btnSaveSettingsTo;
 	private JButton btnClose;
-	private JRadioButton rdbtn3position;
-	private JRadioButton rdbtn2position;
+	
+	private String[] actionStrings = {"Do nothing", "Output max. height", "Output launch height",
+			"Output launch+3s height", "Output battery voltage"};
+	private JComboBox midPositionActionComboBox;
+	private JComboBox onPositionActionComboBox;
+	
 	
 	public SettingsDialog(final Controller controller) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(SettingsDialog.class.getResource("/logo_short_64.png")));
@@ -176,31 +181,24 @@ public class SettingsDialog extends JDialog {
 		lblSettingsAreNot.setBounds(10, 11, 460, 14);
 		panel_1.add(lblSettingsAreNot);
 		
-		JLabel lblSwitchType = new JLabel("Switch type");
+		JLabel lblSwitchType = new JLabel("Switch mid position action");
 		lblSwitchType.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblSwitchType.setBounds(44, 271, 115, 14);
+		lblSwitchType.setBounds(24, 271, 135, 14);
 		panel_1.add(lblSwitchType);
 		
-		ButtonGroup switchTypeButtonGroup = new ButtonGroup();
+		midPositionActionComboBox = new JComboBox(actionStrings);
+		midPositionActionComboBox.setBounds(168, 268, 223, 20);
+		panel_1.add(midPositionActionComboBox);
 		
-		rdbtn3position = new JRadioButton("3-position");
-		rdbtn3position.setSelected(true);
-		rdbtn3position.setBounds(168, 266, 86, 23);
-		switchTypeButtonGroup.add(rdbtn3position);
-		panel_1.add(rdbtn3position);
+		JLabel lblSwitchOnPosition = new JLabel("Switch on position action");
+		lblSwitchOnPosition.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblSwitchOnPosition.setBounds(24, 299, 135, 14);
+		panel_1.add(lblSwitchOnPosition);
 		
-		JLabel lblThreePositionGives = new JLabel("Three position gives access to height readout and lost model alarm.");
-		lblThreePositionGives.setBounds(269, 270, 440, 14);
-		panel_1.add(lblThreePositionGives);
-		
-		rdbtn2position = new JRadioButton("2-position");
-		rdbtn2position.setBounds(168, 291, 86, 23);
-		switchTypeButtonGroup.add(rdbtn2position);
-		panel_1.add(rdbtn2position);
-		
-		JLabel lblTwoPositionGives = new JLabel("Two position gives access to height readout only.");
-		lblTwoPositionGives.setBounds(269, 295, 388, 14);
-		panel_1.add(lblTwoPositionGives);
+		onPositionActionComboBox = new JComboBox(actionStrings);
+		onPositionActionComboBox.setBounds(168, 296, 223, 20);
+		panel_1.add(onPositionActionComboBox);
+
 	}
 	
 	public Settings getSettings() {
@@ -211,7 +209,8 @@ public class SettingsDialog extends JDialog {
 		s.lowVoltageThreshold = Float.parseFloat(lowVoltageThresholdTextField.getText());
 		s.batteryMonitorCalibration = Float.parseFloat(batteryMonitorCalibrationTextField.getText());
 		s.logServo = logServoCheckBox.isSelected();
-		s.threePositionSwitch = rdbtn3position.isSelected();
+		s.midPositionAction = s.parseActionByte(midPositionActionComboBox.getSelectedIndex());
+		s.onPositionAction = s.parseActionByte(onPositionActionComboBox.getSelectedIndex());		
 		return s;
 	}
 	
@@ -238,11 +237,8 @@ public class SettingsDialog extends JDialog {
 		lowVoltageThresholdTextField.setText(Float.toString(s.lowVoltageThreshold));
 		batteryMonitorCalibrationTextField.setText(Float.toString(s.batteryMonitorCalibration));
 		logServoCheckBox.setSelected(s.logServo);
-		if (s.threePositionSwitch) {
-			rdbtn3position.setSelected(true);
-		} else {
-			rdbtn2position.setSelected(true);
-		}
+		midPositionActionComboBox.setSelectedIndex(s.actionToByte(s.midPositionAction));
+		onPositionActionComboBox.setSelectedIndex(s.actionToByte(s.onPositionAction));
 	}
 	
 	public void enableButtons(final boolean enable) {

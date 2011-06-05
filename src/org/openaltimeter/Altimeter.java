@@ -31,7 +31,6 @@ import org.openaltimeter.data.LogEntry;
 import org.openaltimeter.data.LogEntry.DataFormat;
 import org.openaltimeter.desktopapp.Controller;
 import org.openaltimeter.settings.Settings;
-import org.openaltimeter.settings.Settings.SettingsFormat;
 
 public class Altimeter {
 
@@ -44,7 +43,6 @@ public class Altimeter {
 
 	private SerialLink serial;
 	public DataFormat dataFormat = DataFormat.V1_FORMAT;
-	public SettingsFormat settingsFormat = SettingsFormat.V2_FORMAT;
 	public Settings settings;
 	public String firmwareVersion;
 	
@@ -74,7 +72,6 @@ public class Altimeter {
 		String firstLine = welcomeString.split("\n")[0];
 		firmwareVersion = firstLine.split(": ")[1];
 		firmwareVersion = firmwareVersion.substring(0, firmwareVersion.length() - 1);
-		System.out.println("Logger version : " + firmwareVersion);
 		
 		// return the welcome message
 		return welcomeString;
@@ -153,7 +150,7 @@ public class Altimeter {
 		// cheesily just use a short delay
 		try {Thread.sleep(500);} catch (Exception e) {};
 		serial.stopBufferedRead();
-		settings = new Settings(serial.getBuffer(), settingsFormat);
+		settings = new Settings(serial.getBuffer());
 	}
 
 	public void writeSettings() throws IOException
