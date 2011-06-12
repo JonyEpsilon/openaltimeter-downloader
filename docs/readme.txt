@@ -25,6 +25,8 @@ Jan Steidl
 Changelog
 =========
 
+1.2.0.0: new switch configuration settings to support firmware V6. Version of downloader and bundled firmware now shown in title bar. Support for the longer erase commands used by firmware V6. Super-secret hidden debugging tools (see the Hg commit messages!)
+
 1.1.1.0: fix download timeout bug for very full OAs.
 
 1.1.0.0: fix rare download problems. Much better platform integration on Windows. New firmware version V5.
