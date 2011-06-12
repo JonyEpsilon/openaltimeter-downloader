@@ -133,7 +133,7 @@ public class Altimeter {
 	
 	public String erase() throws IOException {
 		serial.clearInput();
-		serial.write('e');
+		serial.write("ee");
 		try {Thread.sleep(5000);} catch (Exception e) {};
 		String response = serial.readString(2048);	
 		
@@ -156,7 +156,7 @@ public class Altimeter {
 	public void writeSettings() throws IOException
 	{
 		serial.clearInput();
-		serial.write('s');
+		serial.write("ss");
 		byte[] settingsBytes = settings.toByteArray();
 		for (int i = 0; i < settingsBytes.length; i++) {
 			serial.write((char)settingsBytes[i]);
@@ -168,7 +168,7 @@ public class Altimeter {
 
 	public void wipeSettings() throws IOException {
 		serial.clearInput();
-		serial.write('w');
+		serial.write("ww");
 		try {Thread.sleep(4000);} catch (Exception e) {};		
 	}
 	
