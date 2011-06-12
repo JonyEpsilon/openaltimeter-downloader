@@ -21,6 +21,7 @@ package org.openaltimeter.desktopapp;
 import java.awt.Dialog.ModalityType;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -59,6 +60,8 @@ public class Controller {
 	MainWindow window;
 	FlightLog flightLog;
 	private boolean unitFeet;
+	public String versionNumber = "";
+	public String firmwareVersionNumber = "";
 
 	public void setUnitFeet(boolean unitFeet) {
 		this.unitFeet = unitFeet;
@@ -93,9 +96,25 @@ public class Controller {
 		if (System.getProperty("os.name").startsWith("Mac")) os = OS.MAC;
 		if (System.getProperty("os.name").startsWith("Linux")) os = OS.LINUX;
 		
+		// load up the version properties file
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileInputStream("version.properties"));
+			versionNumber = prop.getProperty("version");
+			firmwareVersionNumber = prop.getProperty("firmware_version");
+		} catch (Exception e) {
+			// If anything at all goes wrong here we just ignore it and use the default values
+			// The stack trace is suppressed because it's annoying when debugging - the load
+			// always fails.
+			// TODO: this is a limitation of the way things are currently built. The problem
+			// is the lib directory.
+			// e.printStackTrace();
+		}
+		
 		window = new MainWindow();
 		window.controller = this;
 		window.initialise();
+		window.setTitle("openaltimeter " + versionNumber + " (" + firmwareVersionNumber + ")");
 		altimeter = new Altimeter();
 		window.show();
 		buildSerialMenu();

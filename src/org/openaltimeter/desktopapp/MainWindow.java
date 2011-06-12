@@ -737,4 +737,8 @@ public class MainWindow {
 		chart.getXYPlot().getRangeAxis(0).setLabel(selected ? "Altitude (ft)" : "Altitude (m)");
 	}
 
+	public void setTitle(String string) {
+		frmOpenaltimeter.setTitle(string);
+	}
+
 }
