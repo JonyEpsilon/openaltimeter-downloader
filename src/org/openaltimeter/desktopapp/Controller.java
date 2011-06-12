@@ -54,7 +54,6 @@ public class Controller {
 	public enum OS { WINDOWS, MAC, LINUX, OTHER };
 	public OS os;
 	
-	private static final double LOG_INTERVAL = 0.5;
 	static Controller controller;
 	Altimeter altimeter;
 	MainWindow window;
@@ -277,13 +276,13 @@ public class Controller {
 		flightLog = log;
 		
 		if (isUnitFeet())
-			window.setAltitudeData(log.getAltitudeFt(), LOG_INTERVAL);
+			window.setAltitudeData(log.getAltitudeFt(), flightLog.logInterval);
 		else
-			window.setAltitudeData(log.getAltitudeM(), LOG_INTERVAL);
+			window.setAltitudeData(log.getAltitudeM(), flightLog.logInterval);
 		
-		window.setBatteryData(log.getBattery(), LOG_INTERVAL);
-		window.setTemperatureData(log.getTemperature(), LOG_INTERVAL);
-		window.setServoData(log.getServo(), LOG_INTERVAL);
+		window.setBatteryData(log.getBattery(), flightLog.logInterval);
+		window.setTemperatureData(log.getTemperature(), flightLog.logInterval);
+		window.setServoData(log.getServo(), flightLog.logInterval);
 	}
 	
 	public void saveRaw() {
@@ -304,7 +303,7 @@ public class Controller {
 		if (f == null) return;
 		try {
 			FileWriter fw = new FileWriter(f);
-			fw.write(flightLog.rawDataToString((int) (lower / LOG_INTERVAL), (int) (upper / LOG_INTERVAL)));
+			fw.write(flightLog.rawDataToString((int) (lower / flightLog.logInterval), (int) (upper / flightLog.logInterval)));
 			fw.close();
 		} catch (IOException e) {
 			window.log("Error writing file. Please check the filename and try again.", "error");
@@ -413,9 +412,9 @@ public class Controller {
 		
 		if (flightLog != null) {
 			if (isUnitFeet()) 
-				window.setAltitudeData(flightLog.getAltitudeFt(), LOG_INTERVAL);
+				window.setAltitudeData(flightLog.getAltitudeFt(), flightLog.logInterval);
 			else
-				window.setAltitudeData(flightLog.getAltitudeM(), LOG_INTERVAL);
+				window.setAltitudeData(flightLog.getAltitudeM(), flightLog.logInterval);
 		}
 	}
 
@@ -653,7 +652,8 @@ public class Controller {
 	}
 	
 	public void uploadSelection(double lowerBound, double upperBound) {
-		String dataToUpload = flightLog.rawDataToUploadString((int) (lowerBound / LOG_INTERVAL), (int) (upperBound / LOG_INTERVAL));
+		String dataToUpload = flightLog.rawDataToUploadString((int) (lowerBound / flightLog.logInterval), 
+				(int) (upperBound / flightLog.logInterval));
 		try {
 			altimeter.upload(dataToUpload);
 		} catch (IOException e){

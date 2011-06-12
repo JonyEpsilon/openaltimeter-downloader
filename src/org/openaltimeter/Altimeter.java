@@ -45,6 +45,7 @@ public class Altimeter {
 	public DataFormat dataFormat = DataFormat.V1_FORMAT;
 	public Settings settings;
 	public String firmwareVersion;
+	public int loggingPeriod;
 	
 	public Altimeter() {
 		serial = new SerialLink();
@@ -72,6 +73,12 @@ public class Altimeter {
 		String firstLine = welcomeString.split("\n")[0];
 		firmwareVersion = firstLine.split(": ")[1];
 		firmwareVersion = firmwareVersion.substring(0, firmwareVersion.length() - 1);
+		
+		// extract the logging period
+		String logPeriodLine = welcomeString.split("\n")[4];
+		String logPeriodText = logPeriodLine.split(": ")[1];
+		String trimLPText = logPeriodText.substring(0, logPeriodText.length() - 1);
+		loggingPeriod = Integer.parseInt(trimLPText);
 		
 		// return the welcome message
 		return welcomeString;
@@ -128,6 +135,7 @@ public class Altimeter {
 			log.add(le);
 		}
 		log.calculateAltitudes();
+		log.logInterval = (double)loggingPeriod / 1000.0;
 		return log;
 	}
 	

@@ -23,11 +23,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class FlightLog {
  
 	public ArrayList<LogEntry> logData = new ArrayList<LogEntry>();
 	public ArrayList<Annotation> annotations = new ArrayList<Annotation>();
+	public double logInterval = 0.5;
 	
 	private static final int BASE_PRESSURE_SAMPLES = 20;
 	private static final long PRESSURE_EMPTY_DATA = -1;
@@ -128,6 +130,8 @@ public class FlightLog {
 		if (lower < 0) lower = 0;
 		if (upper > logData.size() - 1) upper = logData.size() - 1;
 		StringBuilder sb = new StringBuilder();
+		// a simple header has the logging interval in it
+		sb.append("#logInterval: " + logInterval + "\r\n");
 		for (int i = lower; i < upper; i++) sb.append(logData.get(i).rawDataToString() + "\r\n");
 		return sb.toString();
 	}
@@ -147,12 +151,20 @@ public class FlightLog {
 	
 	public void fromRawData(String rawData) throws IOException {
 		BufferedReader br = new BufferedReader(new StringReader(rawData));
+		Vector<String> headerLines = new Vector<String>();
 		String line;
 		while ((line = br.readLine()) != null) {
-			LogEntry le = new LogEntry();
-			le.fromRawData(line);
-			logData.add(le);
+			if (line.startsWith("#")) headerLines.add(line.substring(1));
+			else {
+				LogEntry le = new LogEntry();
+				le.fromRawData(line);
+				logData.add(le);
+			}
 		}
 		calculateAltitudes();
+		// find the logging interval, if present - otherwise default is used
+		for (String l : headerLines) {
+			if (l.startsWith("logInterval")) logInterval = Double.parseDouble(l.substring(14));
+		}
 	}
 }
