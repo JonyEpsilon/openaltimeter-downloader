@@ -104,16 +104,49 @@ public class FlightLog {
 	
 	public double[] getBattery()
 	{
+		//	mycarda 28 September 2011
+		//	when an end-of-file is encountered, return the last valid battery reading rather than zero
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).battery : 0;
+		// just in case there is only one data point and that is PRESSURE_EMPTY_DATA (in which case 0.0 is a reasonable value)
+		double lastVoltage = 0.0; 
+		for (int i = 0; i < numPoints; i++) 
+		{
+			if (logData.get(i).pressure != PRESSURE_EMPTY_DATA)
+			{
+				data[i] = logData.get(i).battery;
+				lastVoltage = data[i];
+			}
+			else
+			{
+				//	if there is no real data, use the last good value
+				data[i] = lastVoltage;
+			}
+		}
 		return data;
 	}
 
 	public double[] getTemperature() {
+		//	mycarda 28 September 2011
+		//	when an end-of-file is encountered, return the last valid temperature reading rather than zero
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).temperature : 0;
+		
+		// just in case there is only one data point and that is PRESSURE_EMPTY_DATA (in which case 0.0 is a reasonable value)
+		double lastTemperature = 0.0; 
+		for (int i = 0; i < numPoints; i++) 
+		{
+			if (logData.get(i).pressure != PRESSURE_EMPTY_DATA)
+			{
+				data[i] = logData.get(i).temperature;
+				lastTemperature = data[i];
+			}
+			else
+			{
+				//	if there is no real data, use the last good value
+				data[i] = lastTemperature;
+			}
+		}
 		
 		return data;
 	}
