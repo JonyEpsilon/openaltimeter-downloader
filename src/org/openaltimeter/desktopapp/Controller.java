@@ -283,6 +283,10 @@ public class Controller {
 		window.setBatteryData(log.getBattery(), flightLog.logInterval);
 		window.setTemperatureData(log.getTemperature(), flightLog.logInterval);
 		window.setServoData(log.getServo(), flightLog.logInterval);
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+		window.setEOFData(log.getEOF(), flightLog.logInterval);		
+
 	}
 	
 	public void saveRaw() {
@@ -402,6 +406,12 @@ public class Controller {
 		window.setTemperaturePlotVisible(selected);		
 	}
 
+	//	mycarda 29 September 2011
+	//	show/hide end of file markers
+	public void eofPlotSelectedChange(boolean selected) {
+		window.seteofPlotVisible(selected);		
+	}
+	
 	public void servoPlotSelectedChange(boolean selected) {
 		window.setServoPlotVisible(selected);		
 	}

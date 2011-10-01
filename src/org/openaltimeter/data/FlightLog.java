@@ -159,6 +159,25 @@ public class FlightLog {
 		return data;
 	}
 	
+	//	mycarda 29 September 2011
+	//	show/hide end of file markers
+	//	getEOF - find all end-of-file markers and add to data[]
+	public double[] getEOF() {
+		int numPoints = logData.size();
+		double[] data = new double[numPoints];	// technically this is an unrealistic value however it is an upper limit
+		int j = 0;
+		for (int i = 0; i < numPoints; i++) 
+		{
+			if (logData.get(i).pressure == PRESSURE_EMPTY_DATA)
+			{
+				data[j] = i;	//store the index of the logData (corresponds to x-axis value)
+				j++;
+			}
+		}
+		
+		return data;
+	}
+	
 	public String rawDataToString(int lower, int upper) {
 		if (lower < 0) lower = 0;
 		if (upper > logData.size() - 1) upper = logData.size() - 1;

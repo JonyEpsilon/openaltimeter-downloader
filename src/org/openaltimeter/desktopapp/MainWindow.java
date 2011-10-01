@@ -116,6 +116,12 @@ public class MainWindow {
 	private static final String PREF_WINDOW_HEIGHT = "PREF_WINDOW_HEIGHT";
 	private static final String PREF_FILE_PATH = "PREF_FILE_PATH";
 	
+	//	mycarda 29 September 2011
+	//	show/hide end of file markers
+	private JCheckBoxMenuItem chckbxmntmEOF;
+	XYSeries eofData = new XYSeries("EOF");
+	private static final String PREF_SHOW_EOF = "PREF_SHOW_EOF";
+
 	private File filePath; 
 	private JMenuItem mntmSettings;
 	private JMenuItem mntmFlashFirmware;
@@ -261,6 +267,17 @@ public class MainWindow {
 		});
 		chckbxmntmTemperature.setSelected(prefs.getBoolean(PREF_SHOW_TEMPERATURE, false));
 		mnView.add(chckbxmntmTemperature);
+		
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+		chckbxmntmEOF = new JCheckBoxMenuItem("EOF");
+		chckbxmntmEOF.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				controller.eofPlotSelectedChange(chckbxmntmEOF.isSelected());
+			}
+		});
+		chckbxmntmEOF.setSelected(prefs.getBoolean(PREF_SHOW_EOF, false));
+		mnView.add(chckbxmntmEOF);
 
 		mnView.addSeparator();
 		
@@ -390,6 +407,11 @@ public class MainWindow {
 		
 		XYSeriesCollection servoColl = new XYSeriesCollection();
 		servoColl.addSeries(servoData);
+		
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+		XYSeriesCollection eofColl = new XYSeriesCollection();
+		eofColl.addSeries(eofData);
 
 		String rangeTitle = controller.isUnitFeet() ? "Altitude (ft) " : "Altitude (m)";
 		chart = ChartFactory.createXYLineChart(
@@ -422,15 +444,29 @@ public class MainWindow {
         axisTemp.setTickLabelPaint(Color.gray);
         plot.setRangeAxis(3, axisTemp);
         
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+        final NumberAxis axisEOF = new NumberAxis("EOF");
+        axisEOF.setAutoRangeIncludesZero(false);
+        axisEOF.setTickLabelPaint(Color.white);
+        axisEOF.setVisible(false);
+        plot.setRangeAxis(4, axisEOF);
+        
         plot.setDataset(0, seriesColl);
         plot.setDataset(1, batteryColl);
         plot.setDataset(2, servoColl);
         plot.setDataset(3, tempColl);
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+        plot.setDataset(4, eofColl);
         
         plot.mapDatasetToRangeAxis(0, 0);
         plot.mapDatasetToRangeAxis(1, 1);
         plot.mapDatasetToRangeAxis(2, 2);
         plot.mapDatasetToRangeAxis(3, 3);
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+        plot.mapDatasetToRangeAxis(4, 4);
 
         final StandardXYItemRenderer renderer2 = new StandardXYItemRenderer();
         renderer2.setSeriesPaint(0, Color.green);
@@ -443,6 +479,12 @@ public class MainWindow {
         final StandardXYItemRenderer renderer4 = new StandardXYItemRenderer();
         renderer4.setSeriesPaint(0, Color.gray);
         plot.setRenderer(3, renderer4);
+        
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+        final StandardXYItemRenderer renderer5 = new StandardXYItemRenderer();
+        renderer5.setSeriesPaint(0, Color.white);
+        plot.setRenderer(4, renderer5);
 
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
@@ -477,6 +519,9 @@ public class MainWindow {
 		setVoltagePlotVisible(prefs.getBoolean(PREF_SHOW_VOLTAGE, false));
 		setTemperaturePlotVisible(prefs.getBoolean(PREF_SHOW_TEMPERATURE, false));
 		setServoPlotVisible(prefs.getBoolean(PREF_SHOW_SERVO, false));
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+		seteofPlotVisible(prefs.getBoolean(PREF_SHOW_EOF, false));
 		
 		// create the text pane, a document for it to view, and some styles
 		logTextPane = new JTextPane();
@@ -619,6 +664,23 @@ public class MainWindow {
 	{
 		setDataSeries(data, timeStep, servoData);
 	}
+	
+	//	mycarda 29 September 2011
+	//	show/hide end of file markers
+	public void setEOFData(final double[] data, final double timeStep)
+	{
+		//	loop through the data file until we get a zero which indicates no more end-of-file locations
+		eofData.clear();
+		int i = 0;
+		while ( data[i] != 0)
+		{
+			// add a vertical line (three points)
+			eofData.add(data[i] * timeStep, 0.0);
+			eofData.add(data[i] * timeStep, 9.0);
+			eofData.add(data[i] * timeStep, 0.0);
+			i++;
+		}
+	}
 
 	public void setDataSeries(final double[] data, final double timeStep, final XYSeries series) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -646,6 +708,9 @@ public class MainWindow {
 		prefs.putInt(PREF_WINDOW_WIDTH, frmOpenaltimeter.getWidth());
 		prefs.putInt(PREF_WINDOW_HEIGHT, frmOpenaltimeter.getHeight());
 		prefs.put(PREF_FILE_PATH, filePath.getAbsolutePath());
+		//	mycarda 29 September 2011
+		//	show/hide end of file markers
+		prefs.putBoolean(PREF_SHOW_EOF,chckbxmntmEOF.isSelected());
 	}
 
 	public void log(final String message, final String style) {
@@ -727,6 +792,14 @@ public class MainWindow {
 
 	public void setTemperaturePlotVisible(boolean selected) {
 		showPlot(selected, 3);
+	}
+	
+	//	mycarda 29 September 2011
+	//	show/hide end of file markers
+	public void seteofPlotVisible(boolean selected) {
+		// showPlot(selected, 4);
+		// just want to show the plot - not the axis
+		chart.getXYPlot().getRenderer(4).setSeriesVisible(0, selected);
 	}
 
 	private void showPlot(boolean selected, int index) {
