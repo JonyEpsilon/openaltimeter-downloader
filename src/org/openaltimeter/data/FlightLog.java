@@ -1,6 +1,6 @@
 /*
     openaltimeter -- an open-source altimeter for RC aircraft
-    Copyright (C) 2010  Jony Hudson, Jan Steidl
+    Copyright (C) 2010  Jony Hudson, Jan Steidl, mycarda
     http://openaltimeter.org
 
     This program is free software: you can redistribute it and/or modify
@@ -23,12 +23,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class FlightLog {
  
 	public ArrayList<LogEntry> logData = new ArrayList<LogEntry>();
-	public ArrayList<Annotation> annotations = new ArrayList<Annotation>();
 	public double logInterval = 0.5;
 	
 	private static final int BASE_PRESSURE_SAMPLES = 20;
@@ -76,16 +76,6 @@ public class FlightLog {
 			else 
 				basePressure = 0;
 		}
-		// TEMP: add some annotations to test the serializer
-		RegionAnnotation ra = new RegionAnnotation();
-		ra.endTime = 10;
-		ra.startTime = 5;
-		ra.text = "Hello, region.";
-		PointAnnotation pa = new PointAnnotation();
-		pa.text = "Hello, point.";
-		pa.time = 3;
-		annotations.add(ra);
-		annotations.add(pa);
 	}
 
 	public double[] getAltitudeFt() {
@@ -104,7 +94,6 @@ public class FlightLog {
 	
 	public double[] getBattery()
 	{
-		//	mycarda 28 September 2011
 		//	when an end-of-file is encountered, return the last valid battery reading rather than zero
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
@@ -127,7 +116,6 @@ public class FlightLog {
 	}
 
 	public double[] getTemperature() {
-		//	mycarda 28 September 2011
 		//	when an end-of-file is encountered, return the last valid temperature reading rather than zero
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
@@ -159,21 +147,11 @@ public class FlightLog {
 		return data;
 	}
 	
-	//	mycarda 29 September 2011
-	//	show/hide end of file markers
-	//	getEOF - find all end-of-file markers and add to data[]
-	public double[] getEOF() {
+	// returns the _indices_ of the end of file markers
+	public List<Integer> getEOFIndices() {
 		int numPoints = logData.size();
-		double[] data = new double[numPoints];	// technically this is an unrealistic value however it is an upper limit
-		int j = 0;
-		for (int i = 0; i < numPoints; i++) 
-		{
-			if (logData.get(i).pressure == PRESSURE_EMPTY_DATA)
-			{
-				data[j] = i;	//store the index of the logData (corresponds to x-axis value)
-				j++;
-			}
-		}
+		List<Integer> data = new ArrayList<Integer>();
+		for (int i = 0; i < numPoints; i++) if (logData.get(i).pressure == PRESSURE_EMPTY_DATA) data.add(i);
 		
 		return data;
 	}

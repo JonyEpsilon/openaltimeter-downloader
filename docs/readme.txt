@@ -20,7 +20,7 @@ The following people have contributed code to this project :)
 
 Jony Hudson
 Jan Steidl
-
+mycarda
 
 Changelog
 =========

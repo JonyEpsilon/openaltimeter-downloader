@@ -1,6 +1,6 @@
 /*
     openaltimeter -- an open-source altimeter for RC aircraft
-    Copyright (C) 2010  Jony Hudson, Jan Steidl
+    Copyright (C) 2010  Jony Hudson, Jan Steidl, mycarda
     http://openaltimeter.org
 
     This program is free software: you can redistribute it and/or modify
@@ -20,6 +20,8 @@ package org.openaltimeter.desktopapp;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -27,6 +29,7 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
@@ -58,6 +61,7 @@ import javax.swing.text.StyledDocument;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYPointerAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.AxisChangeEvent;
@@ -69,9 +73,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.openaltimeter.desktopapp.Controller.ConnectionState;
 import org.openaltimeter.desktopapp.Controller.OS;
-
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import org.openaltimeter.desktopapp.annotations.AltimeterChartMouseListener;
 
 public class MainWindow {
 
@@ -99,7 +101,6 @@ public class MainWindow {
 	private final JProgressBar progressBar = new JProgressBar();
 	private JMenuItem mntmSaveData;
 	private JMenuItem mntmSaveSelectionData;
-	private JMenuItem mntmSaveProcessedData;
 	private JFreeChart chart;
 	private JScrollBar domainScrollBar;
 	
@@ -116,17 +117,12 @@ public class MainWindow {
 	private static final String PREF_WINDOW_HEIGHT = "PREF_WINDOW_HEIGHT";
 	private static final String PREF_FILE_PATH = "PREF_FILE_PATH";
 	
-	//	mycarda 29 September 2011
-	//	show/hide end of file markers
-	private JCheckBoxMenuItem chckbxmntmEOF;
-	XYSeries eofData = new XYSeries("EOF");
-	private static final String PREF_SHOW_EOF = "PREF_SHOW_EOF";
-
 	private File filePath; 
 	private JMenuItem mntmSettings;
 	private JMenuItem mntmFlashFirmware;
 	private JMenu mnAdvanced;
 	private JMenuItem mntmUploadSelectionerases;
+	private JMenuItem mntmClearAnnotations;
 	
 	public void show() {
 		frmOpenaltimeter.setVisible(true);
@@ -172,14 +168,14 @@ public class MainWindow {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
-		mntmSaveData = new JMenuItem("Save raw data ...");
+		mntmSaveData = new JMenuItem("Save data ...");
 		mntmSaveData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.saveRaw();
 			}
 		});
 		
-		JMenuItem mntmLoadRawData = new JMenuItem("Load raw data ...");
+		JMenuItem mntmLoadRawData = new JMenuItem("Load data ...");
 		mntmLoadRawData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.loadRawData();
@@ -187,20 +183,11 @@ public class MainWindow {
 		});
 		mnFile.add(mntmLoadRawData);
 		
-		JMenuItem mntmLoadProcessedData = new JMenuItem("Load processed data ...");
-		mntmLoadProcessedData.setEnabled(false);
-		mntmLoadProcessedData.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				controller.loadProcessedData();
-			}
-		});
-		mnFile.add(mntmLoadProcessedData);
-		
 		mnFile.addSeparator();
 		mntmSaveData.setEnabled(false);
 		mnFile.add(mntmSaveData);
 		
-		mntmSaveSelectionData = new JMenuItem("Save selection raw data...");
+		mntmSaveSelectionData = new JMenuItem("Save selection data...");
 		mntmSaveSelectionData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.saveRawSelection(chart.getXYPlot().getDomainAxis().getLowerBound(), 
@@ -210,15 +197,6 @@ public class MainWindow {
 		mntmSaveSelectionData.setEnabled(false);
 		mnFile.add(mntmSaveSelectionData);
 		
-		mntmSaveProcessedData = new JMenuItem("Save processed data ...");
-		mntmSaveProcessedData.setEnabled(false);
-		mntmSaveProcessedData.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				controller.saveProcessed();
-			}
-		});
-		mnFile.add(mntmSaveProcessedData);
-
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -268,17 +246,6 @@ public class MainWindow {
 		chckbxmntmTemperature.setSelected(prefs.getBoolean(PREF_SHOW_TEMPERATURE, false));
 		mnView.add(chckbxmntmTemperature);
 		
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-		chckbxmntmEOF = new JCheckBoxMenuItem("EOF");
-		chckbxmntmEOF.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				controller.eofPlotSelectedChange(chckbxmntmEOF.isSelected());
-			}
-		});
-		chckbxmntmEOF.setSelected(prefs.getBoolean(PREF_SHOW_EOF, false));
-		mnView.add(chckbxmntmEOF);
-
 		mnView.addSeparator();
 		
 		ButtonGroup heightUnitsGroup = new ButtonGroup();
@@ -305,6 +272,16 @@ public class MainWindow {
 		});
 		heightUnitsGroup.add(rdbtnmntmMetres);
 		mnView.add(rdbtnmntmMetres);
+		
+		mnView.addSeparator();
+		
+		mntmClearAnnotations = new JMenuItem("Clear annotations");
+		mntmClearAnnotations.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				((XYPlot)chart.getPlot()).clearAnnotations();
+			}
+		});
+		mnView.add(mntmClearAnnotations);
 
 		JMenu mnConnection = new JMenu("Connection");
 		menuBar.add(mnConnection);
@@ -408,11 +385,6 @@ public class MainWindow {
 		XYSeriesCollection servoColl = new XYSeriesCollection();
 		servoColl.addSeries(servoData);
 		
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-		XYSeriesCollection eofColl = new XYSeriesCollection();
-		eofColl.addSeries(eofData);
-
 		String rangeTitle = controller.isUnitFeet() ? "Altitude (ft) " : "Altitude (m)";
 		chart = ChartFactory.createXYLineChart(
 						null,
@@ -443,30 +415,16 @@ public class MainWindow {
         axisTemp.setAutoRangeIncludesZero(false);
         axisTemp.setTickLabelPaint(Color.gray);
         plot.setRangeAxis(3, axisTemp);
-        
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-        final NumberAxis axisEOF = new NumberAxis("EOF");
-        axisEOF.setAutoRangeIncludesZero(false);
-        axisEOF.setTickLabelPaint(Color.white);
-        axisEOF.setVisible(false);
-        plot.setRangeAxis(4, axisEOF);
-        
+                
         plot.setDataset(0, seriesColl);
         plot.setDataset(1, batteryColl);
         plot.setDataset(2, servoColl);
         plot.setDataset(3, tempColl);
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-        plot.setDataset(4, eofColl);
         
         plot.mapDatasetToRangeAxis(0, 0);
         plot.mapDatasetToRangeAxis(1, 1);
         plot.mapDatasetToRangeAxis(2, 2);
         plot.mapDatasetToRangeAxis(3, 3);
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-        plot.mapDatasetToRangeAxis(4, 4);
 
         final StandardXYItemRenderer renderer2 = new StandardXYItemRenderer();
         renderer2.setSeriesPaint(0, Color.green);
@@ -479,13 +437,7 @@ public class MainWindow {
         final StandardXYItemRenderer renderer4 = new StandardXYItemRenderer();
         renderer4.setSeriesPaint(0, Color.gray);
         plot.setRenderer(3, renderer4);
-        
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-        final StandardXYItemRenderer renderer5 = new StandardXYItemRenderer();
-        renderer5.setSeriesPaint(0, Color.white);
-        plot.setRenderer(4, renderer5);
-
+   
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
 
@@ -506,7 +458,7 @@ public class MainWindow {
 		});
 
 		final ChartPanel cp = new ChartPanel(chart);
-//		cp.addChartMouseListener(new AltimeterChartMouseListener(cp));
+		cp.addChartMouseListener(new AltimeterChartMouseListener(cp));
 		
 		domainScrollBar = getScrollBar(plot.getDomainAxis());
 		JPanel pnl = new JPanel();
@@ -519,10 +471,7 @@ public class MainWindow {
 		setVoltagePlotVisible(prefs.getBoolean(PREF_SHOW_VOLTAGE, false));
 		setTemperaturePlotVisible(prefs.getBoolean(PREF_SHOW_TEMPERATURE, false));
 		setServoPlotVisible(prefs.getBoolean(PREF_SHOW_SERVO, false));
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-		seteofPlotVisible(prefs.getBoolean(PREF_SHOW_EOF, false));
-		
+
 		// create the text pane, a document for it to view, and some styles
 		logTextPane = new JTextPane();
 		logTextPane.setPreferredSize(new Dimension(6, 100));
@@ -536,7 +485,9 @@ public class MainWindow {
 		StyleConstants.setForeground(altimeterStyle, Color.BLUE);
 		Style errorStyle = logDocument.addStyle("error", messageStyle);
 		StyleConstants.setForeground(errorStyle, Color.RED);
-	
+		Style helpStyle = logDocument.addStyle("help", messageStyle);
+		StyleConstants.setForeground(helpStyle, Color.DARK_GRAY);
+		
 		scrollPane = new JScrollPane(logTextPane);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -630,15 +581,12 @@ public class MainWindow {
 				case NO_DATA: 
 					mntmSaveData.setEnabled(false);
 					mntmSaveSelectionData.setEnabled(false);
-//					mntmSaveProcessedData.setEnabled(false);
 					break;
 				case HAVE_DATA: 
 					// delete all previous annotations
-					((XYPlot) chart.getPlot()).clearAnnotations();
-
+					//((XYPlot) chart.getPlot()).clearAnnotations();
 					mntmSaveData.setEnabled(true);
 					mntmSaveSelectionData.setEnabled(true);
-//					mntmSaveProcessedData.setEnabled(true);
 					break;
 				}
 			}
@@ -664,23 +612,6 @@ public class MainWindow {
 	{
 		setDataSeries(data, timeStep, servoData);
 	}
-	
-	//	mycarda 29 September 2011
-	//	show/hide end of file markers
-	public void setEOFData(final double[] data, final double timeStep)
-	{
-		//	loop through the data file until we get a zero which indicates no more end-of-file locations
-		eofData.clear();
-		int i = 0;
-		while ( data[i] != 0)
-		{
-			// add a vertical line (three points)
-			eofData.add(data[i] * timeStep, 0.0);
-			eofData.add(data[i] * timeStep, 9.0);
-			eofData.add(data[i] * timeStep, 0.0);
-			i++;
-		}
-	}
 
 	public void setDataSeries(final double[] data, final double timeStep, final XYSeries series) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -689,6 +620,18 @@ public class MainWindow {
 				for (int i = 0; i < data.length; i++) series.add(timeStep * i, data[i], false);
 				series.fireSeriesChanged();
 				domainScrollBar.setValues(0, (int) (data.length / timeStep) + 1, 0, (int) (data.length * timeStep) + 1);
+			}});
+	}
+	
+	public void addEOFAnnotations(final List<Integer> eofIndices, final double timeStep)
+	{
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				XYPlot plot = (XYPlot)chart.getPlot();
+				for(int eofIndex : eofIndices)
+					plot.addAnnotation(new XYPointerAnnotation(
+							"EOF", eofIndex * timeStep, 0.0, 135.0
+									));
 			}});
 	}
 	
@@ -708,9 +651,6 @@ public class MainWindow {
 		prefs.putInt(PREF_WINDOW_WIDTH, frmOpenaltimeter.getWidth());
 		prefs.putInt(PREF_WINDOW_HEIGHT, frmOpenaltimeter.getHeight());
 		prefs.put(PREF_FILE_PATH, filePath.getAbsolutePath());
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-		prefs.putBoolean(PREF_SHOW_EOF,chckbxmntmEOF.isSelected());
 	}
 
 	public void log(final String message, final String style) {
@@ -794,13 +734,6 @@ public class MainWindow {
 		showPlot(selected, 3);
 	}
 	
-	//	mycarda 29 September 2011
-	//	show/hide end of file markers
-	public void seteofPlotVisible(boolean selected) {
-		// showPlot(selected, 4);
-		// just want to show the plot - not the axis
-		chart.getXYPlot().getRenderer(4).setSeriesVisible(0, selected);
-	}
 
 	private void showPlot(boolean selected, int index) {
 		chart.getXYPlot().getRenderer(index).setSeriesVisible(0, selected);

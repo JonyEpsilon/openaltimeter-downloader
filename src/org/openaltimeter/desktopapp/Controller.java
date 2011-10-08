@@ -1,6 +1,6 @@
 /*
     openaltimeter -- an open-source altimeter for RC aircraft
-    Copyright (C) 2010  Jony Hudson, Jan Steidl
+    Copyright (C) 2010  Jony Hudson, Jan Steidl, mycarda
     http://openaltimeter.org
 
     This program is free software: you can redistribute it and/or modify
@@ -117,6 +117,8 @@ public class Controller {
 		altimeter = new Altimeter();
 		window.show();
 		buildSerialMenu();
+		Controller.log("Graph hints: drag over area to zoom in, drag up and left to zoom out, click to annotate height, " +
+						"shift-click to annotate vario. Annotations can be cleared from view menu.", "help");
 	}
 	
 	private void setConnectionState(ConnectionState state) {
@@ -283,9 +285,8 @@ public class Controller {
 		window.setBatteryData(log.getBattery(), flightLog.logInterval);
 		window.setTemperatureData(log.getTemperature(), flightLog.logInterval);
 		window.setServoData(log.getServo(), flightLog.logInterval);
-		//	mycarda 29 September 2011
-		//	show/hide end of file markers
-		window.setEOFData(log.getEOF(), flightLog.logInterval);		
+		
+		window.addEOFAnnotations(log.getEOFIndices(), flightLog.logInterval);
 
 	}
 	
@@ -314,23 +315,6 @@ public class Controller {
 		}		
 	}
 	
-	public void saveProcessed() {
-//		File f = window.showSaveDialog();
-//		if (f == null) return;
-//		try {
-//			FileWriter fw = new FileWriter(f);
-//			JSONSerializer js = new JSONSerializer();
-//			String json = js
-//							.include("logData", "annotations")
-//							.prettyPrint(true)
-//							.serialize(flightLog);
-//			fw.write(json);
-//			fw.close();
-//		} catch (IOException e) {
-//			window.log("Error writing file. Please check the filename and try again.", "error");
-//		}
-	}
-	
 	public void loadRawData() {
 		File f = window.showOpenDialog(new FileNameExtensionFilter("Text files", "txt"));
 		if (f == null) return;
@@ -353,30 +337,6 @@ public class Controller {
 		}
 		setFlightLog(fl);
 		window.setDataState(DataState.HAVE_DATA);
-	}
-
-	public void loadProcessedData() {
-//		File f = window.showOpenDialog();
-//		if (f == null) return;
-//		StringBuilder fileStringBuilder = new StringBuilder();
-//		try {
-//			BufferedReader fr = new BufferedReader(new FileReader(f));
-//			String line;
-//			while ((line = fr.readLine()) != null) {
-//				fileStringBuilder.append(line);
-//				fileStringBuilder.append("\n");
-//			}
-//		} catch (IOException e) {
-//			log("Unable to open file. Please check file is not open elsewhere and try again.", "error");
-//		}
-//		FlightLog fl = new JSONDeserializer<FlightLog>()
-//							.use("logData", ArrayList.class)
-//	//						.use("logData.values", LogEntry.class)
-//							.use("annotations",  ArrayList.class)
-//	//						.use("annotations.values", Annotation.class)
-//							.deserialize(fileStringBuilder.toString());
-//		setFlightLog(fl);
-//		window.setDataState(DataState.HAVE_DATA);
 	}
 
 	public void exit() {
@@ -406,12 +366,6 @@ public class Controller {
 		window.setTemperaturePlotVisible(selected);		
 	}
 
-	//	mycarda 29 September 2011
-	//	show/hide end of file markers
-	public void eofPlotSelectedChange(boolean selected) {
-		window.seteofPlotVisible(selected);		
-	}
-	
 	public void servoPlotSelectedChange(boolean selected) {
 		window.setServoPlotVisible(selected);		
 	}

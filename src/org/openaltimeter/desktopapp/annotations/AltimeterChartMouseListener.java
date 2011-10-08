@@ -1,4 +1,22 @@
-package org.openaltimeter.onice;
+/*
+    openaltimeter -- an open-source altimeter for RC aircraft
+    Copyright (C) 2010  Jan Steidl, Jony Hudson
+    http://openaltimeter.org
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.openaltimeter.desktopapp.annotations;
 
 import java.awt.event.InputEvent;
 
@@ -32,13 +50,6 @@ public final class AltimeterChartMouseListener implements ChartMouseListener
 	       {
 	          XYPlot xyplot = (XYPlot) cp.getChart().getPlot();
 
-	          int onmask = InputEvent.SHIFT_DOWN_MASK;
-	          if ((event.getTrigger().getModifiersEx() & (onmask)) == onmask)
-	          {
-	        	  xyplot.clearAnnotations();
-	        	  return;
-	          }
-
 	          double x, y;
 	          x = xyplot.getDomainCrosshairValue();
 	          y = xyplot.getRangeCrosshairValue();
@@ -47,7 +58,7 @@ public final class AltimeterChartMouseListener implements ChartMouseListener
 	          annotation.setTextAnchor(TextAnchor.BOTTOM_CENTER);
 	          xyplot.addAnnotation(annotation);
 	                           	                  
-	          onmask = InputEvent.CTRL_DOWN_MASK;
+	          int onmask = InputEvent.SHIFT_DOWN_MASK;
 	          if ((event.getTrigger().getModifiersEx() & (onmask)) == onmask) 
 	          {	        	  
 	        	  double vario = (y - lastAnnotationY) / Math.abs(lastAnnotationX - x);

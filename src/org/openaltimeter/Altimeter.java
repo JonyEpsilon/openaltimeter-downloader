@@ -28,7 +28,6 @@ import java.util.TooManyListenersException;
 import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
 import org.openaltimeter.data.LogEntry;
-import org.openaltimeter.data.LogEntry.DataFormat;
 import org.openaltimeter.desktopapp.Controller;
 import org.openaltimeter.settings.Settings;
 
@@ -37,12 +36,9 @@ public class Altimeter {
 	// this timeout needs to be long enough for the longest download to finish.
 	private static final int TIMEOUT_LOOP_LIMIT = 1200;
 	public static final int FLASH_MEMORY_SIZE = 512 * 1024;
-	// TODO: this is a fudge, 12 bytes for BETA, 5 bytes for V1
-	public static final int DATASTORE_LOG_ENTRY_SIZE = 5;
 	private static final int SETTINGS_MEMORY_SIZE = 512;	
 
 	private SerialLink serial;
-	public DataFormat dataFormat = DataFormat.V1_FORMAT;
 	public Settings settings;
 	public String firmwareVersion;
 	public int loggingPeriod;
@@ -117,8 +113,8 @@ public class Altimeter {
 		serial.write('d');
 		// loop, checking on the progress of the data upload, timeout if necessary
 		int timeoutCounter = 0;
-		while (serial.available() < (numberOfEntries + 2) * DATASTORE_LOG_ENTRY_SIZE ) {
-			int percentage = (int)((double)(100 * serial.available()) / (double)(numberOfEntries * DATASTORE_LOG_ENTRY_SIZE));
+		while (serial.available() < (numberOfEntries + 2) * LogEntry.DATASTORE_LOG_ENTRY_SIZE ) {
+			int percentage = (int)((double)(100 * serial.available()) / (double)(numberOfEntries * LogEntry.DATASTORE_LOG_ENTRY_SIZE));
 			Controller.setProgress(percentage);
 			try { Thread.sleep(100); } catch (InterruptedException e) {}
 			if (timeoutCounter++ == TIMEOUT_LOOP_LIMIT) throw new DownloadTimeoutException();
@@ -130,8 +126,8 @@ public class Altimeter {
 		byte[] data = serial.getBuffer();
 		for (int i = 0; i < numberOfEntries + 2; i++)
 		{
-			int os = i *DATASTORE_LOG_ENTRY_SIZE;
-			LogEntry le = LogEntry.logEntryFromBytes(data, os, dataFormat);
+			int os = i *LogEntry.DATASTORE_LOG_ENTRY_SIZE;
+			LogEntry le = LogEntry.logEntryFromBytes(data, os);
 			log.add(le);
 		}
 		log.calculateAltitudes();

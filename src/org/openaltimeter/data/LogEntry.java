@@ -31,37 +31,14 @@ public class LogEntry {
 	public double altitudeFt;
 	public double altitudeM;
 	public int servo;
-
-	public enum DataFormat {
-		BETA_FORMAT,
-		V1_FORMAT
-	}
 	
+	public static final int DATASTORE_LOG_ENTRY_SIZE = 5;
+
 	public LogEntry() {}
 	
-	public static LogEntry logEntryFromBytes(byte[] b, int os, DataFormat format)
+	public static LogEntry logEntryFromBytes(byte[] b, int os)
 	{
-		LogEntry le = new LogEntry();
-		switch(format) {
-			case BETA_FORMAT:
-				le =  logEntryFromBetaByteFormat(b, os);
-				break;
-			case V1_FORMAT:
-				le = logEntryFromV1ByteFormat(b, os);
-				break;
-		}
-		return le;
-	}
-	
-	private static LogEntry logEntryFromBetaByteFormat(byte[] b, int os)
-	{
-		LogEntry le = new LogEntry();
-		le.pressure = TypeConverter.bytesToSignedInt(b[os + 0], b[os + 1], b[os + 2], b[os + 3]);
-		le.temperature = (double)TypeConverter.bytesToSignedInt(b[os + 4], b[os + 5], b[os + 6], b[os + 7]) / 10.0;
-		le.battery = TypeConverter.bytesToFloat(b[os + 8], b[os + 9], b[os + 10], b[os + 11]);
-		le.servo = 0;
-		
-		return le;
+		return logEntryFromV1ByteFormat(b, os);
 	}
 	
 	// The V1 format applies some linear transformations to the data
