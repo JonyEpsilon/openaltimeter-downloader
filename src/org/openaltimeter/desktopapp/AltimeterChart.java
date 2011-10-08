@@ -22,7 +22,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.openaltimeter.desktopapp.annotations.AltimeterChartMouseListener;
+import org.openaltimeter.desktopapp.annotations.AltimeterAnnotationManager;
 import org.openaltimeter.desktopapp.annotations.XYDotAnnotation;
 
 
@@ -31,6 +31,7 @@ public class AltimeterChart  {
 	private JFreeChart chart;
 	private JScrollBar domainScrollBar;
 	private ChartPanel chartPanel;
+	private AltimeterAnnotationManager annotationManager;
 	
 	XYSeries altitudeData = new XYSeries("Altitude");
 	XYSeries batteryData = new XYSeries("Battery voltage");
@@ -40,6 +41,8 @@ public class AltimeterChart  {
 	public AltimeterChart() {
 		chart = createChart();
 		chartPanel = createChartPanel();
+		annotationManager = new AltimeterAnnotationManager(chartPanel);
+		annotationManager.addMouseListener();
 	}
 	
 	public ChartPanel getChartPanel() {
@@ -138,7 +141,6 @@ public class AltimeterChart  {
 	private ChartPanel createChartPanel() {
 		
 		final ChartPanel cp = new ChartPanel(chart);
-		cp.addChartMouseListener(new AltimeterChartMouseListener(cp));
 		
 		domainScrollBar = getScrollBar(((XYPlot)chart.getPlot()).getDomainAxis());
 		JPanel pnl = new JPanel();
@@ -195,7 +197,7 @@ public class AltimeterChart  {
 	{
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				XYPlot plot = (XYPlot)chart.getPlot();
+				XYPlot plot = chart.getXYPlot();
 				for(int eofIndex : eofIndices) plot.addAnnotation(
 						new XYDotAnnotation(eofIndex * timeStep, 0.0, 6, Color.DARK_GRAY));
 			}});
@@ -227,7 +229,11 @@ public class AltimeterChart  {
 	}
 
 	public void clearAnnotations() {
-		((XYPlot)chart.getPlot()).clearAnnotations();
+		annotationManager.clearHeightAndVarioAnnotations();
+	}
+	
+	public void resetAnnotations() {
+		annotationManager.resetAnnotations();
 	}
 	
 	public double getVisibleDomainLowerBound() {

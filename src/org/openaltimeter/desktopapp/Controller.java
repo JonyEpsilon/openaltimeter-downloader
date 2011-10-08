@@ -276,7 +276,7 @@ public class Controller {
 	public void setFlightLog(FlightLog log)
 	{
 		flightLog = log;
-		window.altimeterChart.clearAnnotations();
+		window.altimeterChart.resetAnnotations();
 		window.altimeterChart.setPlotUnit(unitFeet);
 		
 		if (isUnitFeet())
