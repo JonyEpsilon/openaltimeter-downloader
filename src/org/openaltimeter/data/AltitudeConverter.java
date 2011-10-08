@@ -1,6 +1,6 @@
 /*
     openaltimeter -- an open-source altimeter for RC aircraft
-    Copyright (C) 2010  Jony Hudson
+    Copyright (C) 2010-2011  Jony Hudson
     http://openaltimeter.org
 
     This program is free software: you can redistribute it and/or modify

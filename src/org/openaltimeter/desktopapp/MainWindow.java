@@ -1,6 +1,6 @@
 /*
     openaltimeter -- an open-source altimeter for RC aircraft
-    Copyright (C) 2010  Jony Hudson, Jan Steidl, mycarda
+    Copyright (C) 2010-2011  Jony Hudson, Jan Steidl, mycarda
     http://openaltimeter.org
 
     This program is free software: you can redistribute it and/or modify
@@ -24,12 +24,9 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.ButtonGroup;
@@ -40,10 +37,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
@@ -58,22 +53,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYPointerAnnotation;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.event.AxisChangeEvent;
-import org.jfree.chart.event.AxisChangeListener;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.openaltimeter.desktopapp.Controller.ConnectionState;
 import org.openaltimeter.desktopapp.Controller.OS;
-import org.openaltimeter.desktopapp.annotations.AltimeterChartMouseListener;
 
 public class MainWindow {
 
@@ -93,16 +74,12 @@ public class MainWindow {
 	private JCheckBoxMenuItem chckbxmntmServo;
 	private JRadioButtonMenuItem rdbtnmntmFeet;
 	private JRadioButtonMenuItem rdbtnmntmMetres;
-	XYSeries altitudeData = new XYSeries("Altitude");
-	XYSeries batteryData = new XYSeries("Battery voltage");
-	XYSeries temperatureData = new XYSeries("Temperature");
-	XYSeries servoData = new XYSeries("Servo");
 		
 	private final JProgressBar progressBar = new JProgressBar();
 	private JMenuItem mntmSaveData;
 	private JMenuItem mntmSaveSelectionData;
-	private JFreeChart chart;
-	private JScrollBar domainScrollBar;
+	
+	AltimeterChart altimeterChart;
 	
 	public enum DataState {NO_DATA, HAVE_DATA};
 	
@@ -123,6 +100,7 @@ public class MainWindow {
 	private JMenu mnAdvanced;
 	private JMenuItem mntmUploadSelectionerases;
 	private JMenuItem mntmClearAnnotations;
+	private JMenu mnAnalysis;
 	
 	public void show() {
 		frmOpenaltimeter.setVisible(true);
@@ -190,8 +168,8 @@ public class MainWindow {
 		mntmSaveSelectionData = new JMenuItem("Save selection data...");
 		mntmSaveSelectionData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				controller.saveRawSelection(chart.getXYPlot().getDomainAxis().getLowerBound(), 
-						                    chart.getXYPlot().getDomainAxis().getUpperBound());
+				controller.saveRawSelection(altimeterChart.getVisibleDomainLowerBound(), 
+						altimeterChart.getVisibleDomainUpperBound());
 			}
 		});
 		mntmSaveSelectionData.setEnabled(false);
@@ -273,15 +251,16 @@ public class MainWindow {
 		heightUnitsGroup.add(rdbtnmntmMetres);
 		mnView.add(rdbtnmntmMetres);
 		
-		mnView.addSeparator();
+		mnAnalysis = new JMenu("Analysis");
+		menuBar.add(mnAnalysis);
 		
 		mntmClearAnnotations = new JMenuItem("Clear annotations");
+		mnAnalysis.add(mntmClearAnnotations);
 		mntmClearAnnotations.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				((XYPlot)chart.getPlot()).clearAnnotations();
+				altimeterChart.clearAnnotations();
 			}
 		});
-		mnView.add(mntmClearAnnotations);
 
 		JMenu mnConnection = new JMenu("Connection");
 		menuBar.add(mnConnection);
@@ -355,8 +334,8 @@ public class MainWindow {
 		mntmUploadSelectionerases.setEnabled(false);
 		mntmUploadSelectionerases.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				controller.uploadSelection(chart.getXYPlot().getDomainAxis().getLowerBound(), 
-	                    chart.getXYPlot().getDomainAxis().getUpperBound());
+				controller.uploadSelection(altimeterChart.getVisibleDomainLowerBound(),
+						altimeterChart.getVisibleDomainLowerBound());
 			}
 		});
 		mnAdvanced.add(mntmUploadSelectionerases);
@@ -372,105 +351,13 @@ public class MainWindow {
 		splitPane.setDividerLocation(-1);
 		frmOpenaltimeter.getContentPane().add(splitPane, BorderLayout.CENTER);
 
-		// create a chart...
-		XYSeriesCollection seriesColl = new XYSeriesCollection();
-		seriesColl.addSeries(altitudeData);
-
-		XYSeriesCollection batteryColl = new XYSeriesCollection();
-		batteryColl.addSeries(batteryData);
-		
-		XYSeriesCollection tempColl = new XYSeriesCollection();
-		tempColl.addSeries(temperatureData);
-		
-		XYSeriesCollection servoColl = new XYSeriesCollection();
-		servoColl.addSeries(servoData);
-		
-		String rangeTitle = controller.isUnitFeet() ? "Altitude (ft) " : "Altitude (m)";
-		chart = ChartFactory.createXYLineChart(
-						null,
-						"Time (s)", 
-						rangeTitle,
-						seriesColl,
-						PlotOrientation.VERTICAL, 
-						false, // legend?
-						true, // tooltips?
-						false // URLs?
-					);
-
-		final XYPlot plot = chart.getXYPlot();
-		
-		plot.getRangeAxis(0).setTickLabelPaint(Color.RED);
-		
-        final NumberAxis axisBat = new NumberAxis("Battery (V)");
-        axisBat.setAutoRangeIncludesZero(false);
-        axisBat.setTickLabelPaint(Color.green);
-        plot.setRangeAxis(1, axisBat);
-
-        final NumberAxis axisServo = new NumberAxis("Servo (us)");
-        axisServo.setAutoRangeIncludesZero(false);
-        axisServo.setTickLabelPaint(Color.blue);
-        plot.setRangeAxis(2, axisServo);        
-
-        final NumberAxis axisTemp = new NumberAxis("Temperature (C)");
-        axisTemp.setAutoRangeIncludesZero(false);
-        axisTemp.setTickLabelPaint(Color.gray);
-        plot.setRangeAxis(3, axisTemp);
-                
-        plot.setDataset(0, seriesColl);
-        plot.setDataset(1, batteryColl);
-        plot.setDataset(2, servoColl);
-        plot.setDataset(3, tempColl);
-        
-        plot.mapDatasetToRangeAxis(0, 0);
-        plot.mapDatasetToRangeAxis(1, 1);
-        plot.mapDatasetToRangeAxis(2, 2);
-        plot.mapDatasetToRangeAxis(3, 3);
-
-        final StandardXYItemRenderer renderer2 = new StandardXYItemRenderer();
-        renderer2.setSeriesPaint(0, Color.green);
-        plot.setRenderer(1, renderer2);
-
-        final StandardXYItemRenderer renderer3 = new StandardXYItemRenderer();
-        renderer3.setSeriesPaint(0, Color.blue);
-        plot.setRenderer(2, renderer3);
-
-        final StandardXYItemRenderer renderer4 = new StandardXYItemRenderer();
-        renderer4.setSeriesPaint(0, Color.gray);
-        plot.setRenderer(3, renderer4);
-   
-        plot.setDomainPannable(false);
-        plot.setRangePannable(false);
-
-        plot.setDomainCrosshairVisible(false);
-        plot.setRangeCrosshairVisible(false);
-        
-        plot.setDomainCrosshairLockedOnData(true);
-        plot.setRangeCrosshairLockedOnData(true);
-        
-        plot.getDomainAxis().addChangeListener(new AxisChangeListener() {
-			@Override
-			public void axisChanged(AxisChangeEvent arg0) {
-				int l = (int) plot.getDomainAxis().getRange().getLowerBound();
-				int r = (int) plot.getDomainAxis().getRange().getUpperBound();
+		altimeterChart = new AltimeterChart();
 				
-				domainScrollBar.setValues(l, r - l, 0, domainScrollBar.getMaximum());
-			}
-		});
+		splitPane.setTopComponent(altimeterChart.getChartPanel());
 
-		final ChartPanel cp = new ChartPanel(chart);
-		cp.addChartMouseListener(new AltimeterChartMouseListener(cp));
-		
-		domainScrollBar = getScrollBar(plot.getDomainAxis());
-		JPanel pnl = new JPanel();
-		pnl.setLayout(new BorderLayout());
-		pnl.add(cp, BorderLayout.CENTER);
-		pnl.add(domainScrollBar, BorderLayout.SOUTH);
-		
-		splitPane.setTopComponent(pnl);
-
-		setVoltagePlotVisible(prefs.getBoolean(PREF_SHOW_VOLTAGE, false));
-		setTemperaturePlotVisible(prefs.getBoolean(PREF_SHOW_TEMPERATURE, false));
-		setServoPlotVisible(prefs.getBoolean(PREF_SHOW_SERVO, false));
+		altimeterChart.setVoltagePlotVisible(prefs.getBoolean(PREF_SHOW_VOLTAGE, false));
+		altimeterChart.setTemperaturePlotVisible(prefs.getBoolean(PREF_SHOW_TEMPERATURE, false));
+		altimeterChart.setServoPlotVisible(prefs.getBoolean(PREF_SHOW_SERVO, false));
 
 		// create the text pane, a document for it to view, and some styles
 		logTextPane = new JTextPane();
@@ -495,17 +382,6 @@ public class MainWindow {
 	
 		frmOpenaltimeter.getContentPane().add(progressBar, BorderLayout.PAGE_END);
 	}
-
-    private JScrollBar getScrollBar(final ValueAxis domainAxis){
-        final JScrollBar scrollBar = new JScrollBar(JScrollBar.HORIZONTAL, 0, 0, 0, 0);
-        scrollBar.addAdjustmentListener( new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                int x = e.getValue();
-                domainAxis.setRange(x, x + scrollBar.getVisibleAmount());
-            }
-        });
-        return scrollBar;
-    }
 
 	public void addCOMMenuItem(String portName) {
 		JRadioButtonMenuItem radioButtonMenuItem = new JRadioButtonMenuItem(
@@ -593,48 +469,6 @@ public class MainWindow {
 		});
 	}
 	
-	public void setAltitudeData(final double[] data, final double timeStep)
-	{
-		setDataSeries(data, timeStep, altitudeData);
-	}
-	
-	public void setBatteryData(final double[] data, final double timeStep)
-	{
-		setDataSeries(data, timeStep, batteryData);
-	}
-	
-	public void setTemperatureData(final double[] data, final double timeStep)
-	{
-		setDataSeries(data, timeStep, temperatureData);
-	}
-	
-	public void setServoData(final double[] data, final double timeStep)
-	{
-		setDataSeries(data, timeStep, servoData);
-	}
-
-	public void setDataSeries(final double[] data, final double timeStep, final XYSeries series) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				series.clear();
-				for (int i = 0; i < data.length; i++) series.add(timeStep * i, data[i], false);
-				series.fireSeriesChanged();
-				domainScrollBar.setValues(0, (int) (data.length / timeStep) + 1, 0, (int) (data.length * timeStep) + 1);
-			}});
-	}
-	
-	public void addEOFAnnotations(final List<Integer> eofIndices, final double timeStep)
-	{
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				XYPlot plot = (XYPlot)chart.getPlot();
-				for(int eofIndex : eofIndices)
-					plot.addAnnotation(new XYPointerAnnotation(
-							"EOF", eofIndex * timeStep, 0.0, 135.0
-									));
-			}});
-	}
-	
 	public void close()
 	{
 		setPreferences();
@@ -716,32 +550,6 @@ public class MainWindow {
 	{
 		int response = JOptionPane.showConfirmDialog(this.frmOpenaltimeter, message, title, JOptionPane.OK_CANCEL_OPTION);
 		return (response == JOptionPane.OK_OPTION);
-	}
-
-	public void setAltitudePlotVisible(boolean selected) {
-		showPlot(selected, 0);
-	}
-	
-	public void setVoltagePlotVisible(boolean selected) {
-		showPlot(selected, 1);
-	}
-	
-	public void setServoPlotVisible(boolean selected) {
-		showPlot(selected, 2);
-	}		
-
-	public void setTemperaturePlotVisible(boolean selected) {
-		showPlot(selected, 3);
-	}
-	
-
-	private void showPlot(boolean selected, int index) {
-		chart.getXYPlot().getRenderer(index).setSeriesVisible(0, selected);
-		chart.getXYPlot().getRangeAxis(index).setVisible(selected);
-	}
-
-	public void setPlotUnit(boolean selected) {
-		chart.getXYPlot().getRangeAxis(0).setLabel(selected ? "Altitude (ft)" : "Altitude (m)");
 	}
 
 	public void setTitle(String string) {

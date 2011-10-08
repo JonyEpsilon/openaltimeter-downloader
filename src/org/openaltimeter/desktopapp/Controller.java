@@ -1,6 +1,6 @@
 /*
     openaltimeter -- an open-source altimeter for RC aircraft
-    Copyright (C) 2010  Jony Hudson, Jan Steidl, mycarda
+    Copyright (C) 2010-2011  Jony Hudson, Jan Steidl, mycarda
     http://openaltimeter.org
 
     This program is free software: you can redistribute it and/or modify
@@ -276,17 +276,19 @@ public class Controller {
 	public void setFlightLog(FlightLog log)
 	{
 		flightLog = log;
+		window.altimeterChart.clearAnnotations();
+		window.altimeterChart.setPlotUnit(unitFeet);
 		
 		if (isUnitFeet())
-			window.setAltitudeData(log.getAltitudeFt(), flightLog.logInterval);
+			window.altimeterChart.setAltitudeData(log.getAltitudeFt(), flightLog.logInterval);
 		else
-			window.setAltitudeData(log.getAltitudeM(), flightLog.logInterval);
+			window.altimeterChart.setAltitudeData(log.getAltitudeM(), flightLog.logInterval);
 		
-		window.setBatteryData(log.getBattery(), flightLog.logInterval);
-		window.setTemperatureData(log.getTemperature(), flightLog.logInterval);
-		window.setServoData(log.getServo(), flightLog.logInterval);
+		window.altimeterChart.setBatteryData(log.getBattery(), flightLog.logInterval);
+		window.altimeterChart.setTemperatureData(log.getTemperature(), flightLog.logInterval);
+		window.altimeterChart.setServoData(log.getServo(), flightLog.logInterval);
 		
-		window.addEOFAnnotations(log.getEOFIndices(), flightLog.logInterval);
+		window.altimeterChart.addEOFAnnotations(log.getEOFIndices(), flightLog.logInterval);
 
 	}
 	
@@ -355,30 +357,30 @@ public class Controller {
 	}
 
 	public void altitudePlotSelectedChange(boolean selected) {
-		window.setAltitudePlotVisible(selected);
+		window.altimeterChart.setAltitudePlotVisible(selected);
 	}
 
 	public void voltagePlotSelectedChange(boolean selected) {
-		window.setVoltagePlotVisible(selected);
+		window.altimeterChart.setVoltagePlotVisible(selected);
 	}
 
 	public void temperaturePlotSelectedChange(boolean selected) {
-		window.setTemperaturePlotVisible(selected);		
+		window.altimeterChart.setTemperaturePlotVisible(selected);		
 	}
 
 	public void servoPlotSelectedChange(boolean selected) {
-		window.setServoPlotVisible(selected);		
+		window.altimeterChart.setServoPlotVisible(selected);		
 	}
 
 	public void unitSelectedChange(boolean selected) {
 		this.setUnitFeet(selected);
-		window.setPlotUnit(selected);
+		window.altimeterChart.setPlotUnit(selected);
 		
 		if (flightLog != null) {
 			if (isUnitFeet()) 
-				window.setAltitudeData(flightLog.getAltitudeFt(), flightLog.logInterval);
+				window.altimeterChart.setAltitudeData(flightLog.getAltitudeFt(), flightLog.logInterval);
 			else
-				window.setAltitudeData(flightLog.getAltitudeM(), flightLog.logInterval);
+				window.altimeterChart.setAltitudeData(flightLog.getAltitudeM(), flightLog.logInterval);
 		}
 	}
 
