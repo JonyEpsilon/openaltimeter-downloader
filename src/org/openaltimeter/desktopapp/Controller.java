@@ -118,7 +118,7 @@ public class Controller {
 		window.show();
 		buildSerialMenu();
 		Controller.log("Graph hints: drag over area to zoom in, drag up and left to zoom out, click to annotate height, " +
-						"shift-click to annotate vario. Annotations can be cleared from view menu.", "help");
+						"shift-click to annotate vario. Annotations can be cleared from analysis menu.", "help");
 	}
 	
 	private void setConnectionState(ConnectionState state) {
