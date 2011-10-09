@@ -101,6 +101,8 @@ public class MainWindow {
 	private JMenuItem mntmUploadSelectionerases;
 	private JMenuItem mntmClearAnnotations;
 	private JMenu mnAnalysis;
+	private JMenuItem mntmMarkDlgLaunches;
+	private JMenuItem mntmClearDlgLaunch;
 	
 	public void show() {
 		frmOpenaltimeter.setVisible(true);
@@ -254,7 +256,15 @@ public class MainWindow {
 		mnAnalysis = new JMenu("Analysis");
 		menuBar.add(mnAnalysis);
 		
-		mntmClearAnnotations = new JMenuItem("Clear annotations");
+		mntmMarkDlgLaunches = new JMenuItem("Mark DLG launches ...");
+		mnAnalysis.add(mntmMarkDlgLaunches);
+		
+		mntmClearDlgLaunch = new JMenuItem("Clear DLG launch annotations");
+		mnAnalysis.add(mntmClearDlgLaunch);
+		
+		mnAnalysis.addSeparator();
+		
+		mntmClearAnnotations = new JMenuItem("Clear height and vario annotations");
 		mnAnalysis.add(mntmClearAnnotations);
 		mntmClearAnnotations.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -459,8 +469,6 @@ public class MainWindow {
 					mntmSaveSelectionData.setEnabled(false);
 					break;
 				case HAVE_DATA: 
-					// delete all previous annotations
-					//((XYPlot) chart.getPlot()).clearAnnotations();
 					mntmSaveData.setEnabled(true);
 					mntmSaveSelectionData.setEnabled(true);
 					break;

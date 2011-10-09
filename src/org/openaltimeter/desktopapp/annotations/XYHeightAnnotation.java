@@ -20,6 +20,7 @@ package org.openaltimeter.desktopapp.annotations;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
@@ -40,8 +41,9 @@ public class XYHeightAnnotation extends XYTextAnnotation {
 	private static final long serialVersionUID = 578447274475076936L;
 	private final int CROSS_SIZE = 10;
 	
-	public XYHeightAnnotation(String text, double x, double y) {
+	public XYHeightAnnotation(String text, double x, double y, Paint color) {
 		super(text, x, y);
+		setPaint(color);
 	}
 
 	/* Based on XYTextAnnotation draw method */

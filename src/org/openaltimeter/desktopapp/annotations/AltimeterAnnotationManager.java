@@ -1,14 +1,17 @@
 package org.openaltimeter.desktopapp.annotations;
 
+import java.awt.Color;
+import java.awt.Paint;
 import java.util.ArrayList;
 
 import org.jfree.chart.ChartPanel;
+import org.jfree.ui.TextAnchor;
 
 public class AltimeterAnnotationManager {
 
 	private ChartPanel cp;
-	private ArrayList<XYHeightAnnotation> haList = new ArrayList<XYHeightAnnotation>();
-	private ArrayList<XYVarioAnnotation> vaList = new ArrayList<XYVarioAnnotation>();
+	private ArrayList<XYHeightAnnotation> userHAList = new ArrayList<XYHeightAnnotation>();
+	private ArrayList<XYVarioAnnotation> userVAList = new ArrayList<XYVarioAnnotation>();
 
 	public AltimeterAnnotationManager(ChartPanel cp) {
 		this.cp = cp;
@@ -19,27 +22,38 @@ public class AltimeterAnnotationManager {
 		cp.addChartMouseListener(new AltimeterChartMouseListener(cp, this));
 	}
 
-	public void heightAnnotationAddedCallback(XYHeightAnnotation ha) {
-		haList.add(ha);
+	private XYHeightAnnotation AddHeightAnnotationIntenal(double x, double y, Paint color) {
+		XYHeightAnnotation annotation = new XYHeightAnnotation(String.format("%.1f", y), x, y, color);
+		annotation.setTextAnchor(TextAnchor.BOTTOM_CENTER);
+		cp.getChart().getXYPlot().addAnnotation(annotation);
+		return annotation;
+	}
+	
+	public void AddUserHeightAnnotation(double x, double y) {
+		XYHeightAnnotation ann = AddHeightAnnotationIntenal(x, y, Color.BLACK);
+		userHAList.add(ann);
 	}
 
-	public void varioAnnotationAddedCallback(XYVarioAnnotation va) {
-		vaList.add(va);
+	public void AddUserVarioAnnotation(double startX, double startY, double endX, double endY) {
+		double vario = (endY - startY) / Math.abs(startX - endX);
+		XYVarioAnnotation line = new XYVarioAnnotation(String.format("%.2f", vario), startX, startY, endX, endY);
+		cp.getChart().getXYPlot().addAnnotation(line);
+		userVAList.add(line);
 	}
 
 	public void clearHeightAndVarioAnnotations() {
-		for (XYHeightAnnotation ha : haList)
+		for (XYHeightAnnotation ha : userHAList)
 			cp.getChart().getXYPlot().removeAnnotation(ha);
-		for (XYVarioAnnotation va : vaList)
+		for (XYVarioAnnotation va : userVAList)
 			cp.getChart().getXYPlot().removeAnnotation(va);
-		haList.clear();
-		vaList.clear();
+		userHAList.clear();
+		userVAList.clear();
 	}
-	
+
 	public void resetAnnotations() {
 		cp.getChart().getXYPlot().clearAnnotations();
-		haList.clear();
-		vaList.clear();	
+		userHAList.clear();
+		userVAList.clear();
 	}
 
 }

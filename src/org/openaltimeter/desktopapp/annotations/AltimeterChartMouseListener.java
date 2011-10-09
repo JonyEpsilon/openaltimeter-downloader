@@ -26,11 +26,10 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.ui.TextAnchor;
 
 // Listens for mouse events on an altimeter chart. It is installed by an
-// AltimeterAnnotationManager, and calls back up to its manager to allow
-// the manager to maintain a list of annotations.
+// AltimeterAnnotationManager, and calls back up to its manager to add
+// the annotations.
 public final class AltimeterChartMouseListener implements ChartMouseListener 
 {
 	private final ChartPanel cp;
@@ -59,21 +58,12 @@ public final class AltimeterChartMouseListener implements ChartMouseListener
 	          x = xyplot.getDomainCrosshairValue();
 	          y = xyplot.getRangeCrosshairValue();
 
-	          XYHeightAnnotation annotation = new XYHeightAnnotation(String.format("%.1f", y), x, y);
-	          annotation.setTextAnchor(TextAnchor.BOTTOM_CENTER);
-	          xyplot.addAnnotation(annotation);
-	          am.heightAnnotationAddedCallback(annotation);
+	          am.AddUserHeightAnnotation(x, y);
 	                           	                  
 	          int onmask = InputEvent.SHIFT_DOWN_MASK;
 	          if ((event.getTrigger().getModifiersEx() & (onmask)) == onmask) 
-	          {	        	  
-	        	  double vario = (y - lastAnnotationY) / Math.abs(lastAnnotationX - x);
-	        	
-	        	  XYVarioAnnotation line = new XYVarioAnnotation(String.format("%.2f", vario), lastAnnotationX, lastAnnotationY, x, y);
-	        	  xyplot.addAnnotation(line);
-	        	  am.varioAnnotationAddedCallback(line);
-	          }
-	          
+	        	  am.AddUserVarioAnnotation(lastAnnotationX, lastAnnotationY, x, y);
+	     	          
 	          lastAnnotationX = x;
 	          lastAnnotationY = y;
 	       }
