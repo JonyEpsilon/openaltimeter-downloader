@@ -22,6 +22,7 @@ import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
 import org.jfree.chart.annotations.XYTextAnnotation;
@@ -33,13 +34,10 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.text.TextUtilities;
 import org.jfree.ui.RectangleEdge;
 
+@SuppressWarnings("serial")
 public class XYHeightAnnotation extends XYTextAnnotation {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 578447274475076936L;
-	private final int CROSS_SIZE = 10;
+	private static int DOT_SIZE = 4;
 	
 	public XYHeightAnnotation(String text, double x, double y, Paint color) {
 		super(text, x, y);
@@ -75,7 +73,7 @@ public class XYHeightAnnotation extends XYTextAnnotation {
 		}
         
 		g2.setPaint(getPaint());
-		TextUtilities.drawRotatedString(getText(), g2, anchorX + (1.2f * CROSS_SIZE), anchorY,
+		TextUtilities.drawRotatedString(getText(), g2, anchorX + (3.6f * DOT_SIZE), anchorY + (0.2f * DOT_SIZE),
 										getTextAnchor(), getRotationAngle(), getRotationAnchor());
 		if (this.isOutlineVisible()) 
 		{
@@ -85,10 +83,16 @@ public class XYHeightAnnotation extends XYTextAnnotation {
 		}
 		
 		// cross drawing
+//		g2.setPaint(getPaint());
+//		g2.setStroke(new BasicStroke(1.0f));
+//		g2.drawLine((int) anchorX - CROSS_SIZE / 2, (int) anchorY, (int) anchorX + CROSS_SIZE / 2, (int) anchorY);
+//		g2.drawLine((int) anchorX, (int) anchorY - CROSS_SIZE / 2, (int) anchorX, (int) anchorY + CROSS_SIZE / 2);
+		
+		// dot drawing
 		g2.setPaint(getPaint());
 		g2.setStroke(new BasicStroke(1.0f));
-		g2.drawLine((int) anchorX - CROSS_SIZE / 2, (int) anchorY, (int) anchorX + CROSS_SIZE / 2, (int) anchorY);
-		g2.drawLine((int) anchorX, (int) anchorY - CROSS_SIZE / 2, (int) anchorX, (int) anchorY + CROSS_SIZE / 2);
+		Ellipse2D e = new Ellipse2D.Double(anchorX - DOT_SIZE/2, anchorY - DOT_SIZE/2, DOT_SIZE, DOT_SIZE);
+		g2.fill(e);
 		
 		String toolTip = getToolTipText();
 		String url = getURL();

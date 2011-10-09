@@ -1,5 +1,6 @@
 package org.openaltimeter.desktopapp;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.AdjustmentEvent;
@@ -28,6 +29,7 @@ import org.openaltimeter.desktopapp.annotations.XYDotAnnotation;
 
 public class AltimeterChart  {
 	
+	private static final float LINE_WIDTH = 1.1f;
 	private JFreeChart chart;
 	private JScrollBar domainScrollBar;
 	private ChartPanel chartPanel;
@@ -76,22 +78,25 @@ public class AltimeterChart  {
 					);
 
 		final XYPlot plot = chart.getXYPlot();
+        plot.setDomainGridlinesVisible(false);
+        plot.setRangeGridlinesVisible(false);
+        plot.setBackgroundPaint(new Color(204, 224, 255));
 		
-		plot.getRangeAxis(0).setTickLabelPaint(Color.RED);
+//		plot.getRangeAxis(0).setTickLabelPaint(Color.RED);
 		
         final NumberAxis axisBat = new NumberAxis("Battery (V)");
         axisBat.setAutoRangeIncludesZero(false);
-        axisBat.setTickLabelPaint(Color.green);
-        plot.setRangeAxis(1, axisBat);
+//        axisBat.setTickLabelPaint(Color.green);
+        plot.setRangeAxis(1, axisBat);   
 
         final NumberAxis axisServo = new NumberAxis("Servo (us)");
         axisServo.setAutoRangeIncludesZero(false);
-        axisServo.setTickLabelPaint(Color.blue);
+//        axisServo.setTickLabelPaint(Color.blue);
         plot.setRangeAxis(2, axisServo);        
 
         final NumberAxis axisTemp = new NumberAxis("Temperature (C)");
         axisTemp.setAutoRangeIncludesZero(false);
-        axisTemp.setTickLabelPaint(Color.gray);
+//        axisTemp.setTickLabelPaint(Color.gray);
         plot.setRangeAxis(3, axisTemp);
                 
         plot.setDataset(0, seriesColl);
@@ -103,25 +108,30 @@ public class AltimeterChart  {
         plot.mapDatasetToRangeAxis(1, 1);
         plot.mapDatasetToRangeAxis(2, 2);
         plot.mapDatasetToRangeAxis(3, 3);
+        
+        final StandardXYItemRenderer renderer1 = new StandardXYItemRenderer();
+        renderer1.setSeriesPaint(0, new Color(56, 136, 255));
+        renderer1.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
+        plot.setRenderer(0, renderer1);
 
         final StandardXYItemRenderer renderer2 = new StandardXYItemRenderer();
-        renderer2.setSeriesPaint(0, Color.green);
+        renderer2.setSeriesPaint(0, new Color(82,255,99));
+        renderer2.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
         plot.setRenderer(1, renderer2);
 
         final StandardXYItemRenderer renderer3 = new StandardXYItemRenderer();
         renderer3.setSeriesPaint(0, Color.blue);
+        renderer3.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
         plot.setRenderer(2, renderer3);
 
         final StandardXYItemRenderer renderer4 = new StandardXYItemRenderer();
         renderer4.setSeriesPaint(0, Color.gray);
+        renderer4.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
         plot.setRenderer(3, renderer4);
    
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
-
-        plot.setDomainCrosshairVisible(false);
-        plot.setRangeCrosshairVisible(false);
-        
+       
         plot.setDomainCrosshairLockedOnData(true);
         plot.setRangeCrosshairLockedOnData(true);
         
@@ -192,14 +202,15 @@ public class AltimeterChart  {
 			}});
 	}
 	
-	// These annotations are added when the data is loaded, and are never erased.
+	// These annotations are added when the data is loaded, and are never erased. They
+	// are not managed (or indeed touched) by the AnnotationManager.
 	public void addEOFAnnotations(final List<Integer> eofIndices, final double timeStep)
 	{
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				XYPlot plot = chart.getXYPlot();
 				for(int eofIndex : eofIndices) plot.addAnnotation(
-						new XYDotAnnotation(eofIndex * timeStep, 0.0, 6, Color.DARK_GRAY));
+						new XYDotAnnotation(eofIndex * timeStep, 0.0, 4, Color.DARK_GRAY));
 			}});
 	}
 	

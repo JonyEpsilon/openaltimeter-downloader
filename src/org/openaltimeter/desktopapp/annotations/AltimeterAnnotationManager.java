@@ -12,6 +12,7 @@ public class AltimeterAnnotationManager {
 	private ChartPanel cp;
 	private ArrayList<XYHeightAnnotation> userHAList = new ArrayList<XYHeightAnnotation>();
 	private ArrayList<XYVarioAnnotation> userVAList = new ArrayList<XYVarioAnnotation>();
+	private ArrayList<XYHeightAnnotation> dlgHAList = new ArrayList<XYHeightAnnotation>();
 
 	public AltimeterAnnotationManager(ChartPanel cp) {
 		this.cp = cp;
@@ -32,6 +33,11 @@ public class AltimeterAnnotationManager {
 	public void AddUserHeightAnnotation(double x, double y) {
 		XYHeightAnnotation ann = AddHeightAnnotationIntenal(x, y, Color.BLACK);
 		userHAList.add(ann);
+	}
+	
+	public void AddDLGHeightAnnotation(double x, double y) {
+		XYHeightAnnotation ann = AddHeightAnnotationIntenal(x, y, Color.BLUE);
+		dlgHAList.add(ann);
 	}
 
 	public void AddUserVarioAnnotation(double startX, double startY, double endX, double endY) {
