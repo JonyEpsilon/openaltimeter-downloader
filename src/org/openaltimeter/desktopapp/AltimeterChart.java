@@ -3,8 +3,11 @@ package org.openaltimeter.desktopapp;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Paint;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -29,7 +32,13 @@ import org.openaltimeter.desktopapp.annotations.XYDotAnnotation;
 
 public class AltimeterChart  {
 	
+	private static final Color TEMPERATURE_COLOR = Color.gray;
+	private static final Color SERVO_COLOR = Color.blue;
+	private static final Color VOLTAGE_COLOR = new Color(82, 255, 99);
+	private static final Color PRESSURE_COLOR = new Color(56, 136, 255);
+	private static final Color BG_COLOR = new Color(204, 224, 255);
 	private static final float LINE_WIDTH = 1.1f;
+	
 	private JFreeChart chart;
 	private JScrollBar domainScrollBar;
 	private ChartPanel chartPanel;
@@ -65,11 +74,10 @@ public class AltimeterChart  {
 		XYSeriesCollection servoColl = new XYSeriesCollection();
 		servoColl.addSeries(servoData);
 		
-		String rangeTitle = "Altitude (ft) ";
 		chart = ChartFactory.createXYLineChart(
 						null,
 						"Time (s)", 
-						rangeTitle,
+						"Altitude (ft)",
 						seriesColl,
 						PlotOrientation.VERTICAL, 
 						false, // legend?
@@ -80,24 +88,12 @@ public class AltimeterChart  {
 		final XYPlot plot = chart.getXYPlot();
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(false);
-        plot.setBackgroundPaint(new Color(204, 224, 255));
-		
-//		plot.getRangeAxis(0).setTickLabelPaint(Color.RED);
-		
-        final NumberAxis axisBat = new NumberAxis("Battery (V)");
-        axisBat.setAutoRangeIncludesZero(false);
-//        axisBat.setTickLabelPaint(Color.green);
-        plot.setRangeAxis(1, axisBat);   
-
-        final NumberAxis axisServo = new NumberAxis("Servo (us)");
-        axisServo.setAutoRangeIncludesZero(false);
-//        axisServo.setTickLabelPaint(Color.blue);
-        plot.setRangeAxis(2, axisServo);        
-
-        final NumberAxis axisTemp = new NumberAxis("Temperature (C)");
-        axisTemp.setAutoRangeIncludesZero(false);
-//        axisTemp.setTickLabelPaint(Color.gray);
-        plot.setRangeAxis(3, axisTemp);
+        plot.setBackgroundPaint(BG_COLOR);
+        
+        addAxis(plot, "Altitude (ft)", 0, 2);        
+        addAxis(plot, "Battery (V)", 1, 2);        
+        addAxis(plot, "Servo (us)", 2, 2);        
+        addAxis(plot, "Temperature (C)", 3, 2);        
                 
         plot.setDataset(0, seriesColl);
         plot.setDataset(1, batteryColl);
@@ -109,25 +105,10 @@ public class AltimeterChart  {
         plot.mapDatasetToRangeAxis(2, 2);
         plot.mapDatasetToRangeAxis(3, 3);
         
-        final StandardXYItemRenderer renderer1 = new StandardXYItemRenderer();
-        renderer1.setSeriesPaint(0, new Color(56, 136, 255));
-        renderer1.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
-        plot.setRenderer(0, renderer1);
-
-        final StandardXYItemRenderer renderer2 = new StandardXYItemRenderer();
-        renderer2.setSeriesPaint(0, new Color(82,255,99));
-        renderer2.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
-        plot.setRenderer(1, renderer2);
-
-        final StandardXYItemRenderer renderer3 = new StandardXYItemRenderer();
-        renderer3.setSeriesPaint(0, Color.blue);
-        renderer3.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
-        plot.setRenderer(2, renderer3);
-
-        final StandardXYItemRenderer renderer4 = new StandardXYItemRenderer();
-        renderer4.setSeriesPaint(0, Color.gray);
-        renderer4.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
-        plot.setRenderer(3, renderer4);
+        addRenderer(plot, PRESSURE_COLOR, 0);
+        addRenderer(plot, VOLTAGE_COLOR, 1);
+        addRenderer(plot, SERVO_COLOR, 2);
+        addRenderer(plot, TEMPERATURE_COLOR, 3);
    
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
@@ -146,6 +127,22 @@ public class AltimeterChart  {
 		});
         
         return chart;
+	}
+
+	private void addRenderer(XYPlot plot, Paint color, int series) {
+		StandardXYItemRenderer renderer = new StandardXYItemRenderer();
+        renderer.setSeriesPaint(0, color);
+        renderer.setSeriesStroke(0, new BasicStroke(LINE_WIDTH));
+        plot.setRenderer(series, renderer);
+	}
+
+	private void addAxis(XYPlot plot, String name, int series, int digits) {
+		NumberAxis axis = new NumberAxis(name);
+        axis.setAutoRangeIncludesZero(false);
+        NumberFormat df = DecimalFormat.getInstance();
+        df.setMaximumFractionDigits(digits);
+        axis.setNumberFormatOverride(df);
+        plot.setRangeAxis(series, axis);
 	}
 	
 	private ChartPanel createChartPanel() {

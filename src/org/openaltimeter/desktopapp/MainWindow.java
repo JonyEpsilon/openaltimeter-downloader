@@ -140,8 +140,6 @@ public class MainWindow {
 				                   prefs.getInt(PREF_WINDOW_HEIGHT, 700));
 		frmOpenaltimeter.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
-		
-
 		JMenuBar menuBar = new JMenuBar();
 		frmOpenaltimeter.setJMenuBar(menuBar);
 
