@@ -58,6 +58,8 @@ public class FlightLog {
 	}
 	
 	// this method takes the raw log data and converts it into altitude data
+	// the curious-looking logic in the middle makes sure that the base pressure is
+	// reset whenever an EOF marker is encountered.
 	public void calculateAltitudes()
 	{
 		double basePressure = 0;
@@ -70,25 +72,18 @@ public class FlightLog {
 				if (basePressure == 0) 
 					basePressure = calculateBasePressure(i);
 				
-				le.altitudeM = AltitudeConverter.altitudeMFromPressure(le.pressure, basePressure);
-				le.altitudeFt = AltitudeConverter.feetFromM(le.altitudeM);
+				le.altitude = AltitudeConverter.altitudeMFromPressure(le.pressure, basePressure);
 			}
 			else 
 				basePressure = 0;
 		}
 	}
 
-	public double[] getAltitudeFt() {
-		int numPoints = logData.size();
-		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).altitudeFt : 0;
-		return data;
-	}
 	
-	public double[] getAltitudeM() {
+	public double[] getAltitude() {
 		int numPoints = logData.size();
 		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).altitudeM : 0;
+		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).altitude : 0;
 		return data;
 	}
 	

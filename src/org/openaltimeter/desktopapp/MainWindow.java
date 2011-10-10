@@ -53,6 +53,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import org.openaltimeter.desktopapp.AltimeterChart.HeightUnits;
 import org.openaltimeter.desktopapp.Controller.ConnectionState;
 import org.openaltimeter.desktopapp.Controller.OS;
 
@@ -228,10 +229,12 @@ public class MainWindow {
 		
 		ButtonGroup heightUnitsGroup = new ButtonGroup();
 		
-		controller.setUnitFeet(prefs.getBoolean(PREF_UNIT_FEET, true));
+		// TODO: this currently limits us to two unit systems.
+		boolean unitsAreFeet = prefs.getBoolean(PREF_UNIT_FEET, true);
+		
 		rdbtnmntmFeet = new JRadioButtonMenuItem("Feet");
 		rdbtnmntmFeet.setEnabled(true);
-		rdbtnmntmFeet.setSelected(controller.isUnitFeet());
+		rdbtnmntmFeet.setSelected(unitsAreFeet);
 		rdbtnmntmFeet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.unitSelectedChange(rdbtnmntmFeet.isSelected());
@@ -242,7 +245,7 @@ public class MainWindow {
 		
 		rdbtnmntmMetres = new JRadioButtonMenuItem("Metres");
 		rdbtnmntmMetres.setEnabled(true);
-		rdbtnmntmMetres.setSelected(!controller.isUnitFeet());
+		rdbtnmntmMetres.setSelected(!unitsAreFeet);
 		rdbtnmntmMetres.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.unitSelectedChange(rdbtnmntmFeet.isSelected());
@@ -360,7 +363,10 @@ public class MainWindow {
 		frmOpenaltimeter.getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		altimeterChart = new AltimeterChart();
-				
+		HeightUnits hu;
+		if (unitsAreFeet) hu = HeightUnits.FT;
+		else hu = HeightUnits.METERS;
+		altimeterChart.setHeightUnits(hu);
 		splitPane.setTopComponent(altimeterChart.getChartPanel());
 
 		altimeterChart.setVoltagePlotVisible(prefs.getBoolean(PREF_SHOW_VOLTAGE, false));
@@ -485,7 +491,7 @@ public class MainWindow {
 		prefs.putBoolean(PREF_SHOW_TEMPERATURE,chckbxmntmTemperature.isSelected());
 		prefs.putBoolean(PREF_SHOW_VOLTAGE,chckbxmntmVoltage.isSelected());
 		prefs.putBoolean(PREF_SHOW_SERVO, chckbxmntmServo.isSelected());
-		prefs.putBoolean(PREF_UNIT_FEET, controller.isUnitFeet());
+		prefs.putBoolean(PREF_UNIT_FEET, rdbtnmntmFeet.isSelected());
 		prefs.putInt(PREF_WINDOW_X, frmOpenaltimeter.getX());
 		prefs.putInt(PREF_WINDOW_Y, frmOpenaltimeter.getY());
 		prefs.putInt(PREF_WINDOW_WIDTH, frmOpenaltimeter.getWidth());

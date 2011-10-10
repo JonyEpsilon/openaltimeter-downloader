@@ -28,8 +28,7 @@ public class LogEntry {
 	public long pressure;
 	public double temperature;
 	public double battery;
-	public double altitudeFt;
-	public double altitudeM;
+	public double altitude;
 	public int servo;
 	
 	public static final int DATASTORE_LOG_ENTRY_SIZE = 5;

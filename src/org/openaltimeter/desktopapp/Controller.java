@@ -42,6 +42,7 @@ import org.openaltimeter.Altimeter.DownloadTimeoutException;
 import org.openaltimeter.Altimeter.NotAnOpenaltimeterException;
 import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
+import org.openaltimeter.desktopapp.AltimeterChart.HeightUnits;
 import org.openaltimeter.desktopapp.MainWindow.DataState;
 import org.openaltimeter.settings.Settings;
 
@@ -58,17 +59,8 @@ public class Controller {
 	Altimeter altimeter;
 	MainWindow window;
 	FlightLog flightLog;
-	private boolean unitFeet;
 	public String versionNumber = "";
 	public String firmwareVersionNumber = "";
-
-	public void setUnitFeet(boolean unitFeet) {
-		this.unitFeet = unitFeet;
-	}
-
-	public boolean isUnitFeet() {
-		return unitFeet;
-	}
 
 	/**
 	 * @param args
@@ -277,13 +269,8 @@ public class Controller {
 	{
 		flightLog = log;
 		window.altimeterChart.resetAnnotations();
-		window.altimeterChart.setPlotUnit(unitFeet);
-		
-		if (isUnitFeet())
-			window.altimeterChart.setAltitudeData(log.getAltitudeFt(), flightLog.logInterval);
-		else
-			window.altimeterChart.setAltitudeData(log.getAltitudeM(), flightLog.logInterval);
-		
+
+		window.altimeterChart.setAltitudeData(log.getAltitude(), flightLog.logInterval);
 		window.altimeterChart.setBatteryData(log.getBattery(), flightLog.logInterval);
 		window.altimeterChart.setTemperatureData(log.getTemperature(), flightLog.logInterval);
 		window.altimeterChart.setServoData(log.getServo(), flightLog.logInterval);
@@ -372,16 +359,11 @@ public class Controller {
 		window.altimeterChart.setServoPlotVisible(selected);		
 	}
 
-	public void unitSelectedChange(boolean selected) {
-		this.setUnitFeet(selected);
-		window.altimeterChart.setPlotUnit(selected);
-		
-		if (flightLog != null) {
-			if (isUnitFeet()) 
-				window.altimeterChart.setAltitudeData(flightLog.getAltitudeFt(), flightLog.logInterval);
-			else
-				window.altimeterChart.setAltitudeData(flightLog.getAltitudeM(), flightLog.logInterval);
-		}
+	public void unitSelectedChange(boolean feetSelected) {
+		AltimeterChart.HeightUnits hu;
+		if (feetSelected) hu = HeightUnits.FT;
+		else hu = HeightUnits.METERS;
+		window.altimeterChart.setHeightUnits(hu);
 	}
 
 	// this is called by the settings menu event handler

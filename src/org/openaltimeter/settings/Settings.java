@@ -13,7 +13,6 @@ public class Settings {
 		OUTPUT_LAUNCH_WINDOW_END_HEIGHT, OUTPUT_BATTERY_VOLTAGE
 	};
 
-	// TODO: this is a fudge
 	public static int SETTINGS_SIZE = 21;
 
 	public int logIntervalMS;
