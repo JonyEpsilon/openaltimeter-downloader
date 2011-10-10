@@ -58,11 +58,11 @@ public final class AltimeterChartMouseListener implements ChartMouseListener
 	          x = xyplot.getDomainCrosshairValue();
 	          y = xyplot.getRangeCrosshairValue();
 
-	          am.AddUserHeightAnnotation(x, y);
+	          am.addUserHeightAnnotation(x, y);
 	                           	                  
 	          int onmask = InputEvent.SHIFT_DOWN_MASK;
 	          if ((event.getTrigger().getModifiersEx() & (onmask)) == onmask) 
-	        	  am.AddUserVarioAnnotation(lastAnnotationX, lastAnnotationY, x, y);
+	        	  am.addUserVarioAnnotation(lastAnnotationX, lastAnnotationY, x, y);
 	     	          
 	          lastAnnotationX = x;
 	          lastAnnotationY = y;

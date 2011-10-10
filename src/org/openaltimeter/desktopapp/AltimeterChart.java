@@ -271,30 +271,31 @@ public class AltimeterChart  {
 		// -- update the data
 		updateAltitudeDataInUserUnits();
 		
-		// -- update the annotations
-		//TODO:::
+		// -- clear the annotations
+		annotationManager.clearAllAnnotations();
 	}
 	
 	private void updateAltitudeDataInUserUnits() {
 		if (altitudeDataInM != null) {
 			altitudeDataInternal = new double[altitudeDataInM.length];
-			for (int i = 0; i < altitudeDataInM.length; i++) {
-				switch (heightUnits) {
-				case METERS:
-				default:
-					altitudeDataInternal[i] = altitudeDataInM[i];
-					break;
-				case FT:
-					altitudeDataInternal[i] = AltitudeConverter.feetFromM(altitudeDataInM[i]);
-					break;
-				}
-			}
+			for (int i = 0; i < altitudeDataInM.length; i++) 
+				altitudeDataInternal[i] = convertToUserHeightUnits(altitudeDataInM[i]);
 			setDataSeries(altitudeDataInternal, altitudeTimeStep, altitudeSeries);
 		}
 	}
-
-	public void clearAnnotations() {
+	
+	// these methods are for adding annotations to the plot programmatically.
+	// they all take heights in meters, the conversion is taken care of here.
+	public void addDLGHeightAnnotation(double time, double heightInM) {
+		annotationManager.addDLGHeightAnnotation(time, convertToUserHeightUnits(heightInM));
+	}
+	
+	public void clearHeightAndVarioAnnotations() {
 		annotationManager.clearHeightAndVarioAnnotations();
+	}
+
+	public void clearAllAnnotations() {
+		annotationManager.clearAllAnnotations();
 	}
 	
 	public void resetAnnotations() {
@@ -308,5 +309,14 @@ public class AltimeterChart  {
 	public double getVisibleDomainUpperBound() {
 		return chart.getXYPlot().getDomainAxis().getUpperBound();
 	}
-
+	
+	private double convertToUserHeightUnits(double heightInM) {
+		switch (heightUnits) {
+		case METERS:
+		default:
+			return heightInM;
+		case FT:
+			return AltitudeConverter.feetFromM(heightInM);
+		}
+	}
 }

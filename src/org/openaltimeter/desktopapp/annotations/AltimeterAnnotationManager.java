@@ -23,30 +23,36 @@ public class AltimeterAnnotationManager {
 		cp.addChartMouseListener(new AltimeterChartMouseListener(cp, this));
 	}
 
-	private XYHeightAnnotation AddHeightAnnotationIntenal(double x, double y, Paint color) {
-		XYHeightAnnotation annotation = new XYHeightAnnotation(String.format("%.1f", y), x, y, color);
+	private XYHeightAnnotation addHeightAnnotationIntenal(double time, double heightInPlotUnits, Paint color) {
+		XYHeightAnnotation annotation = new XYHeightAnnotation(
+				String.format("%.1f", heightInPlotUnits), time, heightInPlotUnits, color);
 		annotation.setTextAnchor(TextAnchor.BOTTOM_CENTER);
 		cp.getChart().getXYPlot().addAnnotation(annotation);
 		return annotation;
 	}
 	
-	public void AddUserHeightAnnotation(double x, double y) {
-		XYHeightAnnotation ann = AddHeightAnnotationIntenal(x, y, Color.BLACK);
+	// these methods for adding annotations take parameters in the plot units, as would be
+	// returned by the mouselistener. 
+	public void addUserHeightAnnotation(double time, double heightInPlotUnits) {
+		XYHeightAnnotation ann = addHeightAnnotationIntenal(time, heightInPlotUnits, Color.BLACK);
 		userHAList.add(ann);
 	}
 	
-	public void AddDLGHeightAnnotation(double x, double y) {
-		XYHeightAnnotation ann = AddHeightAnnotationIntenal(x, y, Color.BLUE);
+	public void addDLGHeightAnnotation(double time, double heightInPlotUnits) {
+		XYHeightAnnotation ann = addHeightAnnotationIntenal(time, heightInPlotUnits, Color.BLUE);
 		dlgHAList.add(ann);
 	}
 
-	public void AddUserVarioAnnotation(double startX, double startY, double endX, double endY) {
-		double vario = (endY - startY) / Math.abs(startX - endX);
-		XYVarioAnnotation line = new XYVarioAnnotation(String.format("%.2f", vario), startX, startY, endX, endY);
+	public void addUserVarioAnnotation(double startTime, double startHeightInPlotUnits, 
+			double endTime, double endHeightInPlotsUnits) {
+		double vario = (endHeightInPlotsUnits - startHeightInPlotUnits) / Math.abs(startTime - endTime);
+		XYVarioAnnotation line = new XYVarioAnnotation(
+				String.format("%.2f", vario), startTime, startHeightInPlotUnits, endTime, endHeightInPlotsUnits);
 		cp.getChart().getXYPlot().addAnnotation(line);
 		userVAList.add(line);
 	}
 
+	// this clears just the user added height and vario annotations
 	public void clearHeightAndVarioAnnotations() {
 		for (XYHeightAnnotation ha : userHAList)
 			cp.getChart().getXYPlot().removeAnnotation(ha);
@@ -55,7 +61,14 @@ public class AltimeterAnnotationManager {
 		userHAList.clear();
 		userVAList.clear();
 	}
+	
+	// this clears everything but the EOF markers.
+	public void clearAllAnnotations() {
+		clearHeightAndVarioAnnotations();		
+	}
 
+	// and this clears absolutely all annotations (including EOF).
+	// this should only be called when changing the plot data.
 	public void resetAnnotations() {
 		cp.getChart().getXYPlot().clearAnnotations();
 		userHAList.clear();

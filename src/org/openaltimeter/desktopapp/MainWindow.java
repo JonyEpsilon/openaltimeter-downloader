@@ -269,7 +269,7 @@ public class MainWindow {
 		mnAnalysis.add(mntmClearAnnotations);
 		mntmClearAnnotations.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				altimeterChart.clearAnnotations();
+				altimeterChart.clearAllAnnotations();
 			}
 		});
 
