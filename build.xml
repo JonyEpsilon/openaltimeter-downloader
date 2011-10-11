@@ -179,5 +179,13 @@
 		<delete dir="build/linux/downloader"/>
 		<delete file="build/openaltimeter_linux_${version}.tgz"/>
 	</target>
-
+	
+	<target name="javadoc">
+	<javadoc packagenames="org.openaltimeter.*"
+	           sourcepath="src"
+	           defaultexcludes="yes"
+	           destdir="docs/javadoc"
+	           use="true"
+	           windowtitle="openaltimeter" />
+	</target>
 </project>

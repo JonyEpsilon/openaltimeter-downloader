@@ -2,3 +2,4 @@ glob:bin/*
 glob:build/*
 syntax: glob
 .DS_Store
+docs/javadoc
