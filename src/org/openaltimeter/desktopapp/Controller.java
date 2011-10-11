@@ -42,6 +42,8 @@ import org.openaltimeter.Altimeter.DownloadTimeoutException;
 import org.openaltimeter.Altimeter.NotAnOpenaltimeterException;
 import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
+import org.openaltimeter.data.analysis.DLGFlight;
+import org.openaltimeter.data.analysis.DLGFlightFinder;
 import org.openaltimeter.desktopapp.AltimeterChart.HeightUnits;
 import org.openaltimeter.desktopapp.MainWindow.DataState;
 import org.openaltimeter.settings.Settings;
@@ -613,5 +615,15 @@ public class Controller {
 	
 	@SuppressWarnings("serial")
 	class FirmwareFlashException extends Exception {}
+
+	public void markDLGFlights() {
+		DLGFlightFinder finder = new DLGFlightFinder();
+		List<DLGFlight> flights = finder.findDLGLaunches(flightLog);
+		for (DLGFlight d : flights) {
+			window.altimeterChart.addDLGHeightAnnotation(d.launchIndex * flightLog.logInterval, d.launchHeight);
+			if (d.launchHeight != d.maxHeight) 
+				window.altimeterChart.addDLGMaxHeightAnnotation(d.maxIndex * flightLog.logInterval, d.maxHeight);
+		}
+	}
 
 }

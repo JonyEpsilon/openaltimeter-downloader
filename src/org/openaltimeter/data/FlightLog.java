@@ -32,7 +32,7 @@ public class FlightLog {
 	public double logInterval = 0.5;
 	
 	private static final int BASE_PRESSURE_SAMPLES = 20;
-	private static final long PRESSURE_EMPTY_DATA = -1;
+	public static final long PRESSURE_EMPTY_DATA = -1;
 	
 	public void add(LogEntry entry) {
 		logData.add(entry);

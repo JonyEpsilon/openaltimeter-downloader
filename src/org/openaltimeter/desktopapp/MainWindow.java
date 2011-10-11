@@ -258,9 +258,19 @@ public class MainWindow {
 		menuBar.add(mnAnalysis);
 		
 		mntmMarkDlgLaunches = new JMenuItem("Mark DLG launches ...");
+		mntmMarkDlgLaunches.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				controller.markDLGFlights();
+			}
+		});
 		mnAnalysis.add(mntmMarkDlgLaunches);
 		
 		mntmClearDlgLaunch = new JMenuItem("Clear DLG launch annotations");
+		mntmClearDlgLaunch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				altimeterChart.clearDLGAnnotations();
+			}
+		});
 		mnAnalysis.add(mntmClearDlgLaunch);
 		
 		mnAnalysis.addSeparator();
@@ -269,7 +279,7 @@ public class MainWindow {
 		mnAnalysis.add(mntmClearAnnotations);
 		mntmClearAnnotations.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				altimeterChart.clearAllAnnotations();
+				altimeterChart.clearHeightAndVarioAnnotations();
 			}
 		});
 

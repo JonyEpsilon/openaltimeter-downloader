@@ -37,12 +37,13 @@ public class AltimeterChart  {
 	
 	public HeightUnits heightUnits = HeightUnits.METERS;
 	
-	private static final Color TEMPERATURE_COLOR = Color.gray;
-	private static final Color SERVO_COLOR = Color.blue;
+	private static final Color TEMPERATURE_COLOR = Color.GRAY;
+	private static final Color SERVO_COLOR = Color.BLUE;
 	private static final Color VOLTAGE_COLOR = new Color(82, 255, 99);
 	private static final Color PRESSURE_COLOR = new Color(56, 136, 255);
 	private static final Color BG_COLOR = new Color(204, 224, 255);
 	private static final float LINE_WIDTH = 1.1f;
+	private static final Color EOF_COLOR = Color.DARK_GRAY;
 	
 	private JFreeChart chart;
 	private JScrollBar domainScrollBar;
@@ -227,7 +228,7 @@ public class AltimeterChart  {
 			public void run() {
 				XYPlot plot = chart.getXYPlot();
 				for(int eofIndex : eofIndices) plot.addAnnotation(
-						new XYDotAnnotation(eofIndex * timeStep, 0.0, 4, Color.DARK_GRAY));
+						new XYDotAnnotation(eofIndex * timeStep, 0.0, 4, EOF_COLOR));
 			}});
 	}
 	
@@ -290,8 +291,16 @@ public class AltimeterChart  {
 		annotationManager.addDLGHeightAnnotation(time, convertToUserHeightUnits(heightInM));
 	}
 	
+	public void addDLGMaxHeightAnnotation(double time, double heightInM) {
+		annotationManager.addDLGMaxHeightAnnotation(time, convertToUserHeightUnits(heightInM));		
+	}
+	
 	public void clearHeightAndVarioAnnotations() {
 		annotationManager.clearHeightAndVarioAnnotations();
+	}
+	
+	public void clearDLGAnnotations() {
+		annotationManager.clearDLGAnnotations();
 	}
 
 	public void clearAllAnnotations() {

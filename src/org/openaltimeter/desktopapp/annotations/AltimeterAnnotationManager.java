@@ -42,6 +42,11 @@ public class AltimeterAnnotationManager {
 		XYHeightAnnotation ann = addHeightAnnotationIntenal(time, heightInPlotUnits, Color.BLUE);
 		dlgHAList.add(ann);
 	}
+	
+	public void addDLGMaxHeightAnnotation(double time, double heightInPlotUnits) {
+		XYHeightAnnotation ann = addHeightAnnotationIntenal(time, heightInPlotUnits, Color.RED);
+		dlgHAList.add(ann);		
+	}
 
 	public void addUserVarioAnnotation(double startTime, double startHeightInPlotUnits, 
 			double endTime, double endHeightInPlotsUnits) {
@@ -62,9 +67,16 @@ public class AltimeterAnnotationManager {
 		userVAList.clear();
 	}
 	
+	public void clearDLGAnnotations() {
+		for (XYHeightAnnotation ha : dlgHAList)
+			cp.getChart().getXYPlot().removeAnnotation(ha);
+		dlgHAList.clear();
+	}
+	
 	// this clears everything but the EOF markers.
 	public void clearAllAnnotations() {
-		clearHeightAndVarioAnnotations();		
+		clearHeightAndVarioAnnotations();
+		clearDLGAnnotations();
 	}
 
 	// and this clears absolutely all annotations (including EOF).
@@ -74,5 +86,7 @@ public class AltimeterAnnotationManager {
 		userHAList.clear();
 		userVAList.clear();
 	}
+
+
 
 }
