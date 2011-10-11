@@ -3,3 +3,4 @@ glob:build/*
 syntax: glob
 .DS_Store
 docs/javadoc
+lib/version.properties
