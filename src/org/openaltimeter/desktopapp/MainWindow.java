@@ -53,7 +53,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import org.openaltimeter.desktopapp.AltimeterChart.HeightUnits;
+import org.openaltimeter.data.HeightUnits;
 import org.openaltimeter.desktopapp.Controller.ConnectionState;
 import org.openaltimeter.desktopapp.Controller.OS;
 
@@ -257,18 +257,19 @@ public class MainWindow {
 		mnAnalysis = new JMenu("Analysis");
 		menuBar.add(mnAnalysis);
 		
-		mntmMarkDlgLaunches = new JMenuItem("Mark DLG launches ...");
+		mntmMarkDlgLaunches = new JMenuItem("Analyse DLG flights ...");
+		mntmMarkDlgLaunches.setEnabled(false);
 		mntmMarkDlgLaunches.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				controller.markDLGFlights();
+				controller.analyseDLGFlights();
 			}
 		});
 		mnAnalysis.add(mntmMarkDlgLaunches);
 		
-		mntmClearDlgLaunch = new JMenuItem("Clear DLG launch annotations");
+		mntmClearDlgLaunch = new JMenuItem("Clear DLG analysis");
 		mntmClearDlgLaunch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				altimeterChart.clearDLGAnnotations();
+				controller.clearDLGAnalysis();
 			}
 		});
 		mnAnalysis.add(mntmClearDlgLaunch);
@@ -481,10 +482,12 @@ public class MainWindow {
 				case NO_DATA: 
 					mntmSaveData.setEnabled(false);
 					mntmSaveSelectionData.setEnabled(false);
+					mntmMarkDlgLaunches.setEnabled(false);
 					break;
 				case HAVE_DATA: 
 					mntmSaveData.setEnabled(true);
 					mntmSaveSelectionData.setEnabled(true);
+					mntmMarkDlgLaunches.setEnabled(true);
 					break;
 				}
 			}

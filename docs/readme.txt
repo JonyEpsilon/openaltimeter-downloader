@@ -12,6 +12,8 @@ This software incorporates rxtx, (C)opyright 1997-2007 by Trent Jarvi <tjarvi@qb
 
 This software incorporates avrdude http://savannah.nongnu.org/projects/avrdude. avrdude is licenced under the GPL General Public Licence v2 http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
 
+This software incorporates Apache Commons Math http://commons.apache.org/math/. Apache Commons Math is licenced under the Apache Licence v2.0 http://www.apache.org/licenses/LICENSE-2.0.txt.
+
 
 Contributions
 =============

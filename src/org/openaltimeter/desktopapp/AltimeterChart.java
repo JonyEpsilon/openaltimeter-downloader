@@ -27,23 +27,20 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.openaltimeter.data.AltitudeConverter;
+import org.openaltimeter.data.HeightUnits;
 import org.openaltimeter.desktopapp.annotations.AltimeterAnnotationManager;
-import org.openaltimeter.desktopapp.annotations.XYDotAnnotation;
 
 
 public class AltimeterChart  {
-	
-	public enum HeightUnits {METERS, FT};
 	
 	public HeightUnits heightUnits = HeightUnits.METERS;
 	
 	private static final Color TEMPERATURE_COLOR = Color.GRAY;
 	private static final Color SERVO_COLOR = Color.BLUE;
 	private static final Color VOLTAGE_COLOR = new Color(82, 255, 99);
-	private static final Color PRESSURE_COLOR = new Color(56, 136, 255);
-	private static final Color BG_COLOR = new Color(204, 224, 255);
+	static final Color PRESSURE_COLOR = new Color(56, 136, 255);
+	static final Color BG_COLOR = new Color(204, 224, 255);
 	private static final float LINE_WIDTH = 1.1f;
-	private static final Color EOF_COLOR = Color.DARK_GRAY;
 	
 	private JFreeChart chart;
 	private JScrollBar domainScrollBar;
@@ -224,12 +221,7 @@ public class AltimeterChart  {
 	// TODO: maybe better to fold this in to the annotation manager?
 	public void addEOFAnnotations(final List<Integer> eofIndices, final double timeStep)
 	{
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				XYPlot plot = chart.getXYPlot();
-				for(int eofIndex : eofIndices) plot.addAnnotation(
-						new XYDotAnnotation(eofIndex * timeStep, 0.0, 4, EOF_COLOR));
-			}});
+		annotationManager.addEOFAnnotations(eofIndices, timeStep);
 	}
 	
 	public void setAltitudePlotVisible(boolean selected) {
@@ -295,11 +287,16 @@ public class AltimeterChart  {
 		annotationManager.addDLGMaxHeightAnnotation(time, convertToUserHeightUnits(heightInM));		
 	}
 	
+
+	public void addDLGStartAnnotation(double time, double heightInM) {
+		annotationManager.addDLGStartAnnotation(time, convertToUserHeightUnits(heightInM));				
+	}
+	
 	public void clearHeightAndVarioAnnotations() {
 		annotationManager.clearHeightAndVarioAnnotations();
 	}
 	
-	public void clearDLGAnnotations() {
+	public void clearDLGAnalysis() {
 		annotationManager.clearDLGAnnotations();
 	}
 
@@ -328,4 +325,5 @@ public class AltimeterChart  {
 			return AltitudeConverter.feetFromM(heightInM);
 		}
 	}
+
 }

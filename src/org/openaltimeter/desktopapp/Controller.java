@@ -42,9 +42,9 @@ import org.openaltimeter.Altimeter.DownloadTimeoutException;
 import org.openaltimeter.Altimeter.NotAnOpenaltimeterException;
 import org.openaltimeter.comms.SerialLink;
 import org.openaltimeter.data.FlightLog;
+import org.openaltimeter.data.HeightUnits;
 import org.openaltimeter.data.analysis.DLGFlight;
-import org.openaltimeter.data.analysis.DLGFlightFinder;
-import org.openaltimeter.desktopapp.AltimeterChart.HeightUnits;
+import org.openaltimeter.data.analysis.DLGFlightAnalyser;
 import org.openaltimeter.desktopapp.MainWindow.DataState;
 import org.openaltimeter.settings.Settings;
 
@@ -63,6 +63,7 @@ public class Controller {
 	FlightLog flightLog;
 	public String versionNumber = "";
 	public String firmwareVersionNumber = "";
+	HeightUnits hu;
 
 	/**
 	 * @param args
@@ -362,7 +363,6 @@ public class Controller {
 	}
 
 	public void unitSelectedChange(boolean feetSelected) {
-		AltimeterChart.HeightUnits hu;
 		if (feetSelected) hu = HeightUnits.FT;
 		else hu = HeightUnits.METERS;
 		window.altimeterChart.setHeightUnits(hu);
@@ -616,14 +616,33 @@ public class Controller {
 	@SuppressWarnings("serial")
 	class FirmwareFlashException extends Exception {}
 
-	public void markDLGFlights() {
-		DLGFlightFinder finder = new DLGFlightFinder();
-		List<DLGFlight> flights = finder.findDLGLaunches(flightLog);
+	public void analyseDLGFlights() {
+		window.altimeterChart.clearDLGAnalysis();
+		DLGFlightAnalyser finder = new DLGFlightAnalyser();
+		List<DLGFlight> flights = finder.findDLGLaunches(flightLog.getAltitude(), flightLog.logInterval);
+		// correct the launch heights
+		double[] newAltData = finder.correctDLGBaseline(flightLog.getAltitude(), flights);
+		flightLog.setAltitude(newAltData);
+		// update the plot
+		window.altimeterChart.setAltitudeData(flightLog.getAltitude(), flightLog.logInterval);
+		// plot the annotations
 		for (DLGFlight d : flights) {
 			window.altimeterChart.addDLGHeightAnnotation(d.launchIndex * flightLog.logInterval, d.launchHeight);
 			if (d.launchHeight != d.maxHeight) 
 				window.altimeterChart.addDLGMaxHeightAnnotation(d.maxIndex * flightLog.logInterval, d.maxHeight);
+			window.altimeterChart.addDLGStartAnnotation(d.startIndex * flightLog.logInterval, d.startHeight);
 		}
+		
+		// show the analysis results
+		DLGAnalysisResultsWindow resWin = new DLGAnalysisResultsWindow(flights);
+		resWin.setVisible(true);
+	}
+
+	public void clearDLGAnalysis() {
+		window.altimeterChart.clearDLGAnalysis();
+		// undo the baseline correction
+		flightLog.calculateAltitudes();
+		window.altimeterChart.setAltitudeData(flightLog.getAltitude(), flightLog.logInterval);
 	}
 
 }

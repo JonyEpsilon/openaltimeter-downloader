@@ -30,6 +30,9 @@ public class FlightLog {
  
 	public ArrayList<LogEntry> logData = new ArrayList<LogEntry>();
 	public double logInterval = 0.5;
+	// altitudes are initially calculated from the pressure data, but can be
+	// subsequently modified by analysis functions.
+	public double[] altitudes;
 	
 	private static final int BASE_PRESSURE_SAMPLES = 20;
 	public static final long PRESSURE_EMPTY_DATA = -1;
@@ -77,14 +80,20 @@ public class FlightLog {
 			else 
 				basePressure = 0;
 		}
+		
+		int numPoints = logData.size();
+		altitudes = new double[numPoints];
+		for (int i = 0; i < numPoints; i++) 
+			altitudes[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).altitude : 0;
 	}
 
 	
 	public double[] getAltitude() {
-		int numPoints = logData.size();
-		double[] data = new double[numPoints];
-		for (int i = 0; i < numPoints; i++) data[i] = logData.get(i).pressure != PRESSURE_EMPTY_DATA ? logData.get(i).altitude : 0;
-		return data;
+		return altitudes;
+	}
+	
+	public void setAltitude(double[] altData) {
+		altitudes = altData;	
 	}
 	
 	public double[] getBattery()

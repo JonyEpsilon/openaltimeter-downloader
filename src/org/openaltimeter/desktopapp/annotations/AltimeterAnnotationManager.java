@@ -3,16 +3,22 @@ package org.openaltimeter.desktopapp.annotations;
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.TextAnchor;
 
 public class AltimeterAnnotationManager {
 
+	private static final Color EOF_COLOR = Color.DARK_GRAY;
+
 	private ChartPanel cp;
+	private ArrayList<XYAnnotation> eofAList = new ArrayList<XYAnnotation>();
 	private ArrayList<XYHeightAnnotation> userHAList = new ArrayList<XYHeightAnnotation>();
 	private ArrayList<XYVarioAnnotation> userVAList = new ArrayList<XYVarioAnnotation>();
-	private ArrayList<XYHeightAnnotation> dlgHAList = new ArrayList<XYHeightAnnotation>();
+	private ArrayList<XYAnnotation> dlgAList = new ArrayList<XYAnnotation>();
 
 	public AltimeterAnnotationManager(ChartPanel cp) {
 		this.cp = cp;
@@ -40,12 +46,19 @@ public class AltimeterAnnotationManager {
 	
 	public void addDLGHeightAnnotation(double time, double heightInPlotUnits) {
 		XYHeightAnnotation ann = addHeightAnnotationIntenal(time, heightInPlotUnits, Color.BLUE);
-		dlgHAList.add(ann);
+		dlgAList.add(ann);
 	}
 	
 	public void addDLGMaxHeightAnnotation(double time, double heightInPlotUnits) {
 		XYHeightAnnotation ann = addHeightAnnotationIntenal(time, heightInPlotUnits, Color.RED);
-		dlgHAList.add(ann);		
+		dlgAList.add(ann);		
+	}
+	
+
+	public void addDLGStartAnnotation(double time, double heightInPlotUnits) {
+		XYDotAnnotation ann = new XYDotAnnotation(time, heightInPlotUnits, 4, Color.BLUE);
+		cp.getChart().getXYPlot().addAnnotation(ann);
+		dlgAList.add(ann);	
 	}
 
 	public void addUserVarioAnnotation(double startTime, double startHeightInPlotUnits, 
@@ -56,27 +69,51 @@ public class AltimeterAnnotationManager {
 		cp.getChart().getXYPlot().addAnnotation(line);
 		userVAList.add(line);
 	}
+	
+	public void addEOFAnnotations(final List<Integer> eofIndices, final double timeStep)
+	{
+		XYPlot plot = cp.getChart().getXYPlot();
+		for(int eofIndex : eofIndices) {
+			XYAnnotation ann = new XYDotAnnotation(eofIndex * timeStep, 0.0, 4, EOF_COLOR);
+			plot.addAnnotation(ann);
+			eofAList.add(ann);
+		}
+	}
 
+	// ** These "clear" methods are a little bit quirky.
+	// We work around a bug in JFreeChart's remove annotation method
+	// by removing all annotations and then adding back the ones that
+	// we didn't want to clear.
+	
 	// this clears just the user added height and vario annotations
+	private void restoreAllAnnotations() {
+		XYPlot plot = cp.getChart().getXYPlot();
+		for (XYAnnotation ann : userHAList) plot.addAnnotation(ann);
+		for (XYAnnotation ann : userVAList) plot.addAnnotation(ann);
+		for (XYAnnotation ann : dlgAList) plot.addAnnotation(ann);
+		for (XYAnnotation ann : eofAList) plot.addAnnotation(ann);
+	}
+	
 	public void clearHeightAndVarioAnnotations() {
-		for (XYHeightAnnotation ha : userHAList)
-			cp.getChart().getXYPlot().removeAnnotation(ha);
-		for (XYVarioAnnotation va : userVAList)
-			cp.getChart().getXYPlot().removeAnnotation(va);
+		cp.getChart().getXYPlot().clearAnnotations();
 		userHAList.clear();
 		userVAList.clear();
+		restoreAllAnnotations();
 	}
 	
 	public void clearDLGAnnotations() {
-		for (XYHeightAnnotation ha : dlgHAList)
-			cp.getChart().getXYPlot().removeAnnotation(ha);
-		dlgHAList.clear();
+		cp.getChart().getXYPlot().clearAnnotations();
+		dlgAList.clear();
+		restoreAllAnnotations();
 	}
 	
 	// this clears everything but the EOF markers.
 	public void clearAllAnnotations() {
-		clearHeightAndVarioAnnotations();
-		clearDLGAnnotations();
+		cp.getChart().getXYPlot().clearAnnotations();
+		userHAList.clear();
+		userVAList.clear();
+		dlgAList.clear();
+		restoreAllAnnotations();
 	}
 
 	// and this clears absolutely all annotations (including EOF).
@@ -85,8 +122,8 @@ public class AltimeterAnnotationManager {
 		cp.getChart().getXYPlot().clearAnnotations();
 		userHAList.clear();
 		userVAList.clear();
+		dlgAList.clear();
+		eofAList.clear();
 	}
-
-
 
 }
