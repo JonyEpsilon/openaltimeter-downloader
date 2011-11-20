@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.prefs.Preferences;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -63,11 +64,18 @@ public class Controller {
 	FlightLog flightLog;
 	public String versionNumber = "";
 	public String firmwareVersionNumber = "";
-	HeightUnits hu;
+	private HeightUnits hu;
+	public HeightUnits getHeightUnits() {
+		return hu;
+	}
 
-	/**
-	 * @param args
-	 */
+	public void setHeightUnits(HeightUnits hu) {
+		this.hu = hu;
+	}
+
+	private Preferences prefs;
+	private static final String PREF_HEIGHT_UNITS = "PREF_HEIGHT_UNITS";
+
 	public static void main(String[] args) {
 		try {
 			Controller c = new Controller();
@@ -105,6 +113,11 @@ public class Controller {
 			// e.printStackTrace();
 		}
 		
+		// load Controller preferences
+		prefs = Preferences.userNodeForPackage(this.getClass());
+		String s = prefs.get(PREF_HEIGHT_UNITS, "FT");
+		setHeightUnits(HeightUnits.valueOf(s));
+		
 		window = new MainWindow();
 		window.controller = this;
 		window.initialise();
@@ -114,6 +127,15 @@ public class Controller {
 		buildSerialMenu();
 		Controller.log("Graph hints: drag over area to zoom in, drag up and left to zoom out, click to annotate height, " +
 						"shift-click to annotate vario. Annotations can be cleared from analysis menu.", "help");
+	}
+	
+	// called by the main window when the app is shutting down.
+	public void appStopping() {
+		savePreferences();
+	}
+	
+	private void savePreferences() {
+		prefs.put(PREF_HEIGHT_UNITS, getHeightUnits().name());
 	}
 	
 	private void setConnectionState(ConnectionState state) {
@@ -362,10 +384,9 @@ public class Controller {
 		window.altimeterChart.setServoPlotVisible(selected);		
 	}
 
-	public void unitSelectedChange(boolean feetSelected) {
-		if (feetSelected) hu = HeightUnits.FT;
-		else hu = HeightUnits.METERS;
-		window.altimeterChart.setHeightUnits(hu);
+	public void unitSelectedChange(HeightUnits unitsSelected) {
+		setHeightUnits(unitsSelected);
+		window.altimeterChart.setHeightUnits(unitsSelected);
 	}
 
 	// this is called by the settings menu event handler
@@ -618,24 +639,43 @@ public class Controller {
 
 	public void analyseDLGFlights() {
 		window.altimeterChart.clearDLGAnalysis();
-		DLGFlightAnalyser finder = new DLGFlightAnalyser();
-		List<DLGFlight> flights = finder.findDLGLaunches(flightLog.getAltitude(), flightLog.logInterval);
-		// correct the launch heights
-		double[] newAltData = finder.correctDLGBaseline(flightLog.getAltitude(), flights);
-		flightLog.setAltitude(newAltData);
-		// update the plot
-		window.altimeterChart.setAltitudeData(flightLog.getAltitude(), flightLog.logInterval);
-		// plot the annotations
-		for (DLGFlight d : flights) {
-			window.altimeterChart.addDLGHeightAnnotation(d.launchIndex * flightLog.logInterval, d.launchHeight);
-			if (d.launchHeight != d.maxHeight) 
-				window.altimeterChart.addDLGMaxHeightAnnotation(d.maxIndex * flightLog.logInterval, d.maxHeight);
-			window.altimeterChart.addDLGStartAnnotation(d.startIndex * flightLog.logInterval, d.startHeight);
-		}
 		
-		// show the analysis results
-		DLGAnalysisResultsWindow resWin = new DLGAnalysisResultsWindow(flights);
-		resWin.setVisible(true);
+		// ask the user which parts of the analysis they wish to carry out
+		DLGAnalysisDialog dialog = new DLGAnalysisDialog(this);
+		dialog.setVisible(true);
+		if (dialog.isSuccessful()) {	
+			DLGFlightAnalyser finder = new DLGFlightAnalyser();
+			List<DLGFlight> flights = finder.findDLGLaunches(flightLog.getAltitude(), flightLog.logInterval);
+			if (dialog.shouldCorrectBaseline()) {
+				// correct the launch heights
+				double[] newAltData = finder.correctDLGBaseline(flightLog.getAltitude(), flights);
+				flightLog.setAltitude(newAltData);
+				// update the plot
+				window.altimeterChart.setAltitudeData(flightLog.getAltitude(), flightLog.logInterval);
+			}
+			
+			// plot the annotations
+			if (dialog.shouldMarkLaunchHeights()) {
+				for (DLGFlight d : flights) 
+					window.altimeterChart.addDLGHeightAnnotation(d.launchIndex * flightLog.logInterval, d.launchHeight);
+			}
+			
+			if (dialog.shouldMarkMaxHeights()) {
+				for (DLGFlight d : flights) {
+					if (d.launchHeight != d.maxHeight) 
+						window.altimeterChart.addDLGMaxHeightAnnotation(d.maxIndex * flightLog.logInterval, d.maxHeight);
+				}
+			}
+			
+			for (DLGFlight d: flights)
+				window.altimeterChart.addDLGStartAnnotation(d.startIndex * flightLog.logInterval, d.startHeight);
+
+			if (dialog.shouldShowStatistics()) {
+				// show the analysis results
+				DLGAnalysisResultsWindow resWin = new DLGAnalysisResultsWindow(flights);
+				resWin.setVisible(true);
+			}
+		}
 	}
 
 	public void clearDLGAnalysis() {

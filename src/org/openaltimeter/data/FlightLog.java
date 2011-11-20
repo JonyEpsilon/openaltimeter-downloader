@@ -31,7 +31,7 @@ public class FlightLog {
 	public ArrayList<LogEntry> logData = new ArrayList<LogEntry>();
 	public double logInterval = 0.5;
 	// altitudes are initially calculated from the pressure data, but can be
-	// subsequently modified by analysis functions.
+	// subsequently modified by analysis functions. Altitudes are stored in meters.
 	public double[] altitudes;
 	
 	private static final int BASE_PRESSURE_SAMPLES = 20;

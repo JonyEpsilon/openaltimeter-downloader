@@ -88,7 +88,6 @@ public class MainWindow {
 	private static final String PREF_SHOW_TEMPERATURE = "PREF_SHOW_TEMPERATURE";
 	private static final String PREF_SHOW_VOLTAGE = "PREF_SHOW_VOLTAGE";
 	private static final String PREF_SHOW_SERVO = "PREF_SHOW_SERVO";
-	private static final String PREF_UNIT_FEET = "PREF_UNIT_FEET";
 	private static final String PREF_WINDOW_X = "PREF_WINDOW_X";
 	private static final String PREF_WINDOW_Y = "PREF_WINDOW_Y";
 	private static final String PREF_WINDOW_WIDTH = "PREF_WINDOW_WIDTH";
@@ -230,14 +229,17 @@ public class MainWindow {
 		ButtonGroup heightUnitsGroup = new ButtonGroup();
 		
 		// TODO: this currently limits us to two unit systems.
-		boolean unitsAreFeet = prefs.getBoolean(PREF_UNIT_FEET, true);
+		HeightUnits units = controller.getHeightUnits();
 		
 		rdbtnmntmFeet = new JRadioButtonMenuItem("Feet");
 		rdbtnmntmFeet.setEnabled(true);
-		rdbtnmntmFeet.setSelected(unitsAreFeet);
+		rdbtnmntmFeet.setSelected(units == HeightUnits.FT);
 		rdbtnmntmFeet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				controller.unitSelectedChange(rdbtnmntmFeet.isSelected());
+				HeightUnits hu;
+				if (rdbtnmntmFeet.isSelected()) hu = HeightUnits.FT;
+				else hu = HeightUnits.METERS;
+				controller.unitSelectedChange(hu);
 			}
 		});
 		heightUnitsGroup.add(rdbtnmntmFeet);
@@ -245,11 +247,13 @@ public class MainWindow {
 		
 		rdbtnmntmMetres = new JRadioButtonMenuItem("Metres");
 		rdbtnmntmMetres.setEnabled(true);
-		rdbtnmntmMetres.setSelected(!unitsAreFeet);
+		rdbtnmntmMetres.setSelected(units == HeightUnits.METERS);
 		rdbtnmntmMetres.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				controller.unitSelectedChange(rdbtnmntmFeet.isSelected());
-			}
+				HeightUnits hu;
+				if (rdbtnmntmFeet.isSelected()) hu = HeightUnits.FT;
+				else hu = HeightUnits.METERS;
+				controller.unitSelectedChange(hu);			}
 		});
 		heightUnitsGroup.add(rdbtnmntmMetres);
 		mnView.add(rdbtnmntmMetres);
@@ -374,10 +378,7 @@ public class MainWindow {
 		frmOpenaltimeter.getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		altimeterChart = new AltimeterChart();
-		HeightUnits hu;
-		if (unitsAreFeet) hu = HeightUnits.FT;
-		else hu = HeightUnits.METERS;
-		altimeterChart.setHeightUnits(hu);
+		altimeterChart.setHeightUnits(units);
 		splitPane.setTopComponent(altimeterChart.getChartPanel());
 
 		altimeterChart.setVoltagePlotVisible(prefs.getBoolean(PREF_SHOW_VOLTAGE, false));
@@ -497,6 +498,7 @@ public class MainWindow {
 	public void close()
 	{
 		setPreferences();
+		controller.appStopping();
 		frmOpenaltimeter.dispose();
 	}
 
@@ -504,7 +506,6 @@ public class MainWindow {
 		prefs.putBoolean(PREF_SHOW_TEMPERATURE,chckbxmntmTemperature.isSelected());
 		prefs.putBoolean(PREF_SHOW_VOLTAGE,chckbxmntmVoltage.isSelected());
 		prefs.putBoolean(PREF_SHOW_SERVO, chckbxmntmServo.isSelected());
-		prefs.putBoolean(PREF_UNIT_FEET, rdbtnmntmFeet.isSelected());
 		prefs.putInt(PREF_WINDOW_X, frmOpenaltimeter.getX());
 		prefs.putInt(PREF_WINDOW_Y, frmOpenaltimeter.getY());
 		prefs.putInt(PREF_WINDOW_WIDTH, frmOpenaltimeter.getWidth());
