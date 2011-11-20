@@ -183,6 +183,7 @@ public class Altimeter {
 		for (String line : lines) {
 			serial.write('u');
 			serial.write(line + "*");
+			System.out.println("u" + line + "*");
 			try {Thread.sleep(150);} catch (InterruptedException e) {}		
 		}
 		serial.clearInput();

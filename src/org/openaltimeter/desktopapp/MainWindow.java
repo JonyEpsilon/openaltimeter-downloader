@@ -353,7 +353,6 @@ public class MainWindow {
 		mnLogger.add(mntmFlashFirmware);
 		
 		mnAdvanced = new JMenu("Advanced");
-		mnAdvanced.setVisible(false);
 		menuBar.add(mnAdvanced);
 		
 		mntmUploadSelectionerases = new JMenuItem("Upload selection (erases OA)");
@@ -361,7 +360,7 @@ public class MainWindow {
 		mntmUploadSelectionerases.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.uploadSelection(altimeterChart.getVisibleDomainLowerBound(),
-						altimeterChart.getVisibleDomainLowerBound());
+						altimeterChart.getVisibleDomainUpperBound());
 			}
 		});
 		mnAdvanced.add(mntmUploadSelectionerases);

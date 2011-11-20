@@ -58,12 +58,13 @@ public class DLGAnalysisDialog extends JDialog {
 	}
 
 	public DLGAnalysisDialog(final Controller controller) {
+		setResizable(false);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(DLGAnalysisDialog.class.getResource("/logo_short_64.png")));
 		setModal(true);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setTitle("DLG flight analysis");
-		setBounds(100, 100, 292, 184);
+		setBounds(100, 100, 282, 178);
 		getContentPane().setLayout(null);
 
 		JPanel panel = new JPanel();

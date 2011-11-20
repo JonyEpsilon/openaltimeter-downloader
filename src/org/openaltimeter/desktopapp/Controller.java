@@ -672,7 +672,7 @@ public class Controller {
 
 			if (dialog.shouldShowStatistics()) {
 				// show the analysis results
-				DLGAnalysisResultsWindow resWin = new DLGAnalysisResultsWindow(flights);
+				DLGAnalysisResultsWindow resWin = new DLGAnalysisResultsWindow(flights, getHeightUnits());
 				resWin.setVisible(true);
 			}
 		}

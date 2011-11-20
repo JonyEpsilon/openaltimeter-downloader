@@ -22,6 +22,8 @@ import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
+import org.openaltimeter.data.AltitudeConverter;
+import org.openaltimeter.data.HeightUnits;
 import org.openaltimeter.data.analysis.DLGFlight;
 
 @SuppressWarnings("serial")
@@ -31,11 +33,17 @@ public class DLGAnalysisResultsWindow extends JFrame {
 	private HistogramDataset hds;
 	private JFreeChart chart;
 	List<DLGFlight> flights;
+	HeightUnits units;
 	private DescriptiveStatistics ds;
 	private String statisticsText;
+	private String unitString;
 
-	public DLGAnalysisResultsWindow(List<DLGFlight> flights) {
+	public DLGAnalysisResultsWindow(List<DLGFlight> flights, HeightUnits units) {
+		setResizable(false);
 		this.flights = flights;
+		this.units = units;
+		if (units == HeightUnits.FT) unitString = "ft";
+		else unitString = "m";
 		prepareData();
 		makeGUI();
 	}
@@ -44,13 +52,13 @@ public class DLGAnalysisResultsWindow extends JFrame {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(DLGAnalysisDialog.class.getResource("/logo_short_64.png")));
 		setTitle("DLG flight analysis");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 663, 494);
+		setBounds(100, 100, 649, 480);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 				
 		chart = ChartFactory.createHistogram(null,
-				"Height (m)", 
+				"Height (" + unitString + ")", 
 				"Frequency", 
 				hds, 
 				PlotOrientation.VERTICAL, 
@@ -62,7 +70,7 @@ public class DLGAnalysisResultsWindow extends JFrame {
         plot.setRangeGridlinesVisible(false);
         plot.setBackgroundPaint(AltimeterChart.BG_COLOR);
              
-		NumberAxis axisD = new NumberAxis("Launch height (m)");
+		NumberAxis axisD = new NumberAxis("Launch height (" + unitString + ")");
 		axisD.setAutoRange(true);
         plot.setDomainAxis(axisD);
 		NumberAxis axisR = new NumberAxis("Frequency");
@@ -92,15 +100,18 @@ public class DLGAnalysisResultsWindow extends JFrame {
 		// extract launch height data
 		double[] heights = new double[flights.size()];
 		for (int i = 0; i < flights.size(); i++) heights[i] = flights.get(i).launchHeight;
+		if (units == HeightUnits.FT) {
+			for  (int i = 0; i < flights.size(); i++) heights[i] = AltitudeConverter.feetFromM(heights[i]);
+		}
 		// prepare stats
 		NumberFormat df = DecimalFormat.getInstance();
 		df.setMaximumFractionDigits(1);
 		ds = new DescriptiveStatistics(heights);
 		statisticsText = "Number of launches: " + ds.getN() + "\n" +
-				"Mean launch height: " + df.format(ds.getMean()) + " m\n" +
-				"Standard deviation: " + df.format(ds.getStandardDeviation()) + " m\n" +
-				"Median launch height: " + df.format(ds.getPercentile(50)) + " m\n" +
-				"Max launch height: " + df.format(ds.getMax()) + " m\n";
+				"Mean launch height: " + df.format(ds.getMean()) + " " + unitString + "\n" +
+				"Standard deviation: " + df.format(ds.getStandardDeviation()) + " " + unitString + "\n" +
+				"Median launch height: " + df.format(ds.getPercentile(50)) + " " + unitString + "\n" +
+				"Max launch height: " + df.format(ds.getMax()) + " " + unitString + "\n";
 
 		// prepare
 		hds = new HistogramDataset();
