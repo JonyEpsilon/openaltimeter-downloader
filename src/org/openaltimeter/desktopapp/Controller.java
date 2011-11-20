@@ -174,7 +174,7 @@ public class Controller {
 					// this is where we test for the firmware versions that are compatible with this
 					// release of the downloader. If they aren't compatible then we try and start the
 					// upgrade process.
-					if (!altimeter.firmwareVersion.equals("V6")) 
+					if (!altimeter.firmwareVersion.equals("V7")) 
 					{
 						if (!adviseFirmwareUpgrade()) return;
 					}
