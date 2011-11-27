@@ -27,6 +27,8 @@ mycarda
 Changelog
 =========
 
+2.0.1.0: fix bug which prevents statistics window from opening.
+
 2.0.0.0: add support for annotating plots, and functions to automatically analyse DLG flights. New firmware version V7.
 
 1.2.0.0: new switch configuration settings to support firmware V6. Version of downloader and bundled firmware now shown in title bar. Support for the longer erase commands used by firmware V6. Super-secret hidden debugging tools (see the Hg commit messages!)
