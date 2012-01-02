@@ -44,6 +44,7 @@ public class XYVarioAnnotation extends XYLineAnnotation {
 	 */
 	private static final long serialVersionUID = -6423311354784455761L;
 	private static final int OFFSET_SIZE = 10;
+	private static final int LIMB_TEXT_OFFSET = 5;
 	private int offset = OFFSET_SIZE;
 	private double x1;
 	private double x2;
@@ -52,6 +53,7 @@ public class XYVarioAnnotation extends XYLineAnnotation {
 	
 	private Font font = XYTextAnnotation.DEFAULT_FONT;
 	private String text;
+	private String text2;
 	private TextAnchor textAnchor;
 	private TextAnchor rotationAnchor;
 	private double rotationAngle;
@@ -67,6 +69,10 @@ public class XYVarioAnnotation extends XYLineAnnotation {
 
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public void setText2(String text2) {
+		this.text2 = text2;
 	}
 
 	public TextAnchor getTextAnchor() {
@@ -105,12 +111,16 @@ public class XYVarioAnnotation extends XYLineAnnotation {
 		return text;
 	}
 
-	public XYVarioAnnotation(String text, double x1, double y1, double x2, double y2) 
+	public String getText2() {
+		return text2;
+	}
+
+	public XYVarioAnnotation(String text, String text2, double x1, double y1, double x2, double y2) 
 	{
-		this(text, x1, y1, x2, y2, new BasicStroke(1.0f), Color.black);
+		this(text, text2, x1, y1, x2, y2, new BasicStroke(1.0f), Color.black);
 	}
 		
-	public XYVarioAnnotation(String text, double x1, double y1, double x2, double y2,
+	public XYVarioAnnotation(String text, String text2, double x1, double y1, double x2, double y2,
 				 			Stroke stroke, Paint paint) 
 	{
 		super(x1, y1, x2, y2, stroke, paint);
@@ -126,6 +136,7 @@ public class XYVarioAnnotation extends XYLineAnnotation {
 		
 		this.setPaint(paint);
 		this.setText(text);
+		this.setText2(text2);
 	}
 
 	/* Based on XYTextAnnotation draw method */
@@ -150,11 +161,25 @@ public class XYVarioAnnotation extends XYLineAnnotation {
 			anchorX = anchorY;
 			anchorY = tempAnchor;
         }
-    
+		  
         g2.setFont(getFont());
 		g2.setPaint(getPaint());
-		TextUtilities.drawRotatedString(getText(), g2, anchorX + this.offset, anchorY - OFFSET_SIZE,
-										getTextAnchor(), getRotationAngle(), getRotationAnchor());
+
+		TextUtilities.drawRotatedString(getText(), g2, 
+				anchorX + this.offset, anchorY - OFFSET_SIZE, getTextAnchor(), getRotationAngle(), getRotationAnchor());
+		
+		g2.setPaint(Color.GRAY);
+		int jx1 = (int) domainAxis.valueToJava2D(x1,dataArea,domainEdge);
+		int jx2 = (int) domainAxis.valueToJava2D(x2,dataArea,domainEdge);
+		int jy1 = (int) rangeAxis.valueToJava2D(y1,dataArea,rangeEdge);
+		int jy2 = (int) rangeAxis.valueToJava2D(y2,dataArea,rangeEdge);
+		
+		TextUtilities.drawRotatedString(getText2(), g2, 
+				(jx1 + jx2) / 2, jy1 + LIMB_TEXT_OFFSET, getTextAnchor(), getRotationAngle(), getRotationAnchor());
+		
+		g2.drawLine(jx1, jy1, jx2, jy1);
+		g2.drawLine(jx2, jy1, jx2, jy2);
+	
 	}
 
 }

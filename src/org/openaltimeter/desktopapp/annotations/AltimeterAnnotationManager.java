@@ -64,8 +64,10 @@ public class AltimeterAnnotationManager {
 	public void addUserVarioAnnotation(double startTime, double startHeightInPlotUnits, 
 			double endTime, double endHeightInPlotsUnits) {
 		double vario = (endHeightInPlotsUnits - startHeightInPlotUnits) / Math.abs(startTime - endTime);
+		String varioText = String.format("%.2f", vario);
+		String timeText = String.format("%.1f", Math.abs(startTime - endTime)) + "s";
 		XYVarioAnnotation line = new XYVarioAnnotation(
-				String.format("%.2f", vario), startTime, startHeightInPlotUnits, endTime, endHeightInPlotsUnits);
+				varioText, timeText, startTime, startHeightInPlotUnits, endTime, endHeightInPlotsUnits);
 		cp.getChart().getXYPlot().addAnnotation(line);
 		userVAList.add(line);
 	}

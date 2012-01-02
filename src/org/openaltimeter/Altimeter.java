@@ -186,7 +186,7 @@ public class Altimeter {
 			System.out.println("u" + line + "*");
 			try {Thread.sleep(150);} catch (InterruptedException e) {}		
 		}
-		serial.clearInput();
+		//serial.clearInput();
 		serial.write('o');
 		try {Thread.sleep(15000);} catch (InterruptedException e) {}		
 		Controller.log(serial.readString(2048), "altimeter");
