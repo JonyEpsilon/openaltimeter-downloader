@@ -27,6 +27,8 @@ mycarda
 Changelog
 =========
 
+2.1.0.0: improve vario annotations to show time period. New firmware version V8.
+
 2.0.1.0: fix bug which prevents statistics window from opening.
 
 2.0.0.0: add support for annotating plots, and functions to automatically analyse DLG flights. New firmware version V7.
