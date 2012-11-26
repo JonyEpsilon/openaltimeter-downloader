@@ -89,7 +89,7 @@ public class DLGAnalysisResultsWindow extends JFrame {
 		contentPane.add(cp);
 		
 		JTextArea textArea = new JTextArea();
-		textArea.setBounds(414, 0, 233, 456);
+		textArea.setBounds(414, 6, 233, 450);
 		textArea.setEditable(false);
 		textArea.setText(statisticsText);
 		textArea.setFont(new Font(Font.MONOSPACED,Font.PLAIN, 12));

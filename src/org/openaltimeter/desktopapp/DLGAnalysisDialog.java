@@ -78,7 +78,7 @@ public class DLGAnalysisDialog extends JDialog {
 		
 		chckbxMarkMaximumHeights = new JCheckBox("Mark maximum heights");
 		chckbxMarkMaximumHeights.setSelected(true);
-		chckbxMarkMaximumHeights.setBounds(6, 33, 153, 23);
+		chckbxMarkMaximumHeights.setBounds(6, 33, 250, 23);
 		getContentPane().add(chckbxMarkMaximumHeights);
 		
 		chckbxCorrectBaselineFor = new JCheckBox("Correct baseline for weather shifts");
@@ -88,7 +88,7 @@ public class DLGAnalysisDialog extends JDialog {
 		
 		chckbxShowStatistics = new JCheckBox("Show launch statistics window");
 		chckbxShowStatistics.setSelected(true);
-		chckbxShowStatistics.setBounds(6, 85, 180, 23);
+		chckbxShowStatistics.setBounds(6, 85, 250, 23);
 		getContentPane().add(chckbxShowStatistics);
 		
 		JButton btnRun = new JButton("Run");

@@ -353,7 +353,6 @@ public class MainWindow {
 		mnLogger.add(mntmFlashFirmware);
 		
 		mnAdvanced = new JMenu("Advanced");
-		mnAdvanced.setVisible(false);
 		menuBar.add(mnAdvanced);
 		
 		mntmUploadSelectionerases = new JMenuItem("Upload selection (erases OA)");
