@@ -103,6 +103,7 @@ public class Controller {
 		try {
 			prop.load(new FileInputStream("version.properties"));
 			versionNumber = prop.getProperty("version");
+			System.out.println("OA version: " + versionNumber);
 			firmwareVersionNumber = prop.getProperty("firmware_version");
 		} catch (Exception e) {
 			// If anything at all goes wrong here we just ignore it and use the default values
@@ -110,7 +111,7 @@ public class Controller {
 			// always fails.
 			// TODO: this is a limitation of the way things are currently built. The problem
 			// is the lib directory.
-			// e.printStackTrace();
+//			 e.printStackTrace();
 		}
 		
 		// load Controller preferences
@@ -174,7 +175,7 @@ public class Controller {
 					// this is where we test for the firmware versions that are compatible with this
 					// release of the downloader. If they aren't compatible then we try and start the
 					// upgrade process.
-					if (!altimeter.firmwareVersion.equals("V7")) 
+					if (!altimeter.firmwareVersion.equals("V8")) 
 					{
 						if (!adviseFirmwareUpgrade()) return;
 					}

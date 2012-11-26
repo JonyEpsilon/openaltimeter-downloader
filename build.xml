@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="Windows build" name="Build and deploy script">
 	
-	<property name="version" value="2.0.1.0"/>
-	<property name="firmware_version" value="V7"/>
+	<property name="version" value="2.1.0.0"/>
+	<property name="firmware_version" value="V8"/>
 	<property name="launch4j.dir" location="C:\Program Files (x86)\Launch4j"/>
 
 	<taskdef name="launch4j"
